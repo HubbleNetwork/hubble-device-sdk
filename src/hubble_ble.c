@@ -12,6 +12,7 @@
 #include <stdio.h>
 #include <string.h>
 
+#include <hubble/hubble.h>
 #include <hubble/ble.h>
 #include <hubble/port/sys.h>
 #include <hubble/port/crypto.h>
@@ -97,4 +98,15 @@ int hubble_ble_advertise_get(const uint8_t *input, size_t input_len,
 		   HUBBLE_BLE_AUTH_TAG_SIZE + input_len;
 
 	return err;
+}
+
+uint32_t hubble_ble_advertise_expiration_get(void)
+{
+	uint64_t rotation_period_ms =
+		(uint64_t)CONFIG_HUBBLE_EID_ROTATION_PERIOD_SEC * 1000ULL;
+	uint64_t time_ms = hubble_utc_get();
+	uint64_t time_in_current_period = time_ms % rotation_period_ms;
+	uint64_t time_remaining = rotation_period_ms - time_in_current_period;
+
+	return HUBBLE_MIN(time_remaining, UINT32_MAX);
 }

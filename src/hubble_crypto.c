@@ -24,12 +24,6 @@
 #define _NONCE_SIZE    12U
 #define _AUTH_TAG_SIZE 16U
 
-#if defined(CONFIG_HUBBLE_NETWORK_TIMER_COUNTER_DAILY)
-#define _TIMER_COUNTER_FREQUENCY 86400000UL
-#else
-#error "No valid TIMER COUNTER value"
-#endif
-
 enum hubble_key_label {
 	HUBBLE_DEVICE_KEY,
 	HUBBLE_NONCE_KEY,
@@ -62,7 +56,8 @@ int hubble_key_set(const void *key)
 
 uint32_t hubble_internal_time_counter_get(void)
 {
-	return hubble_utc_get() / _TIMER_COUNTER_FREQUENCY;
+	return hubble_utc_get() /
+	       (CONFIG_HUBBLE_EID_ROTATION_PERIOD_SEC * 1000ULL);
 }
 
 #ifndef CONFIG_HUBBLE_NETWORK_SEQUENCE_NONCE_CUSTOM

@@ -51,6 +51,7 @@ static const uint8_t test_key_primary[CONFIG_HUBBLE_KEY_SIZE] = {
 
 ZTEST(ble_advertise_test, test_advertise_with_test_vectors)
 {
+	test_uptime_ms = 0;
 	for (size_t i = 0; i < test_vectors_count; i++) {
 		const struct ble_adv_test_vector *tv = &test_vectors[i];
 

@@ -16,6 +16,11 @@
 #include <hubble/port/sys.h>
 #include <hubble/port/crypto.h>
 
+/* Currently, only support a rotation period of 86400 (daily) */
+#if CONFIG_HUBBLE_EID_ROTATION_PERIOD_SEC != 86400
+#error Currently, only daily rotations are supported.
+#endif
+
 static uint64_t utc_time_synced;
 static uint64_t utc_time_base;
 

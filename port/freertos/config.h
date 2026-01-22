@@ -20,9 +20,13 @@
 #define CONFIG_HUBBLE_KEY_SIZE    16
 
 /*
- * Frequency to change the counter timer.
+ * EID rotation period in seconds.
+ * Range: 900-86400 (15 minutes to 24 hours)
+ * Default: 86400 (24 hours / daily)
  */
-#define CONFIG_HUBBLE_NETWORK_TIMER_COUNTER_DAILY
+#ifndef CONFIG_HUBBLE_EID_ROTATION_PERIOD_SEC
+#define CONFIG_HUBBLE_EID_ROTATION_PERIOD_SEC 86400
+#endif
 
 #ifdef CONFIG_HUBBLE_SAT_NETWORK
 
