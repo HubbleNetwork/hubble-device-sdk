@@ -13,8 +13,6 @@ import argparse
 import base64
 
 from bitstring import BitArray
-from bluezero import broadcaster
-from datetime import datetime
 
 from Crypto.Cipher import AES
 from Crypto.Hash import CMAC
@@ -40,8 +38,8 @@ def generate_kdf_key(key: bytes, key_size: int, label: str,
     )
 
 
-def get_device_id(time_counter: int) -> int:
-    device_key = generate_kdf_key(args.master_key, HUBBLE_AES_KEY_SIZE,
+def get_device_id(master_key: bytes, time_counter: int) -> int:
+    device_key = generate_kdf_key(master_key, HUBBLE_AES_KEY_SIZE,
                                   'DeviceKey', time_counter)
     device_id = generate_kdf_key(device_key, HUBBLE_DEVICE_ID_SIZE,
                                  'DeviceID', 0)
@@ -49,17 +47,18 @@ def get_device_id(time_counter: int) -> int:
     return int.from_bytes(device_id, byteorder='big')
 
 
-def get_nonce(time_counter: int, counter: int) -> bytes:
+def get_nonce(master_key: bytes, time_counter: int, counter: int) -> bytes:
     nonce_key = generate_kdf_key(
-        args.master_key, HUBBLE_AES_KEY_SIZE, "NonceKey", time_counter
+        master_key, HUBBLE_AES_KEY_SIZE, "NonceKey", time_counter
     )
 
     return generate_kdf_key(nonce_key, HUBBLE_AES_NONCE_SIZE, "Nonce", counter)
 
 
-def get_encryption_key(time_counter: int, counter: int) -> bytes:
+def get_encryption_key(master_key: bytes, time_counter: int,
+                       counter: int) -> bytes:
     encryption_key = generate_kdf_key(
-        args.master_key, HUBBLE_AES_KEY_SIZE, "EncryptionKey", time_counter
+        master_key, HUBBLE_AES_KEY_SIZE, "EncryptionKey", time_counter
     )
 
     return generate_kdf_key(encryption_key, HUBBLE_AES_KEY_SIZE,
@@ -79,14 +78,13 @@ def aes_encrypt(key: bytes, nonce_session: bytes, data: bytes) -> bytes:
     return ciphertext, tag
 
 
-def parse_args() -> None:
+def parse_args() -> argparse.Namespace:
     """
     Advertise data using Hubble BLE Network.
 
-    usage: ble_adv.py [-h] [-b] key <optional-payload>
+    usage: ble_adv.py [-h] [-b] [--time-counter TC] [--seq-no SEQ]
+                      [--payload-hex HEX] [--print] key [payload]
     """
-
-    global args
 
     parser = argparse.ArgumentParser(
         description=__doc__,
@@ -94,13 +92,26 @@ def parse_args() -> None:
         allow_abbrev=False)
 
     parser.add_argument("master_key",
-                        help="The device key")
+                        help="Path to the device key file")
     parser.add_argument("-b", "--base64",
                         help="The key is encoded in base64",
                         action='store_true', default=False)
     parser.add_argument("payload", nargs="?", default="",
-                        help="Data to transmit")
-    args = parser.parse_args()
+                        help="Data to transmit (string)")
+    parser.add_argument("--time-counter", type=int, default=None,
+                        help="Override time counter directly "
+                             "(default: derive from current date)")
+    parser.add_argument("--seq-no", type=int, default=0,
+                        help="Sequence number 0-1023 (default: 0)")
+    parser.add_argument("--payload-hex", type=str, default=None,
+                        help="Payload as hex string (e.g. 'deadbeef'), "
+                             "empty string = no payload")
+    parser.add_argument("--print", dest="print_mode", action='store_true',
+                        default=False,
+                        help="Print output as C hex array instead of "
+                             "transmitting via BLE")
+
+    return parser.parse_args()
 
 
 def generate_ble_adv(device_id, seq_no, auth_tag, encrypted_payload) -> bytes:
@@ -121,31 +132,60 @@ def generate_ble_adv(device_id, seq_no, auth_tag, encrypted_payload) -> bytes:
     return ble_adv.tobytes()
 
 
+def format_c_hex(data: bytes) -> str:
+    """Format bytes as a C hex array string."""
+    hex_bytes = ", ".join(f"0x{b:02x}" for b in data)
+    return "{" + hex_bytes + "}"
+
+
 def main() -> None:
-    parse_args()
+    args = parse_args()
 
     key = None
-    seq_no = 0
 
     with open(args.master_key, "rb") as f:
         key = bytearray(f.read())
         if args.base64:
             key = bytearray(base64.b64decode(key))
 
-    args.master_key = key
-    time_counter = int(datetime.now().timestamp()) // 86400
+    master_key = bytes(key)
 
-    device_id = get_device_id(time_counter)
-    nonce = get_nonce(time_counter, seq_no)
-    key = get_encryption_key(time_counter, seq_no)
-    encrypted_payload, auth_tag = aes_encrypt(key, nonce,
-                                              args.payload.encode())
+    # Determine time counter
+    if args.time_counter is not None:
+        time_counter = args.time_counter
+    else:
+        from datetime import datetime
+        time_counter = int(datetime.now().timestamp()) // 86400
+
+    # Determine payload
+    if args.payload_hex is not None:
+        if args.payload_hex == "":
+            payload = b""
+        else:
+            payload = bytes.fromhex(args.payload_hex)
+    else:
+        payload = args.payload.encode()
+
+    seq_no = args.seq_no
+
+    device_id = get_device_id(master_key, time_counter)
+    nonce = get_nonce(master_key, time_counter, seq_no)
+    enc_key = get_encryption_key(master_key, time_counter, seq_no)
+    encrypted_payload, auth_tag = aes_encrypt(enc_key, nonce, payload)
 
     ble_adv = generate_ble_adv(device_id, seq_no, auth_tag, encrypted_payload)
 
-    url_beacon = broadcaster.Beacon()
-    url_beacon.add_service_data('FCA6', ble_adv)
-    url_beacon.start_beacon()
+    if args.print_mode:
+        # Prepend UUID bytes and print as C hex array
+        uuid_bytes = bytes([0xa6, 0xfc])
+        full_adv = uuid_bytes + ble_adv
+        print(format_c_hex(full_adv))
+    else:
+        from bluezero import broadcaster
+
+        url_beacon = broadcaster.Beacon()
+        url_beacon.add_service_data('FCA6', ble_adv)
+        url_beacon.start_beacon()
 
 
 if __name__ == '__main__':

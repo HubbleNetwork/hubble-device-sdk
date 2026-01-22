@@ -49,6 +49,7 @@ static const uint8_t test_key_primary[CONFIG_HUBBLE_KEY_SIZE] = {
 /* Test Suite: ble_advertise_test - Core Encryption Tests                   */
 /*===========================================================================*/
 
+#ifndef CONFIG_HUBBLE_EID_COUNTER_BASED
 ZTEST(ble_advertise_test, test_advertise_with_test_vectors)
 {
 	test_uptime_ms = 0;
@@ -81,6 +82,7 @@ ZTEST(ble_advertise_test, test_advertise_with_test_vectors)
 				  tv->description);
 	}
 }
+#endif /* !CONFIG_HUBBLE_EID_COUNTER_BASED */
 
 ZTEST(ble_advertise_test, test_advertise_null_input_handling)
 {
@@ -361,3 +363,166 @@ static void *ble_advertise_format_test_setup(void)
 
 ZTEST_SUITE(ble_advertise_format_test, NULL, ble_advertise_format_test_setup,
 	    NULL, NULL, NULL);
+
+/*===========================================================================*/
+/* Test Suite: ble_advertise_counter_test - Counter-Based EID Tests          */
+/*===========================================================================*/
+
+#ifdef CONFIG_HUBBLE_EID_COUNTER_BASED
+
+#include "test_vectors_counter.h"
+
+#define TEST_COUNTER_ROTATION_MS                                               \
+	((uint64_t)CONFIG_HUBBLE_EID_ROTATION_PERIOD_SEC * 1000ULL)
+#define TEST_COUNTER_POOL_SIZE CONFIG_HUBBLE_EID_POOL_SIZE
+
+ZTEST(ble_advertise_counter_test, test_counter_advertise_with_test_vectors)
+{
+	for (size_t i = 0; i < counter_test_vectors_count; i++) {
+		const struct ble_adv_test_vector *tv = &counter_test_vectors[i];
+
+		int ret = hubble_init(tv->time_counter, test_key_primary);
+		zassert_ok(ret, "hubble_init failed for vector %zu", i);
+
+		test_uptime_ms = 0;
+		test_seq_override = tv->seq_no;
+
+		uint8_t output[TEST_ADV_BUFFER_SZ];
+		size_t output_len = sizeof(output);
+
+		ret = hubble_ble_advertise_get(tv->payload, tv->payload_len,
+					       output, &output_len);
+
+		zassert_ok(ret, "Vector %zu (%s) failed with error %d", i,
+			   tv->description, ret);
+
+		zassert_equal(
+			output_len,
+			tv->expected_len, "Vector %zu (%s) length mismatch: got %zu, expected %zu",
+			i, tv->description, output_len, tv->expected_len);
+
+		zassert_mem_equal(output, tv->expected, output_len,
+				  "Vector %zu (%s) output mismatch", i,
+				  tv->description);
+	}
+}
+
+ZTEST(ble_advertise_counter_test, test_counter_init_zero_valid)
+{
+	/* In counter mode, 0 is a valid initial counter (unlike UTC mode) */
+	int ret = hubble_init(0, test_key_primary);
+	zassert_ok(ret, "hubble_init with counter=0 should succeed");
+}
+
+ZTEST(ble_advertise_counter_test, test_counter_wraps_at_pool_size)
+{
+	/* Init at pool_size - 1 (counter=31 for pool_size=32) */
+	int ret = hubble_init(TEST_COUNTER_POOL_SIZE - 1, test_key_primary);
+	zassert_ok(ret, "hubble_init failed");
+
+	/* Advance one epoch: counter should wrap to 0 */
+	test_uptime_ms = TEST_COUNTER_ROTATION_MS;
+	test_seq_override = 0;
+
+	uint8_t output_wrapped[TEST_ADV_BUFFER_SZ];
+	size_t output_wrapped_len = sizeof(output_wrapped);
+
+	ret = hubble_ble_advertise_get(NULL, 0, output_wrapped,
+				       &output_wrapped_len);
+	zassert_ok(ret, "advertise_get after wrap failed");
+
+	/* Compare against counter=0 reference (TV1: counter=0, seq=0, empty) */
+	ret = hubble_init(0, test_key_primary);
+	zassert_ok(ret, "hubble_init for reference failed");
+
+	test_uptime_ms = 0;
+	test_seq_override = 0;
+
+	uint8_t output_ref[TEST_ADV_BUFFER_SZ];
+	size_t output_ref_len = sizeof(output_ref);
+
+	ret = hubble_ble_advertise_get(NULL, 0, output_ref, &output_ref_len);
+	zassert_ok(ret, "advertise_get for reference failed");
+
+	zassert_equal(output_wrapped_len, output_ref_len,
+		      "Wrapped output length should match reference");
+	zassert_mem_equal(output_wrapped, output_ref, output_wrapped_len,
+			  "Wrapped counter should produce same output as "
+			  "counter=0");
+}
+
+ZTEST(ble_advertise_counter_test, test_counter_advances_with_uptime)
+{
+	int ret = hubble_init(0, test_key_primary);
+	zassert_ok(ret, "hubble_init failed");
+	test_seq_override = 0;
+
+	/* Capture output at epoch 0 */
+	test_uptime_ms = 0;
+
+	uint8_t output1[TEST_ADV_BUFFER_SZ];
+	size_t output_len1 = sizeof(output1);
+
+	ret = hubble_ble_advertise_get(NULL, 0, output1, &output_len1);
+	zassert_ok(ret, "First advertise_get failed");
+
+	/* Advance one epoch */
+	test_uptime_ms = TEST_COUNTER_ROTATION_MS;
+
+	uint8_t output2[TEST_ADV_BUFFER_SZ];
+	size_t output_len2 = sizeof(output2);
+
+	ret = hubble_ble_advertise_get(NULL, 0, output2, &output_len2);
+	zassert_ok(ret, "Second advertise_get failed");
+
+	/* Different epochs should produce different output */
+	zassert_true(
+		memcmp(output1, output2, output_len1) != 0,
+		"Different counter epochs should produce different output");
+}
+
+ZTEST(ble_advertise_counter_test, test_counter_full_wrap)
+{
+	/* Init at counter=0, advance by exactly pool_size epochs */
+	int ret = hubble_init(0, test_key_primary);
+	zassert_ok(ret, "hubble_init failed");
+	test_seq_override = 0;
+
+	/* Output at epoch 0 */
+	test_uptime_ms = 0;
+
+	uint8_t output_start[TEST_ADV_BUFFER_SZ];
+	size_t output_start_len = sizeof(output_start);
+
+	ret = hubble_ble_advertise_get(NULL, 0, output_start, &output_start_len);
+	zassert_ok(ret, "advertise_get at start failed");
+
+	/* Advance by full pool size: (0 + 32) % 32 = 0 */
+	test_uptime_ms =
+		(uint64_t)TEST_COUNTER_POOL_SIZE * TEST_COUNTER_ROTATION_MS;
+
+	uint8_t output_full_wrap[TEST_ADV_BUFFER_SZ];
+	size_t output_full_wrap_len = sizeof(output_full_wrap);
+
+	ret = hubble_ble_advertise_get(NULL, 0, output_full_wrap,
+				       &output_full_wrap_len);
+	zassert_ok(ret, "advertise_get after full wrap failed");
+
+	/* Should match the starting output */
+	zassert_equal(output_start_len, output_full_wrap_len,
+		      "Full wrap output length should match start");
+	zassert_mem_equal(output_start, output_full_wrap, output_start_len,
+			  "Full pool wrap should produce same output as start");
+}
+
+static void *ble_advertise_counter_test_setup(void)
+{
+	test_seq_override = 0;
+	test_uptime_ms = 0;
+	return NULL;
+}
+
+ZTEST_SUITE(ble_advertise_counter_test, NULL, ble_advertise_counter_test_setup,
+	    NULL, NULL, NULL);
+
+#endif /* CONFIG_HUBBLE_EID_COUNTER_BASED */

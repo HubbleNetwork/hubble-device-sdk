@@ -51,7 +51,7 @@ int hubble_ble_advertise_get(const uint8_t *input, size_t input_len,
 	uint32_t device_id;
 	uint16_t seq_no;
 	const void *master_key = hubble_internal_key_get();
-	uint32_t time_counter = hubble_internal_time_counter_get();
+	uint32_t time_counter;
 
 	if ((master_key == NULL) || (out == NULL) || (out_len == NULL)) {
 		return -EINVAL;
@@ -59,6 +59,11 @@ int hubble_ble_advertise_get(const uint8_t *input, size_t input_len,
 
 	if ((input == NULL) && (input_len > 0)) {
 		return -EINVAL;
+	}
+
+	err = hubble_eid_counter_get(&time_counter);
+	if (err != 0) {
+		return err;
 	}
 
 	if (input_len > HUBBLE_BLE_MAX_DATA_LEN) {
@@ -104,7 +109,11 @@ uint32_t hubble_ble_advertise_expiration_get(void)
 {
 	uint64_t rotation_period_ms =
 		(uint64_t)CONFIG_HUBBLE_EID_ROTATION_PERIOD_SEC * 1000ULL;
+#ifdef CONFIG_HUBBLE_EID_COUNTER_BASED
+	uint64_t time_ms = hubble_uptime_get();
+#else
 	uint64_t time_ms = hubble_utc_get();
+#endif
 	uint64_t time_in_current_period = time_ms % rotation_period_ms;
 	uint64_t time_remaining = rotation_period_ms - time_in_current_period;
 

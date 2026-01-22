@@ -9,6 +9,38 @@ config HUBBLE_EID_ROTATION_PERIOD_SEC
 	  EID rotation period. Currently only daily rotations
 	  are supported (86400)
 
+choice HUBBLE_EID_MODE
+	prompt "EID generation mode"
+	default HUBBLE_EID_UTC_BASED
+
+config HUBBLE_EID_UTC_BASED
+	bool "UTC-based EID generation"
+	help
+	  EID derived from UTC time. Requires time provisioning.
+
+config HUBBLE_EID_COUNTER_BASED
+	bool "Counter-based EID generation"
+	help
+	  EID derived from internal counter. No UTC time required.
+	  Initial counter value provided via hubble_init().
+
+endchoice
+
+config HUBBLE_EID_POOL_SIZE
+	int "EID pool size"
+	default 32
+	range 16 2048
+	depends on HUBBLE_EID_COUNTER_BASED
+	help
+	  Number of unique EIDs in the pool. The counter wraps at this value.
+	  Range: 16 to 2048 unique EID epochs.
+
+	  Examples with default rotation period (86400 sec / daily):
+	    16:   ~16 days of unique EIDs
+	    64:   ~64 days of unique EIDs (default)
+	    256:  ~256 days of unique EIDs
+	    2048: ~5.6 years of unique EIDs
+
 menuconfig HUBBLE_SAT_NETWORK
 	   bool "Hubble Satellite Network Library [EXPERIMENTAL]"
 	   help
@@ -87,8 +119,5 @@ config HUBBLE_NETWORK_SEQUENCE_NONCE_CUSTOM
 		This option allows applications to override the default
 		function that returns a sequence number to be used to
 		encrypt messages.
-
-choice
-	prompt "Hubble Network Timer Counter Frequency"
 
 endchoice
