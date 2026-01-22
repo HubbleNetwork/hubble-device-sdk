@@ -22,7 +22,17 @@
 #ifdef CONFIG_HUBBLE_BLE_NETWORK
 
 /*
- * Frequency to change the counter timer.
+ * EID rotation period in seconds.
+ * Range: 900-86400 (15 minutes to 24 hours)
+ * Default: 86400 (24 hours / daily)
+ */
+#ifndef CONFIG_HUBBLE_EID_ROTATION_PERIOD_SEC
+#define CONFIG_HUBBLE_EID_ROTATION_PERIOD_SEC 86400
+#endif
+
+/*
+ * DEPRECATED: Use CONFIG_HUBBLE_EID_ROTATION_PERIOD_SEC instead.
+ * Kept for backward compatibility.
  */
 #define CONFIG_HUBBLE_BLE_NETWORK_TIMER_COUNTER_DAILY
 
