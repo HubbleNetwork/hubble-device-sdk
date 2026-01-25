@@ -51,6 +51,8 @@ menuconfig HUBBLE_BLE_NETWORK
 	   help
 		Enable library for communication with Hubble BLE network
 
+if HUBBLE_BLE_NETWORK || HUBBLE_SAT_NETWORK
+
 choice
 	prompt "Hubble Network key size"
 
@@ -138,6 +140,8 @@ config HUBBLE_NETWORK_TIMER_COUNTER_DAILY
 	        The timer counter will change daily
 
 endchoice
+
+endif
 
 menu "Logging"
 
