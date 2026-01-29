@@ -18,11 +18,22 @@ if(CONFIG_HUBBLE_SAT_NETWORK)
     list(APPEND SRCS
         "${SDK_BASE_DIR}/port/freertos/hubble_sat_freertos.c"
         "${SDK_BASE_DIR}/src/hubble_sat.c"
-        "${SDK_BASE_DIR}/src/hubble_sat_packet.c"
         "${SDK_BASE_DIR}/src/hubble_sat_ephemeris.c"
         "${SDK_BASE_DIR}/src/utils/bitarray.c"
         "${SDK_BASE_DIR}/src/reed_solomon_encoder.c"
     )
+
+    if(CONFIG_HUBBLE_SAT_NETWORK_PROTOCOL_DEPRECATED)
+        list(APPEND SRCS
+            "${SDK_BASE_DIR}/src/hubble_sat_packet_deprecated.c"
+        )
+    endif()
+
+    if(CONFIG_HUBBLE_SAT_NETWORK_PROTOCOL_V1)
+        list(APPEND SRCS
+            "${SDK_BASE_DIR}/src/hubble_sat_packet.c"
+        )
+    endif()
 endif()
 
 idf_component_register(
