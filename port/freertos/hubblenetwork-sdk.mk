@@ -34,6 +34,7 @@ endif
 
 ifeq ($(CONFIG_HUBBLE_SAT_NETWORK),1)
 HUBBLENETWORK_SDK_SOURCES += \
+	$(HUBBLENETWORK_SDK_PORT_DIR)/hubble_sat_freertos.c \
 	$(HUBBLENETWORK_SDK_SRC_DIR)/hubble_sat.c \
 	$(HUBBLENETWORK_SDK_SRC_DIR)/hubble_sat_ephemeris.c \
 	$(HUBBLENETWORK_SDK_SRC_DIR)/utils/bitarray.c \

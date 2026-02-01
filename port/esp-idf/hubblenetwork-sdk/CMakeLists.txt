@@ -15,6 +15,7 @@ endif()
 
 if(CONFIG_HUBBLE_SAT_NETWORK)
     list(APPEND SRCS
+        "${SDK_BASE_DIR}/port/freertos/hubble_sat_freertos.c"
         "${SDK_BASE_DIR}/src/hubble_sat.c"
         "${SDK_BASE_DIR}/src/hubble_sat_packet.c"
         "${SDK_BASE_DIR}/src/hubble_sat_ephemeris.c"
