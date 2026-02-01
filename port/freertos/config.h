@@ -13,12 +13,13 @@
 #define CONFIG_HUBBLE_BLE_NETWORK 1
 #define CONFIG_HUBBLE_SAT_NETWORK 1
 
-#if CONFIG_HUBBLE_BLE_NETWORK
 /*
  * Size of the encryption key in bytes. Valid options are
  * 16 for 128 bits keys or 32 for 256 bits keys.
  */
-#define CONFIG_HUBBLE_KEY_SIZE 16
+#define CONFIG_HUBBLE_KEY_SIZE    16
+
+#ifdef CONFIG_HUBBLE_BLE_NETWORK
 
 /*
  * Frequency to change the counter timer.
@@ -27,7 +28,7 @@
 
 #endif /* CONFIG_HUBBLE_BLE_NETWORK */
 
-#if CONFIG_HUBBLE_SAT_NETWORK
+#ifdef CONFIG_HUBBLE_SAT_NETWORK
 
 /*
  * Use for fly by calculation. Enable this option

@@ -61,7 +61,12 @@ export SYSCONFIG_TOOL=/Applications/ti/sysconfig_1.23.2/sysconfig_cli.sh
 python ../../../../tools/embed_key_utc.py --base64 <path-to-key> -o src/
 ```
 
-3. **Build the Project**
+3. **Set config option**
+
+   In [config.h](../../../../port/freertos/config.h), make sure that `CONFIG_HUBBLE_BLE_NETWORK` is defined
+   and remove `CONFIG_HUBBLE_SAT_NETWORK` if needed.
+
+4. **Build the Project**
 
    Build the project using the provided *makefile*:
 
@@ -69,9 +74,9 @@ python ../../../../tools/embed_key_utc.py --base64 <path-to-key> -o src/
 make
 ```
 
-4. **Flash the Firmware**
+5. **Flash the Firmware**
 
-   Flash the generated firmware (*basic_ble.out*) onto the target device using your preferred flashing tool.
+   Flash the generated firmware (*ble-beacon.out*) onto the target device using your preferred flashing tool.
 
 ### Usage
 
