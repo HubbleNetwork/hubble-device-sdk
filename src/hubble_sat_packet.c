@@ -12,6 +12,7 @@
 #include <hubble/port/sys.h>
 
 #include "reed_solomon_encoder.h"
+#include "hubble_priv.h"
 #include "utils/bitarray.h"
 #include "utils/macros.h"
 
@@ -41,8 +42,6 @@
 #define HUBBLE_PAYLOAD_MAX_SIZE              13U
 
 #define HUBBLE_SAT_CHANNEL_DEFAULT           5U
-
-static uint16_t _sequence_number;
 
 static int _encode(const struct hubble_bitarray *bit_array, int *symbols,
 		   size_t symbols_size)
@@ -161,10 +160,27 @@ int hubble_sat_packet_get(struct hubble_sat_packet *packet, uint64_t device_id,
 {
 	int ret;
 	struct hubble_bitarray bit_array;
-	uint8_t ecc;
 	int symbols[HUBBLE_PACKET_MAX_SIZE] = {0};
 	int *rs_symbols;
-	uint8_t payload_symbols_length, payload_length_symbol, channel;
+	uint8_t ecc, payload_symbols_length, payload_length_symbol, channel;
+	uint8_t auth_tag[HUBBLE_AUTH_TAG_SIZE / HUBBLE_CHAR_BITS];
+	uint8_t out[HUBBLE_PAYLOAD_MAX_SIZE];
+	uint16_t seq_no = hubble_sequence_counter_get();
+	uint32_t time_counter = hubble_internal_time_counter_get();
+	uint32_t eid;
+
+	/* This protocol uses dynamic device id */
+	(void)device_id;
+
+	if (hubble_internal_key_get() == NULL) {
+		HUBBLE_LOG_WARNING("Key not set");
+		return -EINVAL;
+	}
+
+	if (!hubble_internal_nonce_values_check(time_counter, seq_no)) {
+		HUBBLE_LOG_WARNING("Re-using same nonce is insecure !");
+		return -EPERM;
+	}
 
 	if (hubble_rand_get(&channel, sizeof(channel))) {
 		packet->channel = HUBBLE_SAT_CHANNEL_DEFAULT;
@@ -228,6 +244,14 @@ int hubble_sat_packet_get(struct hubble_sat_packet *packet, uint64_t device_id,
 	/* End of physical frame */
 
 	/* Packet payload now. */
+	ret = hubble_internal_device_id_get((uint8_t *)&eid, sizeof(eid),
+					    time_counter);
+	_CHECK_RET(ret);
+
+	ret = hubble_internal_data_encrypt(time_counter, seq_no, payload, length,
+					   out, auth_tag, sizeof(auth_tag));
+	_CHECK_RET(ret);
+
 	hubble_bitarray_init(&bit_array);
 
 	/* Payload version */
@@ -238,25 +262,21 @@ int hubble_sat_packet_get(struct hubble_sat_packet *packet, uint64_t device_id,
 	_CHECK_RET(ret);
 
 	/* Sequence number */
-	ret = hubble_bitarray_append(&bit_array, (uint8_t *)&_sequence_number,
+	ret = hubble_bitarray_append(&bit_array, (uint8_t *)&seq_no,
 				     HUBBLE_SEQUENCE_NUMBER_SIZE);
 	_CHECK_RET(ret);
 
-	_sequence_number++;
-
 	/* Device ID */
-	ret = hubble_bitarray_append(&bit_array, (uint8_t *)&device_id,
+	ret = hubble_bitarray_append(&bit_array, (uint8_t *)&eid,
 				     HUBBLE_DEVICE_ID_SIZE);
 	_CHECK_RET(ret);
 
 	/* Authentication tag */
-	ret = hubble_bitarray_append(&bit_array, (uint8_t *)&(uint32_t){0},
-				     HUBBLE_AUTH_TAG_SIZE);
+	ret = hubble_bitarray_append(&bit_array, auth_tag, HUBBLE_AUTH_TAG_SIZE);
 	_CHECK_RET(ret);
 
 	/* Payload */
-	ret = hubble_bitarray_append(&bit_array, (uint8_t *)payload,
-				     length * HUBBLE_CHAR_BITS);
+	ret = hubble_bitarray_append(&bit_array, out, length * HUBBLE_CHAR_BITS);
 	_CHECK_RET(ret);
 
 	/* This returns the number of symbols */
