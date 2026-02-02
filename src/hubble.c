@@ -10,13 +10,14 @@
 #include <stdio.h>
 #include <string.h>
 
+#include <hubble/hubble.h>
+
 #include <hubble/port/sat_radio.h>
 #include <hubble/port/sys.h>
 #include <hubble/port/crypto.h>
 
 static uint64_t utc_time_synced;
 static uint64_t utc_time_base;
-static const void *master_key;
 
 int hubble_utc_set(uint64_t utc_time)
 {
@@ -28,17 +29,6 @@ int hubble_utc_set(uint64_t utc_time)
 	utc_time_synced = utc_time;
 
 	utc_time_base = utc_time - hubble_uptime_get();
-
-	return 0;
-}
-
-int hubble_key_set(const void *key)
-{
-	if (key == NULL) {
-		return -EINVAL;
-	}
-
-	master_key = key;
 
 	return 0;
 }
@@ -76,11 +66,6 @@ int hubble_init(uint64_t utc_time, const void *key)
 	HUBBLE_LOG_INFO("Hubble Network SDK initialized\n");
 
 	return 0;
-}
-
-const void *hubble_internal_key_get(void)
-{
-	return master_key;
 }
 
 uint64_t hubble_internal_utc_time_get(void)

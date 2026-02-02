@@ -4,6 +4,7 @@ set(SRCS
     "${SDK_BASE_DIR}/port/esp-idf/hubble_esp_idf.c"
     "${SDK_BASE_DIR}/port/freertos/hubble_freertos.c"
     "${SDK_BASE_DIR}/src/hubble.c"
+    "${SDK_BASE_DIR}/src/hubble_crypto.c"
     "${SDK_BASE_DIR}/src/crypto/mbedtls.c"
 )
 
