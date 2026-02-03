@@ -67,17 +67,12 @@ config HUBBLE_NETWORK_SEQUENCE_NONCE_CUSTOM
 		function that returns a sequence number to be used to
 		encrypt messages.
 
-if HUBBLE_BLE_NETWORK
-
 choice
-	prompt "HUBBLE BLE Network Timer Counter Frequency"
+	prompt "Hubble Network Timer Counter Frequency"
 
-config HUBBLE_BLE_NETWORK_TIMER_COUNTER_DAILY
+config HUBBLE_NETWORK_TIMER_COUNTER_DAILY
 	   bool "Timer counter changes daily"
 	   help
 	        The timer counter will change daily
 
-
 endchoice
-
-endif
