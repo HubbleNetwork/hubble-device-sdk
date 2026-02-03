@@ -26,6 +26,7 @@ endif()
 idf_component_register(
     INCLUDE_DIRS
         "${SDK_BASE_DIR}/include"
+        "${SDK_BASE_DIR}/src"
         "${SDK_BASE_DIR}/port/esp-idf"
         "${SDK_BASE_DIR}/port/freertos"
     PRIV_INCLUDE_DIRS
