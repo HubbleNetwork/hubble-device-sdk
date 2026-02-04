@@ -15,6 +15,11 @@ extern "C" {
 #endif
 
 
+#define HUBBLE_BLE_NONCE_BUFFER_LEN 16
+#define HUBBLE_AES_BLOCK_SIZE       16
+/* Valid range [0, 1023] */
+#define HUBBLE_BLE_MAX_SEQ_COUNTER  ((1 << 10) - 1)
+
 /**
  * @brief Hubble Network SDK Crypto APIs.
  *

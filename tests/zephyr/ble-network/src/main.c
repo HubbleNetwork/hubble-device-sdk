@@ -5,8 +5,8 @@
  */
 
 #include <hubble/hubble.h>
+#include <hubble/port/crypto.h>
 #include <hubble/port/sys.h>
-
 #include <zephyr/sys/util.h>
 #include <zephyr/types.h>
 #include <zephyr/ztest.h>

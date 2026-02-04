@@ -9,6 +9,7 @@
 #include <zephyr/storage/flash_map.h>
 #include <zephyr/fs/nvs.h>
 
+#include <hubble/port/crypto.h>
 #include <hubble/port/sys.h>
 
 #define NVS_PARTITION        storage_partition

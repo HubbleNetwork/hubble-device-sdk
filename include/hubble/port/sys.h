@@ -23,11 +23,6 @@ enum hubble_log_level {
 	HUBBLE_LOG_COUNT,
 };
 
-#define HUBBLE_BLE_NONCE_BUFFER_LEN 16
-#define HUBBLE_AES_BLOCK_SIZE       16
-/* Valid range [0, 1023] */
-#define HUBBLE_BLE_MAX_SEQ_COUNTER  ((1 << 10) - 1)
-
 #define HUBBLE_LOG(_level, ...)                                                \
 	do {                                                                   \
 		hubble_log((_level), __VA_ARGS__);                             \
