@@ -12,8 +12,8 @@ common:
 tests:
   ble.advertise.unit.mbedtls:
     extra_configs:
-      - CONFIG_HUBBLE_BLE_NETWORK_MBEDTLS=y
+      - CONFIG_HUBBLE_NETWORK_CRYPTO_MBEDTLS=y
 
   ble.advertise.unit.psa:
     extra_configs:
-      - CONFIG_HUBBLE_BLE_NETWORK_PSA=y
+      - CONFIG_HUBBLE_NETWORK_CRYPTO_PSA=y

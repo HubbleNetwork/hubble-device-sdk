@@ -97,11 +97,11 @@ config HUBBLE_UPTIME_CUSTOM
 		Implement hubble_uptime_get to override.
 
 choice
-	prompt "HUBBLE BLE Network crypto provider"
-	default HUBBLE_BLE_NETWORK_PSA
+	prompt "Hubble Network crypto provider"
+	default HUBBLE_NETWORK_CRYPTO_PSA
 
-config HUBBLE_BLE_NETWORK_MBEDTLS
-	   bool "Use MBEDTLS for Hubble BLE Network Library"
+config HUBBLE_NETWORK_CRYPTO_MBEDTLS
+	   bool "Use MBEDTLS"
 	   depends on !NRF_SECURITY
 	   select MBEDTLS
 	   select MBEDTLS_CMAC
@@ -109,19 +109,19 @@ config HUBBLE_BLE_NETWORK_MBEDTLS
 	   select MBEDTLS_CIPHER_AES_ENABLED
 	   select MBEDTLS_CIPHER_MODE_CTR_ENABLED
 	   help
-		Enable library for communication with Hubble BLE network
+		Use MBEDTLS for cryptography.
 
-config HUBBLE_BLE_NETWORK_PSA
-	   bool "Use PSA Crypto for Hubble BLE Network Library"
+config HUBBLE_NETWORK_CRYPTO_PSA
+	   bool "Use PSA Crypto"
 	   select MBEDTLS
 	   select MBEDTLS_PSA_CRYPTO_C if !BUILD_WITH_TFM
 	   select PSA_WANT_KEY_TYPE_AES
 	   select PSA_WANT_ALG_CMAC
 	   select PSA_WANT_ALG_CTR
 	   help
-		Enable library for communication with Hubble BLE network
+		Use PSA Crypto for cryptography.
 
-config HUBBLE_BLE_NETWORK_CUSTOM_CRYPTO
+config HUBBLE_NETWORK_CRYPTO_CUSTOM
 	   bool "Custom crypto implementation"
 	   help
 	    Custom cryptography implementation. The target

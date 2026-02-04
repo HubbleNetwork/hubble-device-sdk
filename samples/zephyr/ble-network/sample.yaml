@@ -19,8 +19,8 @@ tests:
       - debug.conf
   app.ble_network.mbedtls:
     extra_configs:
-      - CONFIG_HUBBLE_BLE_NETWORK_MBEDTLS=y
+      - CONFIG_HUBBLE_NETWORK_CRYPTO_MBEDTLS=y
   app.ble_network.mbedtls_128key:
     extra_configs:
-      - CONFIG_HUBBLE_BLE_NETWORK_MBEDTLS=y
+      - CONFIG_HUBBLE_NETWORK_CRYPTO_MBEDTLS=y
       - CONFIG_HUBBLE_NETWORK_KEY_128=y

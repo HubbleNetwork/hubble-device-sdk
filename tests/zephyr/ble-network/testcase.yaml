@@ -12,7 +12,7 @@ common:
 tests:
   ble.nonce:
     extra_configs:
-      - CONFIG_HUBBLE_BLE_NETWORK_MBEDTLS=y
+      - CONFIG_HUBBLE_NETWORK_CRYPTO_MBEDTLS=y
   ble.nonce.psa:
     extra_configs:
-      - CONFIG_HUBBLE_BLE_NETWORK_PSA=y
+      - CONFIG_HUBBLE_NETWORK_CRYPTO_PSA=y
