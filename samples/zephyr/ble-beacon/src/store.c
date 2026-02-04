@@ -60,7 +60,7 @@ uint16_t hubble_sequence_counter_get(void)
 		return 0;
 	}
 
-	if (counter > HUBBLE_BLE_MAX_SEQ_COUNTER) {
+	if (counter > HUBBLE_MAX_SEQ_COUNTER) {
 		counter = 0U;
 	}
 

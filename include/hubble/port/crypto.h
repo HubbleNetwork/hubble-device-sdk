@@ -15,10 +15,12 @@ extern "C" {
 #endif
 
 
-#define HUBBLE_BLE_NONCE_BUFFER_LEN 16
-#define HUBBLE_AES_BLOCK_SIZE       16
+#define HUBBLE_NONCE_BUFFER_SIZE 16
+
+#define HUBBLE_AES_BLOCK_SIZE    16
+
 /* Valid range [0, 1023] */
-#define HUBBLE_BLE_MAX_SEQ_COUNTER  ((1 << 10) - 1)
+#define HUBBLE_MAX_SEQ_COUNTER   ((1 << 10) - 1)
 
 /**
  * @brief Hubble Network SDK Crypto APIs.
@@ -56,7 +58,7 @@ int hubble_crypto_init(void);
  *
  * @param key A pointer to the encryption key (size: CONFIG_HUBBLE_KEY_SIZE).
  * @param nonce_counter A pointer to the nonce and counter buffer (size:
- *                      HUBBLE_BLE_NONCE_BUFFER_LEN).
+ *                      HUBBLE_NONCE_BUFFER_SIZE).
  * @param data A pointer to the input data buffer to be encrypted.
  * @param len The length of the input data in bytes.
  * @param output A pointer to the output buffer where the encrypted data will be
@@ -65,7 +67,7 @@ int hubble_crypto_init(void);
  * @return Returns 0 on success, or a non-zero error code on failure.
  */
 int hubble_crypto_aes_ctr(const uint8_t key[CONFIG_HUBBLE_KEY_SIZE],
-			  uint8_t nonce_counter[HUBBLE_BLE_NONCE_BUFFER_LEN],
+			  uint8_t nonce_counter[HUBBLE_NONCE_BUFFER_SIZE],
 			  const uint8_t *data, size_t len, uint8_t *output);
 
 /**

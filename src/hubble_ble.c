@@ -64,7 +64,7 @@ uint16_t hubble_sequence_counter_get(void)
 	/* Sequence number used to rotate keys */
 	static uint16_t _sequence_number = 0U;
 
-	if (_sequence_number > HUBBLE_BLE_MAX_SEQ_COUNTER) {
+	if (_sequence_number > HUBBLE_MAX_SEQ_COUNTER) {
 		_sequence_number = 0U;
 	}
 
@@ -85,7 +85,7 @@ static bool _nonce_values_check(uint32_t time_counter, uint16_t seq_no)
 	static uint16_t _check_seq_no;
 	static uint16_t _check_seq_daily_reference_no;
 
-	if (seq_no > HUBBLE_BLE_MAX_SEQ_COUNTER) {
+	if (seq_no > HUBBLE_MAX_SEQ_COUNTER) {
 		return false;
 	}
 
@@ -301,7 +301,7 @@ int hubble_ble_advertise_get(const uint8_t *input, size_t input_len,
 	uint32_t time_counter =
 		hubble_internal_utc_time_get() / HUBBLE_TIMER_COUNTER_FREQUENCY;
 	uint8_t encryption_key[CONFIG_HUBBLE_KEY_SIZE] = {0};
-	uint8_t nonce_counter[HUBBLE_BLE_NONCE_BUFFER_LEN] = {0};
+	uint8_t nonce_counter[HUBBLE_NONCE_BUFFER_SIZE] = {0};
 	uint8_t auth_tag[HUBBLE_BLE_AUTH_LEN] = {0};
 	uint16_t seq_no;
 	const void *master_key = hubble_internal_key_get();

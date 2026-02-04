@@ -101,7 +101,7 @@ import_key_error:
 }
 
 int hubble_crypto_aes_ctr(const uint8_t key[CONFIG_HUBBLE_KEY_SIZE],
-			  uint8_t nonce_counter[HUBBLE_BLE_NONCE_BUFFER_LEN],
+			  uint8_t nonce_counter[HUBBLE_NONCE_BUFFER_SIZE],
 			  const uint8_t *data, size_t len, uint8_t *output)
 {
 	psa_status_t status;
@@ -128,7 +128,7 @@ int hubble_crypto_aes_ctr(const uint8_t key[CONFIG_HUBBLE_KEY_SIZE],
 	}
 
 	status = psa_cipher_set_iv(&operation, nonce_counter,
-				   HUBBLE_BLE_NONCE_BUFFER_LEN);
+				   HUBBLE_NONCE_BUFFER_SIZE);
 	if (status != PSA_SUCCESS) {
 		goto cipher_iv_error;
 	}

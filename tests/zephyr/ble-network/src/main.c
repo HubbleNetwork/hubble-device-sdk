@@ -40,7 +40,7 @@ uint16_t hubble_sequence_counter_get(void)
 		return invalid_nonce_sequence[nonce_idx++].nonce;
 	}
 
-	return nonce_idx++ % HUBBLE_BLE_MAX_SEQ_COUNTER;
+	return nonce_idx++ % HUBBLE_MAX_SEQ_COUNTER;
 }
 
 ZTEST(ble_nonce_test, test_ble_nonce_invalid)
