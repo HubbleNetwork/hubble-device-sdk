@@ -22,7 +22,7 @@
 #include "sat_board.h"
 #include "utils/macros.h"
 
-#define MSEC_PER_SEC 1000
+#define MSEC_PER_SEC 1000U
 
 static SemaphoreHandle_t _transmit_sem;
 
@@ -59,9 +59,9 @@ int hubble_sat_port_packet_send(const struct hubble_sat_packet *packet,
 		}
 
 		if (retries > 0) {
-			uint32_t sleep_ms =
-				HUBBLE_MAX(0, (interval_s * MSEC_PER_SEC) +
-						      _time_offset_get_ms());
+			uint32_t sleep_ms = HUBBLE_MAX(
+				0, (interval_s * MSEC_PER_SEC) +
+					   (int64_t)_time_offset_get_ms());
 			vTaskDelay(pdMS_TO_TICKS(sleep_ms));
 		}
 	}
