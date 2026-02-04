@@ -10,9 +10,6 @@
 #include <stddef.h>
 #include <stdint.h>
 
-/* Number of bits in one char. */
-#define HUBBLE_CHAR_BITS   8
-
 /* Max number of symbols in a hubble sat packet. */
 #define HUBBLE_MAX_SYMBOLS 77
 

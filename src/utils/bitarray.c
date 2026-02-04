@@ -5,6 +5,7 @@
  */
 
 #include "bitarray.h"
+#include "macros.h"
 
 #include <errno.h>
 #include <stdlib.h>
@@ -15,11 +16,11 @@ static int _append_bit(struct hubble_bitarray *bit_array, uint8_t value)
 	size_t index = bit_array->index;
 
 	if (value != 0U) {
-		bit_array->data[index / HUBBLE_CHAR_BITS] |=
-			(1 << (index % HUBBLE_CHAR_BITS));
+		bit_array->data[index / HUBBLE_BITS_PER_BYTE] |=
+			(1 << (index % HUBBLE_BITS_PER_BYTE));
 	} else {
-		bit_array->data[index / HUBBLE_CHAR_BITS] &=
-			~(1 << (index % HUBBLE_CHAR_BITS));
+		bit_array->data[index / HUBBLE_BITS_PER_BYTE] &=
+			~(1 << (index % HUBBLE_BITS_PER_BYTE));
 	}
 
 	bit_array->index++;
@@ -35,11 +36,11 @@ int hubble_bitarray_set_bit(struct hubble_bitarray *bit_array, size_t index,
 	}
 
 	if (value != 0U) {
-		bit_array->data[index / HUBBLE_CHAR_BITS] |=
-			(1 << (index % HUBBLE_CHAR_BITS));
+		bit_array->data[index / HUBBLE_BITS_PER_BYTE] |=
+			(1 << (index % HUBBLE_BITS_PER_BYTE));
 	} else {
-		bit_array->data[index / HUBBLE_CHAR_BITS] &=
-			~(1 << (index % HUBBLE_CHAR_BITS));
+		bit_array->data[index / HUBBLE_BITS_PER_BYTE] &=
+			~(1 << (index % HUBBLE_BITS_PER_BYTE));
 	}
 
 	return 0;
@@ -51,18 +52,18 @@ int hubble_bitarray_get_bit(struct hubble_bitarray *bit_array, size_t index)
 		return -EINVAL;
 	}
 
-	return (bit_array->data[index / HUBBLE_CHAR_BITS] >>
-		(index % HUBBLE_CHAR_BITS)) &
+	return (bit_array->data[index / HUBBLE_BITS_PER_BYTE] >>
+		(index % HUBBLE_BITS_PER_BYTE)) &
 	       1;
 }
 
 int hubble_bitarray_append(struct hubble_bitarray *bit_array,
 			   const uint8_t *input, size_t input_len_bits)
 {
-	size_t byte_index = input_len_bits / HUBBLE_CHAR_BITS;
+	size_t byte_index = input_len_bits / HUBBLE_BITS_PER_BYTE;
 
 	if ((bit_array->index + input_len_bits) >=
-	    (HUBBLE_MAX_SYMBOLS * HUBBLE_CHAR_BITS)) {
+	    (HUBBLE_MAX_SYMBOLS * HUBBLE_BITS_PER_BYTE)) {
 		return -EINVAL;
 	}
 
@@ -70,10 +71,10 @@ int hubble_bitarray_append(struct hubble_bitarray *bit_array,
 		int err;
 		uint8_t bit_value;
 
-		if (((i + 1) % HUBBLE_CHAR_BITS) == 0) {
+		if (((i + 1) % HUBBLE_BITS_PER_BYTE) == 0) {
 			byte_index--;
 		}
-		bit_value = (input[byte_index] >> (i % HUBBLE_CHAR_BITS)) &
+		bit_value = (input[byte_index] >> (i % HUBBLE_BITS_PER_BYTE)) &
 			    1; // Extract the i-th bit from the character
 		err = _append_bit(bit_array,
 				  bit_value); // Set the bit in the array

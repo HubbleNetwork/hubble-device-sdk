@@ -155,7 +155,7 @@ int hubble_sat_packet_get(struct hubble_sat_packet *packet, uint64_t device_id,
 
 	/* Payload */
 	ret = hubble_bitarray_append(&bit_array, (uint8_t *)payload,
-				     length * HUBBLE_CHAR_BITS);
+				     length * HUBBLE_BITS_PER_BYTE);
 	if (ret < 0) {
 		return ret;
 	}

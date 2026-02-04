@@ -9,12 +9,9 @@
 #include <hubble/port/sys.h>
 #include <hubble/port/crypto.h>
 
-/* Older verions of Zephyr do not define it */
-#ifndef BITS_PER_BYTE
-#define BITS_PER_BYTE 8
-#endif
+#include "utils/macros.h"
 
-#define _KEY_BITS_LEN     (CONFIG_HUBBLE_KEY_SIZE * BITS_PER_BYTE)
+#define _KEY_BITS_LEN     (CONFIG_HUBBLE_KEY_SIZE * HUBBLE_BITS_PER_BYTE)
 
 #define _STREAM_BLOCK_LEN 16
 
