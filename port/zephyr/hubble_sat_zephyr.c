@@ -51,8 +51,9 @@ int hubble_sat_port_packet_send(const struct hubble_sat_packet *packet,
 		}
 
 		if (retries > 0) {
-			uint32_t sleep_ms = MAX(0, (interval_s * MSEC_PER_SEC) +
-							   _time_offset_get_ms());
+			uint32_t sleep_ms =
+				MAX(0, (interval_s * MSEC_PER_SEC) +
+					       (int64_t)_time_offset_get_ms());
 			k_sleep(K_MSEC(sleep_ms));
 		}
 	}
