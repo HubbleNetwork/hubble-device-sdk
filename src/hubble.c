@@ -14,20 +14,20 @@
 #include <hubble/port/sys.h>
 #include <hubble/port/crypto.h>
 
-static uint64_t utc_time_synced;
-static uint64_t utc_time_base;
+static uint64_t unix_epoch_synced_ms;
+static uint64_t unix_epoch_base_ms;
 static const void *master_key;
 
-int hubble_utc_set(uint64_t utc_time)
+int hubble_time_set(uint64_t unix_epoch_ms)
 {
-	if (utc_time == 0U) {
+	if (unix_epoch_ms == 0U) {
 		return -EINVAL;
 	}
 
-	/* It holds when the device synced utc */
-	utc_time_synced = utc_time;
+	/* Holds when the device synced Unix epoch time */
+	unix_epoch_synced_ms = unix_epoch_ms;
 
-	utc_time_base = utc_time - hubble_uptime_get();
+	unix_epoch_base_ms = unix_epoch_ms - hubble_uptime_get();
 
 	return 0;
 }
@@ -43,7 +43,7 @@ int hubble_key_set(const void *key)
 	return 0;
 }
 
-int hubble_init(uint64_t utc_time, const void *key)
+int hubble_init(uint64_t unix_epoch_ms, const void *key)
 {
 	int ret = hubble_crypto_init();
 
@@ -52,15 +52,15 @@ int hubble_init(uint64_t utc_time, const void *key)
 		return ret;
 	}
 
-	ret = hubble_utc_set(utc_time);
+	ret = hubble_time_set(unix_epoch_ms);
 	if (ret != 0) {
-		HUBBLE_LOG_WARNING("Failed to set UTC time");
+		HUBBLE_LOG_WARNING("Failed to set Unix epoch time");
 		return ret;
 	}
 
 	ret = hubble_key_set(key);
 	if (ret != 0) {
-		HUBBLE_LOG_WARNING("Failed to set UTC key");
+		HUBBLE_LOG_WARNING("Failed to set key");
 		return ret;
 	}
 
@@ -83,12 +83,12 @@ const void *hubble_internal_key_get(void)
 	return master_key;
 }
 
-uint64_t hubble_internal_utc_time_get(void)
+uint64_t hubble_internal_time_ms_get(void)
 {
-	return utc_time_base + hubble_uptime_get();
+	return unix_epoch_base_ms + hubble_uptime_get();
 }
 
-uint64_t hubble_internal_utc_time_last_synced_get(void)
+uint64_t hubble_internal_time_last_synced_ms_get(void)
 {
-	return utc_time_synced;
+	return unix_epoch_synced_ms;
 }

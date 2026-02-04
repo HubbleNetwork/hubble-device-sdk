@@ -5,12 +5,12 @@ Best Practices for Time Management
 
 Proper time management is critical for ensuring accurate encryption
 and secure operations in the SDK. Below are the best practices for
-provisioning UTC time and accounting for drifts.
+provisioning Unix epoch time and accounting for drifts.
 
-Provisioning UTC Time
-*********************
+Provisioning Unix Epoch Time
+*****************************
 
-To ensure the SDK operates with accurate time, follow these steps to provision UTC time:
+To ensure the SDK operates with accurate time, follow these steps to provision Unix epoch time:
 
 1. **Obtain Accurate Time Source**
 
@@ -20,7 +20,7 @@ To ensure the SDK operates with accurate time, follow these steps to provision U
 2. **Set System Time**
 
    + Use the Hubble APIs (:c:func:`hubble_init` and
-     :c:func:`hubble_utc_set`) to set the obtained UTC time.
+     :c:func:`hubble_time_set`) to set the obtained Unix epoch time.
 
 3. **Validate Time Synchronization**
 
@@ -57,7 +57,7 @@ Alternatives for Time Persistence Across Reboots
 
 1. **Store Time in Flash Memory**
 
-   + Write the current UTC time to flash memory before a power cycle or periodically during operation.
+   + Write the current Unix epoch time to flash memory before a power cycle or periodically during operation.
    + Risks:
 
      + *Flash Wear*: Flash memory has a limited number of write cycles. Frequent writes can lead to premature wear.
@@ -66,7 +66,7 @@ Alternatives for Time Persistence Across Reboots
 
 2. **Store Time in Non-Volatile RAM (NVRAM)**
 
-   + Use NVRAM or battery-backed RAM to store the current UTC time.
+   + Use NVRAM or battery-backed RAM to store the current Unix epoch time.
    + This method avoids flash wear and allows faster read/write operations.
    + Risks:
 
@@ -75,7 +75,7 @@ Alternatives for Time Persistence Across Reboots
 
 3. **Use an RTC Device**
 
-   + If the hardware includes an RTC, initialize it with the current UTC time and use it as a persistent time source.
+   + If the hardware includes an RTC, initialize it with the current Unix epoch time and use it as a persistent time source.
    + This is the most reliable method for time persistence across reboots.
    + Risks:
 
@@ -115,7 +115,7 @@ Below is a recommended workflow for managing time in the SDK:
 
 5. **Handle Resynchronization**
 
-   + During resynchronization, adjust the system clock to the correct UTC time.
+   + During resynchronization, adjust the system clock to the correct Unix epoch time.
    + Log the adjustment to maintain an audit trail.
 
 
@@ -127,7 +127,7 @@ generating time-based keys or validating timestamps. Follow these
 guidelines:
 
 + Ensure the system clock is synchronized before performing encryption-related tasks.
-+ Log the UTC time used for encryption to facilitate debugging and auditing.
++ Log the Unix epoch time used for encryption to facilitate debugging and auditing.
 
 Additional Notes
 ================

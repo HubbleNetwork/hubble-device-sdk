@@ -31,7 +31,7 @@
 #define SEC_PER_HOUR    (60ULL * 60ULL)
 #define HOUR_TO_US(_x)  ((_x) * SEC_PER_HOUR * USEC_PER_SEC)
 
-#include "utc.c"
+#include "epoch.c"
 #include "key.c"
 
 static void esp_gap_cb(esp_gap_ble_cb_event_t event,
@@ -100,7 +100,7 @@ void app_main(void)
 	esp_err_t ret;
 	esp_timer_handle_t adv_timer;
 
-	ret = hubble_init(utc_time, master_key);
+	ret = hubble_init(unix_epoch_ms, master_key);
 	if (ret != 0) {
 		ESP_LOGE(DEMO_TAG, "Failed to initialize Hubble BLE Network");
 		return;

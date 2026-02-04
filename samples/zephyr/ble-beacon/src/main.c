@@ -18,7 +18,7 @@
 #include <stdlib.h>
 
 #include "key.c"
-#include "utc.c"
+#include "epoch.c"
 
 LOG_MODULE_REGISTER(main);
 
@@ -117,17 +117,17 @@ K_SEM_DEFINE(time_sem, 0, 1);
 
 static int bt_cts_cts_time_write(struct bt_cts_time_format *cts_time)
 {
-	return bt_cts_time_to_unix_ms(cts_time, &utc_time);
+	return bt_cts_time_to_unix_ms(cts_time, &unix_epoch_ms);
 }
 
 int bt_cts_fill_current_cts_time(struct bt_cts_time_format *cts_time)
 {
-	return bt_cts_time_from_unix_ms(cts_time, utc_time + k_uptime_get());
+	return bt_cts_time_from_unix_ms(cts_time, unix_epoch_ms + k_uptime_get());
 }
 
 static void disconnected(struct bt_conn *conn, uint8_t reason)
 {
-	if (utc_time != 0U) {
+	if (unix_epoch_ms != 0U) {
 		k_sem_give(&time_sem);
 	} else {
 		k_work_submit(&ble_work);
@@ -147,8 +147,8 @@ static int hubble_ble_time_sync(void)
 {
 	int ret = 0;
 
-	/* Lets ensure that utc_time is not set */
-	utc_time = 0U;
+	/* Lets ensure that unix_epoch_ms is not set */
+	unix_epoch_ms = 0U;
 
 	bt_cts_init(&cts_cb);
 
@@ -189,12 +189,12 @@ int main(void)
 #ifdef CONFIG_HUBBLE_BEACON_SAMPLE_USE_CTS
 	err = hubble_ble_time_sync();
 	if (err != 0) {
-		LOG_ERR("Could not get utc time synced !");
+		LOG_ERR("Could not get Unix epoch time synced !");
 		goto end;
 	}
 #endif /* CONFIG_HUBBLE_BEACON_SAMPLE_USE_CTS */
 
-	err = hubble_init(utc_time, master_key);
+	err = hubble_init(unix_epoch_ms, master_key);
 	if (err != 0) {
 		LOG_ERR("Failed to initialize Hubble BLE Network");
 		goto end;

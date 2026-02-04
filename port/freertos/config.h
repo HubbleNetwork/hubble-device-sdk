@@ -40,7 +40,7 @@
 /*
  * Device time drift retry rate in parts per million (PPM).
  * Additional retries is added proportional to time since
- * last time the device had utc time synced.
+ * last time the device had Unix epoch time synced.
  */
 #define CONFIG_HUBBLE_SAT_NETWORK_DEVICE_TDR  500
 

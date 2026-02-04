@@ -17,7 +17,7 @@
 
 #define HUBBLE_SAT_DEV_ID 0x1337
 
-static uint64_t _utc = 1760210751803ULL;
+static uint64_t _unix_epoch_ms = 1760210751803ULL;
 /* zRWlq8BgtnKIph5E6ZW6d9FAvUZWS4jeQcFaknOwzoU= */
 static uint8_t sat_key[CONFIG_HUBBLE_KEY_SIZE] = {
 	0xcd, 0x15, 0xa5, 0xab, 0xc0, 0x60, 0xb6, 0x72, 0x88, 0xa6, 0x1e,
@@ -168,7 +168,7 @@ static void *sat_test_setup(void)
 {
 	int err;
 
-	err = hubble_init(_utc, sat_key);
+	err = hubble_init(_unix_epoch_ms, sat_key);
 	zassert_ok(err);
 
 	return NULL;

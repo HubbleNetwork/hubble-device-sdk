@@ -5,8 +5,8 @@
 This sample application demonstrates how to use the Hubble Network SDK on a
 Zephyr-based device to broadcast data over Bluetooth Low Energy (BLE).
 
-The application initializes the Hubble SDK, sets an encryption key and a UTC
-timestamp, and then advertises user-provided data within a BLE packet. It
+The application initializes the Hubble SDK, sets an encryption key and a Unix
+epoch timestamp, and then advertises user-provided data within a BLE packet. It
 provides a shell interface over the serial port to input the necessary
 configuration and data.
 
@@ -39,12 +39,12 @@ After flashing, connect to your device's serial port using a terminal emulator
 
 You will see a prompt like this:
 ```
-Insert key and utc time to start. Type help for more information.
+Insert key and epoch time to start. Type help for more information.
 uart:~$
 ```
 
 The application will not start advertising until both the encryption key and
-the UTC time are set.
+the Unix epoch time are set.
 
 ### Step 1: Set the Encryption Key
 
@@ -85,10 +85,10 @@ The key can be provisioned at build time using `provisioning-key.py` tool.
 
     You should see a confirmation that the key has been set.
 
-### Step 2: Set the UTC Time
+### Step 2: Set the Unix Epoch Time
 
-Set the current UTC time using the `utc` command, providing the time as a Unix
-timestamp (miliseconds since the epoch).
+Set the current Unix epoch time using the `time` command, providing the time as
+milliseconds since the Unix epoch (January 1, 1970, 00:00:00 UTC).
 
 You can get the current Unix timestamp with the following command:
 ```sh
@@ -97,12 +97,12 @@ python -c "import time;print(int(time.time() * 1000))"
 date +"%s%3N"
 ```
 
-In the sample's shell, run the `utc` command with the timestamp:
+In the sample's shell, run the `time` command with the timestamp:
 ```sh
-uart:~$ utc 1752865580290
+uart:~$ time 1752865580290
 ```
 
-Once the UTC time is set, the application will initialize the Hubble SDK and
+Once the Unix epoch time is set, the application will initialize the Hubble SDK and
 the Bluetooth subsystem.
 
 ### Step 3: Advertise Data
@@ -124,5 +124,5 @@ This sample adds the following custom commands to the Zephyr shell:
 | Command | Description                                     | Arguments                            |
 | :------ | :---------------------------------------------- | :------------------------------------|
 | `key`   | Puts the device in key-loading mode.            | None                                 |
-| `utc`   | Sets the UTC time.                              | `<timestamp>` (Unix timestamp in ms) |
+| `time`  | Sets the Unix epoch time.                       | `<timestamp>` (Unix timestamp in ms) |
 | `data`  | Sets the data payload to be advertised.         | `<string>` (e.g., "your data")       |

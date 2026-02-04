@@ -13,13 +13,13 @@ The beacon advertises data that can be picked up by the Hubble Network. The
 advertised data is generated using the `hubble_ble_advertise_get()` function
 from the Hubble BLE library.
 
-The sample requires a master key and the current UTC time to be provisioned
-into the device. This is done by running the `embed_key_utc.py` script before
+The sample requires a master key and the current Unix epoch time to be provisioned
+into the device. This is done by running the `embed_key_time.py` script before
 building the application.
 
 ## Provisioning
 
-The provisioning process embeds a master key and the current UTC time into the
+The provisioning process embeds a master key and the current Unix epoch time into the
 firmware. This is a necessary step before building and flashing the
 application.
 
@@ -35,15 +35,15 @@ application.
 
 ### 2. Run the Provisioning Script
 
-The `embed_key_utc.py` script takes the key file and embeds it along with the
-current timestamp into the source code (`src/key.c` and `src/utc.c`).
+The `embed_key_time.py` script takes the key file and embeds it along with the
+current timestamp into the source code (`src/key.c` and `src/epoch.c`).
 
 **For a raw key file:**
 
 ```sh
 # Script is located in SDK_BASE/tools
 
-python ../../../tools/embed_key_utc.py master.key -o ./src
+python ../../../tools/embed_key_time.py master.key -o ./src
 ```
 
 **For a base64-encoded key file:**
@@ -53,7 +53,7 @@ Use the `-b` or `--base64` flag:
 ```sh
 # Script is located in SDK_BASE/tools
 
-python ../../../tools/embed_key_utc.py -b master.key -o ./src
+python ../../../tools/embed_key_time.py -b master.key -o ./src
 ```
 
 After running the script, the key and timestamp will be compiled into the application.
@@ -71,7 +71,7 @@ After flashing, the device will start advertising as a Hubble BLE beacon.
 
 > [!WARNING]
 > If the application was built with `CONFIG_HUBBLE_BEACON_SAMPLE_USE_CTS` enabled, it is necessary
-> to sync utc time. This can be done using the `sync_time.py` script:
+> to sync Unix epoch time via Bluetooth CTS. This can be done using the `sync_time.py` script:
 >
 > ```sh
 > ./sync_time.py
