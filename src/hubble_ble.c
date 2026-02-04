@@ -12,6 +12,7 @@
 #include <stdio.h>
 #include <string.h>
 
+#include <hubble/hubble.h>
 #include <hubble/ble.h>
 #include <hubble/port/sys.h>
 #include <hubble/port/crypto.h>
@@ -33,10 +34,16 @@
 	(HUBBLE_BLE_ADVERTISE_PREFIX + HUBBLE_BLE_ADDR_SIZE +                  \
 	 HUBBLE_BLE_AUTH_TAG_SIZE)
 
-#if defined(CONFIG_HUBBLE_BLE_NETWORK_TIMER_COUNTER_DAILY)
-#define HUBBLE_TIMER_COUNTER_FREQUENCY 86400000
-#else
-#error "No valid TIMER COUNTER value"
+/* Default rotation period if not configured */
+#ifndef CONFIG_HUBBLE_EID_ROTATION_PERIOD_SEC
+#define CONFIG_HUBBLE_EID_ROTATION_PERIOD_SEC 86400
+#endif
+
+/* Validate counter-based mode configuration */
+#ifdef CONFIG_HUBBLE_EID_COUNTER_BASED
+#ifndef CONFIG_HUBBLE_EID_POOL_SIZE
+#error "CONFIG_HUBBLE_EID_POOL_SIZE must be defined when CONFIG_HUBBLE_EID_COUNTER_BASED is enabled"
+#endif
 #endif
 
 enum hubble_ble_key_label {
@@ -298,8 +305,7 @@ int hubble_ble_advertise_get(const uint8_t *input, size_t input_len,
 {
 	int err;
 	uint32_t device_id;
-	uint32_t time_counter =
-		hubble_internal_utc_time_get() / HUBBLE_TIMER_COUNTER_FREQUENCY;
+	uint32_t time_counter;
 	uint8_t encryption_key[CONFIG_HUBBLE_KEY_SIZE] = {0};
 	uint8_t nonce_counter[HUBBLE_BLE_NONCE_BUFFER_LEN] = {0};
 	uint8_t auth_tag[HUBBLE_BLE_AUTH_LEN] = {0};
@@ -308,6 +314,11 @@ int hubble_ble_advertise_get(const uint8_t *input, size_t input_len,
 
 	if ((master_key == NULL) || (out == NULL) || (out_len == NULL)) {
 		return -EINVAL;
+	}
+
+	err = hubble_eid_counter_get(&time_counter);
+	if (err != 0) {
+		return err;
 	}
 
 	if (input_len > HUBBLE_BLE_MAX_DATA_LEN) {
@@ -374,4 +385,19 @@ encryption_key_err:
 err:
 
 	return err;
+}
+
+uint32_t hubble_ble_advertise_expiration_get(void)
+{
+	uint64_t rotation_period_ms =
+		(uint64_t)CONFIG_HUBBLE_EID_ROTATION_PERIOD_SEC * 1000ULL;
+#ifdef CONFIG_HUBBLE_EID_COUNTER_BASED
+	uint64_t time_ms = hubble_uptime_get();
+#else
+	uint64_t time_ms = hubble_internal_utc_time_get();
+#endif
+	uint64_t time_in_current_period = time_ms % rotation_period_ms;
+	uint64_t time_remaining = rotation_period_ms - time_in_current_period;
+
+	return HUBBLE_MIN(time_remaining, UINT32_MAX);
 }
