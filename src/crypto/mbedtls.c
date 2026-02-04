@@ -14,9 +14,9 @@
 #define BITS_PER_BYTE 8
 #endif
 
-#define _KEY_BITS_LEN               (CONFIG_HUBBLE_KEY_SIZE * BITS_PER_BYTE)
+#define _KEY_BITS_LEN     (CONFIG_HUBBLE_KEY_SIZE * BITS_PER_BYTE)
 
-#define HUBBLE_BLE_STREAM_BLOCK_LEN 16
+#define _STREAM_BLOCK_LEN 16
 
 #if defined(CONFIG_HUBBLE_NETWORK_KEY_256)
 #define CIPHER_TYPE MBEDTLS_CIPHER_AES_256_ECB
@@ -78,7 +78,7 @@ int hubble_crypto_aes_ctr(const uint8_t key[CONFIG_HUBBLE_KEY_SIZE],
 	int ret;
 	size_t nc_off = 0;
 	mbedtls_aes_context aes_ctx;
-	uint8_t stream_block[HUBBLE_BLE_STREAM_BLOCK_LEN] = {0};
+	uint8_t stream_block[_STREAM_BLOCK_LEN] = {0};
 
 	/* No data to encrypt */
 	if (len == 0) {
