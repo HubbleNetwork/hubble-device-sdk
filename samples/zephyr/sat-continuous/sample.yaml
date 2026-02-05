@@ -1,0 +1,30 @@
+# Copyright (c) 2026 Hubble Network, Inc.
+# SPDX-License-Identifier: Apache-2.0
+
+sample:
+  description: Hubble Satellite example
+  name: hubble-sat-continuous
+common:
+  build_only: true
+  # Some test platforms fail because don't enable random subsys.
+  # Let's filter them out.
+  platform_allow:
+    - native_sim
+  tags:
+    - satellite
+tests:
+  app.sat.continuous.default: {}
+  app.sat.continuous.deprecated:
+    extra_configs:
+      - CONFIG_HUBBLE_SAT_NETWORK_PROTOCOL_DEPRECATED=y
+  app.sat.continuous.128key:
+    extra_configs:
+      - CONFIG_HUBBLE_NETWORK_KEY_128=y
+  app.sat.continuous.mbedtls:
+    extra_configs:
+      - CONFIG_HUBBLE_NETWORK_CRYPTO_MBEDTLS=y
+  app.sat.continuous.mbedtls_128key:
+    extra_configs:
+      - CONFIG_HUBBLE_NETWORK_CRYPTO_MBEDTLS=y
+      - CONFIG_HUBBLE_NETWORK_KEY_128=y
+
