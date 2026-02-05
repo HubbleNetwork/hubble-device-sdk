@@ -1,0 +1,26 @@
+# Copyright (c) 2026 Hubble Network, Inc.
+# SPDX-License-Identifier: Apache-2.0
+
+menu "Hubble Network Satellite Sample options"
+
+
+config HUBBLE_SAT_SAMPLE_NETWORK_ID
+    int "Network ID to be used"
+    default 1337
+    help
+	Set device's network id.
+
+config SAMPLE_PROVIDE_SAT_BOARD_SUPPORT
+    bool "Provide satellite board suport for test purpose"
+    default y
+    help
+	Targets that support satellite must select it, otherwise
+	board APIs will be mocked in the sample.
+
+endmenu
+
+source "Kconfig.zephyr"
+
+module = APP
+module-str = APP
+source "subsys/logging/Kconfig.template.log_config"
