@@ -163,7 +163,7 @@ int hubble_sat_packet_get(struct hubble_sat_packet *packet, uint64_t device_id,
 	int symbols[HUBBLE_PACKET_MAX_SIZE] = {0};
 	int *rs_symbols;
 	uint8_t ecc, payload_symbols_length, payload_length_symbol, channel;
-	uint8_t auth_tag[HUBBLE_AUTH_TAG_SIZE / HUBBLE_CHAR_BITS];
+	uint8_t auth_tag[HUBBLE_AUTH_TAG_SIZE / HUBBLE_BITS_PER_BYTE];
 	uint8_t out[HUBBLE_PAYLOAD_MAX_SIZE];
 	uint16_t seq_no = hubble_sequence_counter_get();
 	uint32_t time_counter = hubble_internal_time_counter_get();

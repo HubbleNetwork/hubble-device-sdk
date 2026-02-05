@@ -17,9 +17,6 @@
 #include "hubble_priv.h"
 #include "utils/macros.h"
 
-#ifndef BITS_PER_BYTE
-#define BITS_PER_BYTE 8U
-#endif
 
 #define _MESSAGE_SIZE  64U
 #define _CONTEXT_SIZE  12U
@@ -170,7 +167,8 @@ static int _kbkdf_counter(const uint8_t *key, const char *label,
 	/* Length in bits at the end */
 	memcpy((message + sizeof(counter) + label_len +
 		sizeof(separation_byte) + context_len),
-	       (uint8_t *)&(uint32_t){HUBBLE_CPU_TO_BE32(olen * BITS_PER_BYTE)},
+	       (uint8_t *)&(uint32_t){
+		       HUBBLE_CPU_TO_BE32(olen * HUBBLE_BITS_PER_BYTE)},
 	       sizeof(uint32_t));
 
 	while (total < olen) {
