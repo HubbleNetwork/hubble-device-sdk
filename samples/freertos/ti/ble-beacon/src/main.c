@@ -25,10 +25,10 @@ icall_userCfg_t user0Cfg = BLE_USER_CFG;
 #include <hubble/hubble.h>
 
 #include "key.c"
-#include "utc.c"
+#include "epoch.c"
 
-#if !defined(HUBBLE_KEY_SET) || !defined(HUBBLE_UTC_SET)
-#error "Key and UTC time must be set. Run ./embed_key_utc_.py first !"
+#if !defined(HUBBLE_KEY_SET) || !defined(HUBBLE_UNIX_EPOCH_SET)
+#error "Key and Unix epoch time must be set. Run ./embed_key_time.py first !"
 #endif
 
 BLEAppUtil_GeneralParams_t appMainParams = {
@@ -57,7 +57,7 @@ void App_StackInitDoneHandler(gapDeviceInitDoneEvent_t *deviceInitDoneData)
 
 	(void)deviceInitDoneData;
 
-	err = hubble_init(utc_time, master_key);
+	err = hubble_init(unix_epoch_ms, master_key);
 	if (err != 0) {
 		return;
 	}

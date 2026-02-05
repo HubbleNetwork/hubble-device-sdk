@@ -298,8 +298,8 @@ int hubble_ble_advertise_get(const uint8_t *input, size_t input_len,
 {
 	int err;
 	uint32_t device_id;
-	uint32_t time_counter =
-		hubble_internal_utc_time_get() / HUBBLE_TIMER_COUNTER_FREQUENCY;
+	uint32_t time_counter = hubble_internal_time_ms_get() /
+				HUBBLE_TIMER_COUNTER_FREQUENCY;
 	uint8_t encryption_key[CONFIG_HUBBLE_KEY_SIZE] = {0};
 	uint8_t nonce_counter[HUBBLE_NONCE_BUFFER_SIZE] = {0};
 	uint8_t auth_tag[HUBBLE_BLE_AUTH_LEN] = {0};

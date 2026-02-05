@@ -46,24 +46,24 @@ API Overview
 Initialization
 ==============
 
-Initialize the network with the current UTC time before calling other Hubble
+Initialize the network with the current Unix epoch time before calling other Hubble
 BLE API functions. The ``hubble_init`` function sets up the required
 configurations and prepares the network for operation:
 
 .. code-block:: c
 
-    int hubble_init(uint64_t utc_time, const void *key);
+    int hubble_init(uint64_t unix_epoch_ms, const void *key);
 
 Time Management
 ===============
 
-The API provides functions to set and update the UTC time (seconds since the
-Unix epoch). The `hubble_utc_set` function enables precise time
+The API provides functions to set and update the Unix epoch time (milliseconds since
+January 1, 1970, 00:00:00 UTC). The `hubble_time_set` function enables precise time
 synchronization throughout the network:
 
 .. code-block:: c
 
-   int hubble_utc_set(uint64_t utc_time);
+   int hubble_time_set(uint64_t unix_epoch_ms);
 
 Encryption Key Management
 =========================

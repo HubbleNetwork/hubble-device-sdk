@@ -14,23 +14,23 @@ The beacon advertises data that can be picked up by the Hubble Network. The
 advertised data is generated using the `hubble_ble_advertise_get()` function
 from the Hubble BLE library.
 
-The sample requires a master key and the current UTC time to be provisioned
-into the device. This is done by running the `embed_key_utc.py` script before
+The sample requires a master key and the current Unix epoch time to be provisioned
+into the device. This is done by running the `embed_key_time.py` script before
 building the application.
 
 ## Provisioning
 
-The provisioning process embeds a master key and the current UTC time into the
+The provisioning process embeds a master key and the current Unix epoch time into the
 firmware. This is a necessary step before building and flashing the
 application.
 
-The `embed_key_utc.py` script takes the key file and embeds it along with the
-current timestamp into the source code (`src/key.c` and `src/utc.c`).
+The `embed_key_time.py` script takes the key file and embeds it along with the
+current timestamp into the source code (`main/key.c` and `main/epoch.c`).
 
 **For a raw key file:**
 
 ```sh
-<SDK_ROOT>/tools/embed_key_utc.py master.key -o main/
+<SDK_ROOT>/tools/embed_key_time.py master.key -o main/
 ```
 
 **For a base64-encoded key file:**
@@ -38,7 +38,7 @@ current timestamp into the source code (`src/key.c` and `src/utc.c`).
 Use the `-b` or `--base64` flag:
 
 ```sh
-<SDK_ROOT>/tools/embed_key_utc.py -b master.key -o main/
+<SDK_ROOT>/tools/embed_key_time.py -b master.key -o main/
 ```
 
 After running the script, the key and timestamp will be compiled into the application.

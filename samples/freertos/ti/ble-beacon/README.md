@@ -31,7 +31,7 @@ To build and run this project, you will need:
 + The [TI SDK](https://www.ti.com/tool/download/SIMPLELINK-LOWPOWER-F3-SDK) installed on your system.
 * [TI toolchain](https://www.ti.com/tool/CCSTUDIO)
 + The [HubbleNetwork-SDK](https://github.com/HubbleNetwork/hubble-device-sdk) cloned into the project directory.
-+ Python 3 for running the *embed_key_utc.py* script.
++ Python 3 for running the *embed_key_time.py* script.
 
 ### Project Structure
 + **app**: Contains application-specific source files.
@@ -51,14 +51,14 @@ export SIMPLELINK_LOWPOWER_F3_SDK_INSTALL_DIR=/Applications/ti/simplelink_lowpow
 export SYSCONFIG_TOOL=/Applications/ti/sysconfig_1.23.2/sysconfig_cli.sh
 ```
 
-2. **Embed Key and UTC**
+2. **Embed Key and Unix Epoch Time**
 
-   Use the *embed_key_utc.py* script to provision a BLE key and UTC timestamp:
+   Use the *embed_key_time.py* script to provision a BLE key and Unix epoch timestamp:
 
 ```bash
 # Script is located in SDK_BASE/tools
 
-python ../../../../tools/embed_key_utc.py --base64 <path-to-key> -o src/
+python ../../../../tools/embed_key_time.py --base64 <path-to-key> -o src/
 ```
 
 3. **Set config option**

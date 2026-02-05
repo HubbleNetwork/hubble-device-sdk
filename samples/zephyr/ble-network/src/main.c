@@ -25,7 +25,7 @@ K_SEM_DEFINE(key_sem, 0, 1);
 static uint8_t _hubble_user_buffer[HUBBLE_USER_BUFFER_LEN];
 
 static uint8_t master_key[CONFIG_HUBBLE_KEY_SIZE];
-static uint64_t utc_time;
+static uint64_t unix_epoch_ms;
 static int sum;
 static int chunk_element;
 static char chunk[2];
@@ -117,7 +117,7 @@ static int cmd_key(const struct shell *sh, size_t argc, char **argv, void *data)
 	return 0;
 }
 
-static int cmd_utc(const struct shell *sh, size_t argc, char **argv, void *data)
+static int cmd_time(const struct shell *sh, size_t argc, char **argv, void *data)
 {
 	int ret = 0;
 	static bool give_sem = true;
@@ -126,13 +126,13 @@ static int cmd_utc(const struct shell *sh, size_t argc, char **argv, void *data)
 	ARG_UNUSED(argc);
 	ARG_UNUSED(data);
 
-	utc_time = atoll(argv[1]);
+	unix_epoch_ms = atoll(argv[1]);
 
 	if (give_sem) {
 		k_sem_give(&app_sem);
 		give_sem = false;
 	} else {
-		ret = hubble_utc_set(utc_time);
+		ret = hubble_time_set(unix_epoch_ms);
 	}
 
 	return ret;
@@ -164,7 +164,7 @@ static int cmd_data(const struct shell *sh, size_t argc, char **argv, void *data
 
 
 SHELL_CMD_REGISTER(key, NULL, "Set Hubble Network key", cmd_key);
-SHELL_CMD_ARG_REGISTER(utc, NULL, "Set UTC time", cmd_utc, 2, 0);
+SHELL_CMD_ARG_REGISTER(time, NULL, "Set Unix epoch time", cmd_time, 2, 0);
 SHELL_CMD_ARG_REGISTER(data, NULL, "Set data to advertise", cmd_data, 2, 0);
 
 int main(void)
@@ -173,16 +173,16 @@ int main(void)
 
 	LOG_DBG("Hubble Network Sample %s", APP_VERSION_STRING);
 
-	printk("Insert key and utc time to start. Type help for more "
+	printk("Insert key and epoch time to start. Type help for more "
 	       "information.\n");
 
-	/* Lets wait for the user to set UTC time and Key*/
+	/* Lets wait for the user to set Unix epoch time and Key*/
 	k_sem_take(&key_sem, K_FOREVER);
 	k_sem_take(&app_sem, K_FOREVER);
 
-	LOG_DBG("Key and UTC time set");
+	LOG_DBG("Key and Unix epoch time set");
 
-	err = hubble_init(utc_time, NULL);
+	err = hubble_init(unix_epoch_ms, NULL);
 	if (err != 0) {
 		LOG_ERR("Failed to initialize Hubble BLE Network");
 		return err;

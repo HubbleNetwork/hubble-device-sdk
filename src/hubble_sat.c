@@ -96,8 +96,8 @@ static uint8_t _additional_retries_count(uint8_t interval_s)
 		return 0;
 	}
 
-	synced_interval_s = (hubble_internal_utc_time_get() -
-			     hubble_internal_utc_time_last_synced_get()) /
+	synced_interval_s = (hubble_internal_time_ms_get() -
+			     hubble_internal_time_last_synced_ms_get()) /
 			    1000;
 
 	return HUBBLE_MIN(UINT8_MAX, (synced_interval_s *
