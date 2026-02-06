@@ -11,8 +11,6 @@
 
 #include "../utils/macros.h"
 
-#define _KEY_BITS_LEN     (CONFIG_HUBBLE_KEY_SIZE * HUBBLE_BITS_PER_BYTE)
-
 #define _STREAM_BLOCK_LEN 16
 
 #if defined(CONFIG_HUBBLE_NETWORK_KEY_256)
@@ -47,7 +45,7 @@ int hubble_crypto_cmac(const uint8_t key[CONFIG_HUBBLE_KEY_SIZE],
 		goto exit;
 	}
 
-	ret = mbedtls_cipher_cmac_starts(&ctx, key, _KEY_BITS_LEN);
+	ret = mbedtls_cipher_cmac_starts(&ctx, key, HUBBLE_KEY_SIZE_BITS);
 	if (ret) {
 		goto exit;
 	}
@@ -86,7 +84,7 @@ int hubble_crypto_aes_ctr(const uint8_t key[CONFIG_HUBBLE_KEY_SIZE],
 	mbedtls_aes_init(&aes_ctx);
 
 	/* Set the AES key */
-	ret = mbedtls_aes_setkey_enc(&aes_ctx, key, _KEY_BITS_LEN);
+	ret = mbedtls_aes_setkey_enc(&aes_ctx, key, HUBBLE_KEY_SIZE_BITS);
 	if (ret) {
 		goto key_error;
 	}
