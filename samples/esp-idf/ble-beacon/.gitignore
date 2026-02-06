@@ -1,8 +1,0 @@
-# Build artifacts
-
-main/key.c
-main/utc.c
-build/
-.cache
-sdkconfig
-sdkconfig.old

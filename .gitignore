@@ -10,3 +10,9 @@ docs/_doxygen/
 **/twister-out*/
 **/build/**
 .cache/
+
+# generated files
+**/key.c
+**/utc.c
+**/sdkconfig
+**/sdkconfig.old
