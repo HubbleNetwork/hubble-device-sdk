@@ -155,8 +155,8 @@ static int _whitening(uint8_t seed, int *symbols, size_t len)
 	return 0;
 }
 
-int hubble_sat_packet_get(struct hubble_sat_packet *packet, uint64_t device_id,
-			  const void *payload, size_t length)
+int hubble_sat_packet_get(struct hubble_sat_packet *packet, const void *payload,
+			  size_t length)
 {
 	int ret;
 	struct hubble_bitarray bit_array;
@@ -168,9 +168,6 @@ int hubble_sat_packet_get(struct hubble_sat_packet *packet, uint64_t device_id,
 	uint16_t seq_no = hubble_sequence_counter_get();
 	uint32_t time_counter = hubble_internal_time_counter_get();
 	uint32_t eid;
-
-	/* This protocol uses dynamic device id */
-	(void)device_id;
 
 	if (hubble_internal_key_get() == NULL) {
 		HUBBLE_LOG_WARNING("Key not set");

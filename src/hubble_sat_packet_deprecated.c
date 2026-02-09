@@ -118,8 +118,8 @@ int hubble_sat_static_device_id_set(uint64_t id)
 	return 0;
 }
 
-int hubble_sat_packet_get(struct hubble_sat_packet *packet, uint64_t device_id,
-			  const void *payload, size_t length)
+int hubble_sat_packet_get(struct hubble_sat_packet *packet, const void *payload,
+			  size_t length)
 {
 	int ret;
 	struct hubble_bitarray bit_array;
@@ -139,7 +139,7 @@ int hubble_sat_packet_get(struct hubble_sat_packet *packet, uint64_t device_id,
 	hubble_bitarray_init(&bit_array);
 
 	/* Device ID */
-	ret = hubble_bitarray_append(&bit_array, (uint8_t *)&device_id,
+	ret = hubble_bitarray_append(&bit_array, (uint8_t *)&_device_id,
 				     HUBBLE_DEVICE_ID_SIZE);
 	if (ret < 0) {
 		return ret;

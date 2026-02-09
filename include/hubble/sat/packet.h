@@ -77,10 +77,9 @@ struct hubble_sat_packet {
  * @brief Build a Hubble satellite packet from a payload.
  *
  * This function constructs a Hubble satellite packet by encoding the provided
- * payload data along with the device ID into the packet structure.
+ * payload data into the packet structure.
  *
  * @param  packet  Pointer to the packet structure to be populated.
- * @param  dev_id  Device ID to be encoded in the packet.
  * @param  payload Pointer to the payload data to be included in the packet.
  * @param  length  Length of the payload data in bytes.
  *
@@ -88,8 +87,8 @@ struct hubble_sat_packet {
  * @retval -EINVAL If any of the input parameters are invalid.
  * @retval -ENOMEM If the payload length exceeds the maximum allowed size.
  */
-int hubble_sat_packet_get(struct hubble_sat_packet *packet, uint64_t dev_id,
-			  const void *payload, size_t length);
+int hubble_sat_packet_get(struct hubble_sat_packet *packet, const void *payload,
+			  size_t length);
 
 /**
  * @}
