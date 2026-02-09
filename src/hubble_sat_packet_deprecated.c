@@ -52,6 +52,7 @@ static const uint8_t _hubble_packet_total_symbols[] = {
 };
 
 static uint16_t _sequence_number;
+static uint64_t _device_id;
 
 /* Returns the index (_hubble_packet_total_symbols) to the total number of
  * symbols needed for the packet.
@@ -108,6 +109,13 @@ static int _encode(const struct hubble_bitarray *bit_array, int *symbols,
 	}
 
 	return index;
+}
+
+int hubble_sat_static_device_id_set(uint64_t id)
+{
+	_device_id = id;
+
+	return 0;
 }
 
 int hubble_sat_packet_get(struct hubble_sat_packet *packet, uint64_t device_id,

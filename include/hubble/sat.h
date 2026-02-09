@@ -7,6 +7,7 @@
 #ifndef INCLUDE_HUBBLE_SAT_H
 #define INCLUDE_HUBBLE_SAT_H
 
+#include <errno.h>
 #include <stdint.h>
 
 #include <hubble/sat/packet.h>
@@ -55,6 +56,36 @@ enum hubble_sat_transmission_mode {
  */
 int hubble_sat_packet_send(const struct hubble_sat_packet *packet,
 			   enum hubble_sat_transmission_mode mode);
+
+#if defined(CONFIG_HUBBLE_SAT_NETWORK_PROTOCOL_DEPRECATED) ||                  \
+	defined(__DOXYGEN__)
+
+/**
+ * @brief Set the static device ID used in satellite packet transmissions.
+ *
+ * This function assigns a fixed device identifier that is embedded in the
+ * header of each satellite packet built with the deprecated network protocol.
+ *
+ * @note This function is only available when
+ *       @kconfig{CONFIG_HUBBLE_SAT_NETWORK_PROTOCOL_DEPRECATED} is enabled.
+ *       When the option is disabled, calls to this function return @c -ENOSYS.
+ *
+ * @param id Device identifier to use for subsequent transmissions.
+ *
+ * @return 0 on success, or a negative error code on failure.
+ */
+int hubble_sat_static_device_id_set(uint64_t id);
+
+#else
+
+static inline int hubble_sat_static_device_id_set(uint64_t id)
+{
+	(void)id;
+
+	return -ENOSYS;
+}
+
+#endif /* CONFIG_HUBBLE_SAT_NETWORK_PROTOCOL_DEPRECATED */
 
 /**
  * @}
