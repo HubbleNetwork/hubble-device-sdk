@@ -20,13 +20,13 @@ extern "C" {
 #endif
 
 /**
- * @struct orbit_info
- * @brief Represents the orbital information of a satellite.
+ * @struct hubble_sat_orbital_params
+ * @brief Represents the orbital parameters of a satellite.
  *
  * This structure contains the parameters required to describe the orbit
  * of a satellite, including its position, motion, and orientation.
  */
-struct orbit_info {
+struct hubble_sat_orbital_params {
 	/** Reference epoch time (seconds since Unix epoch) */
 	uint64_t t0;
 	/** Mean motion at epoch (radians per second) */
@@ -48,13 +48,13 @@ struct orbit_info {
 };
 
 /**
- * @struct ground_info
- * @brief Represents the location of a ground station.
+ * @struct hubble_sat_device_pos
+ * @brief Represents the location of a device.
  *
  * This structure contains the latitude and longitude of a
- * ground station on Earth.
+ * device on Earth.
  */
-struct ground_info {
+struct hubble_sat_device_pos {
 	/** Latitude in degrees. */
 	double lat;
 	/** Longitude in degrees. */
@@ -62,13 +62,13 @@ struct ground_info {
 };
 
 /**
- * @struct ground_region_info
+ * @struct hubble_sat_device_region
  * @brief Represents a rectangular geographic region.
  *
- * This structure defines a rectangular region on Earth using
+ * This structure defines a rectangular region using
  * a center point (latitude/longitude) and range values.
  */
-struct ground_region_info {
+struct hubble_sat_device_region {
 	/** Latitude of the region center in degrees. */
 	double lat_mid;
 	/** Total latitude range in degrees (region extends lat_range/2 above and below lat_mid). */
@@ -80,14 +80,14 @@ struct ground_region_info {
 };
 
 /**
- * @struct hubble_pass_info
+ * @struct hubble_sat_pass_info
  * @brief Represents information about a satellite pass.
  *
  * This structure contains details about a satellite's pass over a
  * specific location, including the time, longitude, and whether the
  * satellite is ascending or descending.
  */
-struct hubble_pass_info {
+struct hubble_sat_pass_info {
 	/** Longitude of the satellite pass (degrees, East positive). */
 	double lon;
 	/** Time of the satellite pass (Unix time, seconds since epoch). */
@@ -102,18 +102,18 @@ struct hubble_pass_info {
  * @brief Get the next satellite pass.
  *
  * This function calculates the next pass of the satellite over a
- * given ground station, based on the satellite's orbital parameters
- * and the ground station's location.
+ * given location, based on the satellite's orbital parameters
+ * and the device's location.
  *
  * @param orbit Pointer to the satellite's orbital parameters.
  * @param t Current time or the time from which to start the calculation.
- * @param ground Pointer to the ground station's location.
+ * @param pos Pointer to the device's location.
  * @param pass The next satellite pass in case of success.
  * @return 0 on success or a negative value in case of error.
  */
-int hubble_next_pass_get(const struct orbit_info *orbit, uint64_t t,
-			 const struct ground_info *ground,
-			 struct hubble_pass_info *pass);
+int hubble_next_pass_get(const struct hubble_sat_orbital_params *orbit,
+			 uint64_t t, const struct hubble_sat_device_pos *pos,
+			 struct hubble_sat_pass_info *pass);
 
 /**
  * @brief Get the next satellite pass over a geographic region.
@@ -128,9 +128,10 @@ int hubble_next_pass_get(const struct orbit_info *orbit, uint64_t t,
  * @param pass The next satellite pass in case of success.
  * @return 0 on success or a negative value in case of error.
  */
-int hubble_next_pass_region_get(const struct orbit_info *orbit, uint64_t t,
-				const struct ground_region_info *region,
-				struct hubble_pass_info *pass);
+int hubble_next_pass_region_get(const struct hubble_sat_orbital_params *orbit,
+				uint64_t t,
+				const struct hubble_sat_device_region *region,
+				struct hubble_sat_pass_info *pass);
 #ifdef __cplusplus
 }
 #endif

@@ -11,7 +11,7 @@
 #define EPHEMERIS_DELTA (3)
 
 struct test_result {
-	struct ground_info pos;
+	struct hubble_sat_device_pos pos;
 	uint64_t start_time;
 	uint64_t next_pass_time;
 };
@@ -99,7 +99,7 @@ static const struct test_result results[] = {
 	{{0.0, 180.0}, 1711310392, 1711419026},
 };
 
-static const struct orbit_info orbit = {
+static const struct hubble_sat_orbital_params orbit = {
 	.t0 = 1711296587,
 	.n0 = 0.00017559780215620866,     /* orbital frequency in orbits/sec */
 	.ndot = 3.6984685877857914e-14,
@@ -114,7 +114,7 @@ static const struct orbit_info orbit = {
 ZTEST(satellite_ephemeris_test, test_satellite_ephemeris_calculation)
 {
 	int ret;
-	struct hubble_pass_info next_pass;
+	struct hubble_sat_pass_info next_pass;
 
 	for (uint16_t count = 0; count < ARRAY_SIZE(results); count++) {
 		ret = hubble_next_pass_get(&orbit, results[count].start_time,
@@ -128,7 +128,7 @@ ZTEST(satellite_ephemeris_test, test_satellite_ephemeris_calculation)
 
 ZTEST(satellite_ephemeris_test, test_satellite_ephemeris_invalid)
 {
-	struct hubble_pass_info next_pass;
+	struct hubble_sat_pass_info next_pass;
 	int ret;
 
 	ret = hubble_next_pass_get(NULL, results[0].start_time,
@@ -145,7 +145,7 @@ ZTEST(satellite_ephemeris_test, test_satellite_ephemeris_invalid)
 }
 
 struct test_region_result {
-	struct ground_region_info region;
+	struct hubble_sat_device_region region;
 	uint64_t start_time;
 	uint64_t next_pass_time;
 	uint32_t duration;
@@ -163,7 +163,7 @@ static const struct test_region_result region_results[] = {
 ZTEST(satellite_ephemeris_test, test_satellite_ephemeris_region_calculation)
 {
 	int ret;
-	struct hubble_pass_info next_pass;
+	struct hubble_sat_pass_info next_pass;
 
 	for (uint16_t count = 0; count < ARRAY_SIZE(region_results); count++) {
 		ret = hubble_next_pass_region_get(

@@ -336,7 +336,8 @@ static double _anomaly_from_theta_mean(double e, double theta)
 }
 
 /* Gets the time of the ascending node for a given orbit count */
-static uint64_t _anode_time_get(const struct orbit_info *info, int count)
+static uint64_t _anode_time_get(const struct hubble_sat_orbital_params *info,
+				int count)
 {
 	double dt;
 
@@ -352,7 +353,8 @@ static uint64_t _anode_time_get(const struct orbit_info *info, int count)
 }
 
 /* Gets the orbit count at a given time */
-static int _orbit_count_get(const struct orbit_info *info, uint64_t t)
+static int _orbit_count_get(const struct hubble_sat_orbital_params *info,
+			    uint64_t t)
 {
 	int64_t dt = t - info->t0;
 
@@ -370,8 +372,9 @@ static double _longitude_get(double ra, uint64_t t)
 }
 
 /* Gets the crossings for a target latitude */
-static int _tll_crossings_get(const struct orbit_info *orbit, double tll,
-			      int orbit_count, struct crossing_info result[2])
+static int _tll_crossings_get(const struct hubble_sat_orbital_params *orbit,
+			      double tll, int orbit_count,
+			      struct crossing_info result[2])
 {
 	double latrad = _DEG2RAD(tll);
 	double inclination = _DEG2RAD(orbit->inclination);
@@ -458,11 +461,11 @@ static double _lon_tolerance_get(double lat)
  * Helper function to calculate the next pass for ascending or
  * descending crossings
  */
-static int _next_pass_get(const struct orbit_info *orbit, bool ascending,
-			  double delta_lon, double lon_tol,
-			  const struct ground_info *ground,
+static int _next_pass_get(const struct hubble_sat_orbital_params *orbit,
+			  bool ascending, double delta_lon, double lon_tol,
+			  const struct hubble_sat_device_pos *pos,
 			  struct crossing_info crossings[2],
-			  struct hubble_pass_info *pass, uint64_t t)
+			  struct hubble_sat_pass_info *pass, uint64_t t)
 
 {
 	int orbit_count, index;
@@ -474,25 +477,25 @@ static int _next_pass_get(const struct orbit_info *orbit, bool ascending,
 		orbit, crossings[index].t + (uint64_t)lround(dt));
 
 	/* Get the crossings for the updated orbit count */
-	if (_tll_crossings_get(orbit, ground->lat, orbit_count, crossings) != 0) {
+	if (_tll_crossings_get(orbit, pos->lat, orbit_count, crossings) != 0) {
 		return -1;
 	}
 
 	/* Iterate until a valid pass is found */
 	while (pass->t == 0 &&
-	       (HUBBLE_TWO_PI_DEGREES - _zero_to_360(ground->lon - lon_tol -
-						     crossings[index].lon) <
+	       (HUBBLE_TWO_PI_DEGREES -
+			_zero_to_360(pos->lon - lon_tol - crossings[index].lon) <
 		HUBBLE_PI_DEGREES)) {
-		if ((fabs(_minus_180_to_180(crossings[index].lon - ground->lon)) <=
+		if ((fabs(_minus_180_to_180(crossings[index].lon - pos->lon)) <=
 		     lon_tol) &&
 		    (crossings[index].t > t)) {
 			pass->t = crossings[index].t;
 			pass->lon = crossings[index].lon;
-			pass->ascending = (ascending) ? ground->lat > 0
-						      : ground->lat <= 0;
+			pass->ascending =
+				(ascending) ? pos->lat > 0 : pos->lat <= 0;
 		} else {
 			orbit_count++;
-			if (_tll_crossings_get(orbit, ground->lat, orbit_count,
+			if (_tll_crossings_get(orbit, pos->lat, orbit_count,
 					       crossings) != 0) {
 				return -1;
 			}
@@ -502,9 +505,9 @@ static int _next_pass_get(const struct orbit_info *orbit, bool ascending,
 	return 0;
 }
 
-static int _pass_get(const struct orbit_info *orbit, uint64_t t,
-		     const struct ground_info *ground, double lon_tol,
-		     struct hubble_pass_info *pass)
+static int _pass_get(const struct hubble_sat_orbital_params *orbit, uint64_t t,
+		     const struct hubble_sat_device_pos *pos, double lon_tol,
+		     struct hubble_sat_pass_info *pass)
 {
 	struct crossing_info crossings[2];
 	int orbit_count;
@@ -514,13 +517,13 @@ static int _pass_get(const struct orbit_info *orbit, uint64_t t,
 		return -1;
 	}
 
-	if (_tll_crossings_get(orbit, ground->lat, orbit_count, crossings) != 0) {
+	if (_tll_crossings_get(orbit, pos->lat, orbit_count, crossings) != 0) {
 		return -1;
 	}
 
 	while (crossings[0].t <= t) {
 		orbit_count++;
-		if (_tll_crossings_get(orbit, ground->lat, orbit_count,
+		if (_tll_crossings_get(orbit, pos->lat, orbit_count,
 				       crossings) != 0) {
 			return -1;
 		}
@@ -528,17 +531,17 @@ static int _pass_get(const struct orbit_info *orbit, uint64_t t,
 
 	memset(pass, 0, sizeof(*pass));
 
-	if ((fabs(_minus_180_to_180(crossings[0].lon - ground->lon)) <= lon_tol) &&
+	if ((fabs(_minus_180_to_180(crossings[0].lon - pos->lon)) <= lon_tol) &&
 	    (crossings[0].t > t)) {
 		pass->t = crossings[0].t;
 		pass->lon = crossings[0].lon;
-		pass->ascending = ground->lat > 0;
-	} else if ((fabs(_minus_180_to_180(crossings[1].lon - ground->lon)) <=
+		pass->ascending = pos->lat > 0;
+	} else if ((fabs(_minus_180_to_180(crossings[1].lon - pos->lon)) <=
 		    lon_tol) &&
 		   (crossings[1].t > t)) {
 		pass->t = crossings[1].t;
 		pass->lon = crossings[1].lon;
-		pass->ascending = ground->lat <= 0;
+		pass->ascending = pos->lat <= 0;
 	}
 
 	while (pass->t == 0) {
@@ -546,18 +549,18 @@ static int _pass_get(const struct orbit_info *orbit, uint64_t t,
 
 		double delta_lon_a =
 			HUBBLE_TWO_PI_DEGREES -
-			_zero_to_360(ground->lon + lon_tol - crossings[0].lon);
+			_zero_to_360(pos->lon + lon_tol - crossings[0].lon);
 		double delta_lon_d =
 			HUBBLE_TWO_PI_DEGREES -
-			_zero_to_360(ground->lon + lon_tol - crossings[1].lon);
+			_zero_to_360(pos->lon + lon_tol - crossings[1].lon);
 
 		if (delta_lon_a < delta_lon_d) {
 			ret = _next_pass_get(orbit, true, delta_lon_a, lon_tol,
-					     ground, crossings, pass, t);
+					     pos, crossings, pass, t);
 			t = crossings[0].t;
 		} else {
 			ret = _next_pass_get(orbit, false, delta_lon_d, lon_tol,
-					     ground, crossings, pass, t);
+					     pos, crossings, pass, t);
 			t = crossings[1].t;
 		}
 
@@ -569,34 +572,35 @@ static int _pass_get(const struct orbit_info *orbit, uint64_t t,
 	return 0;
 }
 
-int hubble_next_pass_get(const struct orbit_info *orbit, uint64_t t,
-			 const struct ground_info *ground,
-			 struct hubble_pass_info *pass)
+int hubble_next_pass_get(const struct hubble_sat_orbital_params *orbit,
+			 uint64_t t, const struct hubble_sat_device_pos *pos,
+			 struct hubble_sat_pass_info *pass)
 {
 	double lon_tol;
 
 	/* Basic sanity check */
-	if ((orbit == NULL) || (ground == NULL) || (pass == NULL)) {
+	if ((orbit == NULL) || (pos == NULL) || (pass == NULL)) {
 		return -EINVAL;
 	}
 
-	lon_tol = _lon_tolerance_get(ground->lat);
+	lon_tol = _lon_tolerance_get(pos->lat);
 	/* TODO: Check a reasonable value for a specific location pass */
 	pass->duration = 0;
 
-	return _pass_get(orbit, t, ground, lon_tol, pass);
+	return _pass_get(orbit, t, pos, lon_tol, pass);
 }
 
-int hubble_next_pass_region_get(const struct orbit_info *orbit, uint64_t t,
-				const struct ground_region_info *region,
-				struct hubble_pass_info *pass)
+int hubble_next_pass_region_get(const struct hubble_sat_orbital_params *orbit,
+				uint64_t t,
+				const struct hubble_sat_device_region *region,
+				struct hubble_sat_pass_info *pass)
 {
 	int ret;
 	double lon_tol, lat_mid;
 	struct crossing_info crossings_min[2], crossings_max[2];
 	int orbit_count;
 	double lat_min, lat_max;
-	struct ground_info ground;
+	struct hubble_sat_device_pos pos;
 
 	/* Basic sanity check */
 	if ((orbit == NULL) || (region == NULL) || (pass == NULL)) {
@@ -612,10 +616,10 @@ int hubble_next_pass_region_get(const struct orbit_info *orbit, uint64_t t,
 	lat_min = lat_mid - (region->lat_range / 2);
 	lat_max = lat_mid + (region->lat_range / 2);
 
-	ground.lat = lat_mid;
-	ground.lon = region->lon_mid;
+	pos.lat = lat_mid;
+	pos.lon = region->lon_mid;
 
-	if (_pass_get(orbit, t, &ground, lon_tol, pass) != 0) {
+	if (_pass_get(orbit, t, &pos, lon_tol, pass) != 0) {
 		return -1;
 	}
 
