@@ -108,7 +108,7 @@ static const struct hubble_sat_orbital_params orbit = {
 	.aop0 = 3.523598389978097,
 	.aopdot = -6.981828658074634e-07, /* approximation */
 	.inclination = 97.4608,
-	.eccentricity = 0.0010652
+	.eccentricity = 0.0010652,
 };
 
 ZTEST(satellite_ephemeris_test, test_satellite_ephemeris_calculation)
