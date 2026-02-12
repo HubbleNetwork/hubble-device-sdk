@@ -13,6 +13,7 @@
 #define INCLUDE_HUBBLE_SAT_EPHEMERIS_H
 
 #include <stdbool.h>
+#include <stddef.h>
 #include <stdint.h>
 
 #ifdef __cplusplus
@@ -45,6 +46,8 @@ struct hubble_sat_orbital_params {
 	double inclination;
 	/** Eccentricity (unitless, 0=circular) */
 	double eccentricity;
+	/** NORAD ID of the satellite */
+	uint32_t sat_id;
 };
 
 /**
@@ -99,37 +102,55 @@ struct hubble_sat_pass_info {
 };
 
 /**
+ * @brief Set orbital information for satellites.
+ *
+ * This function stores orbital parameters for one or more satellites. The parameters
+ * are used by hubble_next_pass_get() and hubble_next_pass_region_get() to compute
+ * the next satellite pass across all configured satellites.
+ *
+ * @note The caller must ensure the @p satellites array remains valid for the lifetime
+ *       of subsequent pass calculations, as the data is not copied internally.
+ *
+ * @note To clear the satellite list, call with @p satellites set to NULL and
+ *       @p count set to 0.
+ *
+ * @param satellites Pointer to an array of satellite orbital parameters. May be NULL
+ *                   only if @p count is 0.
+ * @param count Number of entries in the array. Pass 0 to clear the satellite list.
+ * @return 0 on success.
+ * @retval -EINVAL if @p satellites is NULL and @p count is greater than 0.
+ */
+int hubble_sat_satellites_set(
+	const struct hubble_sat_orbital_params *const satellites, size_t count);
+
+/**
  * @brief Get the next satellite pass.
  *
- * This function calculates the next pass of the satellite over a
- * given location, based on the satellite's orbital parameters
+ * This function calculates the next pass of a satellite over a
+ * given location, based on satellites orbital parameters
  * and the device's location.
  *
- * @param orbit Pointer to the satellite's orbital parameters.
  * @param t Current time or the time from which to start the calculation.
  * @param pos Pointer to the device's location.
  * @param pass The next satellite pass in case of success.
  * @return 0 on success or a negative value in case of error.
  */
-int hubble_next_pass_get(const struct hubble_sat_orbital_params *orbit,
-			 uint64_t t, const struct hubble_sat_device_pos *pos,
+int hubble_next_pass_get(uint64_t t, const struct hubble_sat_device_pos *pos,
 			 struct hubble_sat_pass_info *pass);
 
 /**
  * @brief Get the next satellite pass over a geographic region.
  *
- * This function calculates the next pass of the satellite over a
+ * This function calculates the next pass of a satellite over a
  * rectangular geographic region defined by latitude and longitude
- * bounds, based on the satellite's orbital parameters.
+ * bounds, based on satellites orbital parameters.
  *
- * @param orbit Pointer to the satellite's orbital parameters.
  * @param t Current time or the time from which to start the calculation.
  * @param region Pointer to the geographic region definition.
  * @param pass The next satellite pass in case of success.
  * @return 0 on success or a negative value in case of error.
  */
-int hubble_next_pass_region_get(const struct hubble_sat_orbital_params *orbit,
-				uint64_t t,
+int hubble_next_pass_region_get(uint64_t t,
 				const struct hubble_sat_device_region *region,
 				struct hubble_sat_pass_info *pass);
 #ifdef __cplusplus

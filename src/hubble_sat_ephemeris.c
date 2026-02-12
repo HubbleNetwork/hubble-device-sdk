@@ -48,6 +48,9 @@ static const struct {
 	.teme_angle_2027 = HUBBLE_TEME_ANGLE_2027,
 };
 
+static const struct hubble_sat_orbital_params *_satellites;
+static size_t _satellites_count;
+
 #ifdef CONFIG_HUBBLE_SAT_NETWORK_SMALL
 
 static double _atan_poly(double u)
@@ -572,39 +575,71 @@ static int _pass_get(const struct hubble_sat_orbital_params *orbit, uint64_t t,
 	return 0;
 }
 
-int hubble_next_pass_get(const struct hubble_sat_orbital_params *orbit,
-			 uint64_t t, const struct hubble_sat_device_pos *pos,
-			 struct hubble_sat_pass_info *pass)
+int hubble_sat_satellites_set(
+	const struct hubble_sat_orbital_params *const satellites, size_t count)
 {
-	double lon_tol;
+	if ((satellites == NULL) && (count > 0)) {
+		_satellites_count = 0;
+		_satellites = NULL;
 
-	/* Basic sanity check */
-	if ((orbit == NULL) || (pos == NULL) || (pass == NULL)) {
 		return -EINVAL;
 	}
 
-	lon_tol = _lon_tolerance_get(pos->lat);
-	/* TODO: Check a reasonable value for a specific location pass */
-	pass->duration = 0;
+	_satellites_count = count;
+	_satellites = satellites;
 
-	return _pass_get(orbit, t, pos, lon_tol, pass);
+	return 0;
 }
 
-int hubble_next_pass_region_get(const struct hubble_sat_orbital_params *orbit,
-				uint64_t t,
+int hubble_next_pass_get(uint64_t t, const struct hubble_sat_device_pos *pos,
+			 struct hubble_sat_pass_info *pass)
+{
+	struct hubble_sat_pass_info next_pass;
+	double lon_tol;
+
+	/* Basic sanity check */
+	if ((pos == NULL) || (pass == NULL)) {
+		return -EINVAL;
+	}
+
+	if (_satellites_count == 0) {
+		return -ENOENT;
+	}
+
+	pass->t = UINT64_MAX;
+	lon_tol = _lon_tolerance_get(pos->lat);
+
+	for (size_t i = 0; i < _satellites_count; i++) {
+		int ret = _pass_get(&_satellites[i], t, pos, lon_tol, &next_pass);
+
+		if (ret == 0) {
+			if (pass->t > next_pass.t) {
+				*pass = next_pass;
+			}
+		}
+	}
+
+	return pass->t != UINT64_MAX ? 0 : -ENODATA;
+}
+
+int hubble_next_pass_region_get(uint64_t t,
 				const struct hubble_sat_device_region *region,
 				struct hubble_sat_pass_info *pass)
 {
-	int ret;
 	double lon_tol, lat_mid;
 	struct crossing_info crossings_min[2], crossings_max[2];
 	int orbit_count;
 	double lat_min, lat_max;
 	struct hubble_sat_device_pos pos;
+	struct hubble_sat_pass_info next_pass;
 
 	/* Basic sanity check */
-	if ((orbit == NULL) || (region == NULL) || (pass == NULL)) {
+	if ((region == NULL) || (pass == NULL)) {
 		return -EINVAL;
+	}
+
+	if (_satellites_count == 0) {
+		return -ENOENT;
 	}
 
 	lat_mid = region->lat_mid;
@@ -619,67 +654,90 @@ int hubble_next_pass_region_get(const struct hubble_sat_orbital_params *orbit,
 	pos.lat = lat_mid;
 	pos.lon = region->lon_mid;
 
-	if (_pass_get(orbit, t, &pos, lon_tol, pass) != 0) {
-		return -1;
+	pass->t = UINT64_MAX;
+
+	for (size_t i = 0; i < _satellites_count; i++) {
+		int ret;
+
+		ret = _pass_get(&_satellites[i], t, &pos, lon_tol, &next_pass);
+		if (ret != 0) {
+			continue;
+		}
+
+		orbit_count = _orbit_count_get(&_satellites[i], next_pass.t);
+		if (orbit_count < 0) {
+			continue;
+		}
+
+		if ((lat_min * lat_max) < 0) {
+			ret = _tll_crossings_get(&_satellites[i], lat_min,
+						 orbit_count, crossings_min);
+			if (next_pass.ascending) {
+				ret |= _tll_crossings_get(
+					&_satellites[i], lat_max,
+					orbit_count + 1, crossings_max);
+				if (ret != 0) {
+					continue;
+				}
+				next_pass.duration =
+					crossings_max[0].t - crossings_min[1].t;
+			} else {
+				ret |= _tll_crossings_get(&_satellites[i],
+							  lat_max, orbit_count,
+							  crossings_max);
+				if (ret != 0) {
+					continue;
+				}
+				next_pass.duration =
+					crossings_min[0].t - crossings_max[1].t;
+			}
+		} else if ((lat_min < 0) && (lat_max < 0)) {
+			ret = _tll_crossings_get(&_satellites[i], lat_min,
+						 orbit_count, crossings_min);
+			ret |= _tll_crossings_get(&_satellites[i], lat_max,
+						  orbit_count, crossings_max);
+
+			if (ret != 0) {
+				continue;
+			}
+
+			if (next_pass.ascending) {
+				next_pass.duration =
+					crossings_max[1].t - crossings_min[1].t;
+			} else {
+				next_pass.duration =
+					crossings_min[0].t - crossings_max[0].t;
+			}
+		} else {
+			if ((lat_min < 0) || (lat_max < 0)) {
+				continue;
+			}
+
+			ret = _tll_crossings_get(&_satellites[i], lat_min,
+						 orbit_count, crossings_min);
+			ret |= _tll_crossings_get(&_satellites[i], lat_max,
+						  orbit_count, crossings_max);
+
+			if (ret != 0) {
+				continue;
+			}
+
+			if (next_pass.ascending) {
+				next_pass.duration =
+					crossings_max[0].t - crossings_min[0].t;
+			} else {
+				next_pass.duration =
+					crossings_min[1].t - crossings_max[1].t;
+			}
+		}
+
+		if (pass->t > next_pass.t) {
+			*pass = next_pass;
+		}
 	}
 
-	orbit_count = _orbit_count_get(orbit, pass->t);
-	if (orbit_count < 0) {
-		return -1;
-	}
-
-	if ((lat_min * lat_max) < 0) {
-		ret = _tll_crossings_get(orbit, lat_min, orbit_count,
-					 crossings_min);
-		if (pass->ascending) {
-			ret |= _tll_crossings_get(
-				orbit, lat_max, orbit_count + 1, crossings_max);
-			if (ret != 0) {
-				return -1;
-			}
-			pass->duration = crossings_max[0].t - crossings_min[1].t;
-		} else {
-			ret |= _tll_crossings_get(orbit, lat_max, orbit_count,
-						  crossings_max);
-			if (ret != 0) {
-				return -1;
-			}
-			pass->duration = crossings_min[0].t - crossings_max[1].t;
-		}
-	} else if ((lat_min < 0) && (lat_max < 0)) {
-		ret = _tll_crossings_get(orbit, lat_min, orbit_count,
-					 crossings_min);
-		ret |= _tll_crossings_get(orbit, lat_max, orbit_count,
-					  crossings_max);
-
-		if (ret != 0) {
-			return -1;
-		}
-
-		if (pass->ascending) {
-			pass->duration = crossings_max[1].t - crossings_min[1].t;
-		} else {
-			pass->duration = crossings_min[0].t - crossings_max[0].t;
-		}
-	} else {
-		if ((lat_min < 0) || (lat_max < 0)) {
-			return -1;
-		}
-
-		ret = _tll_crossings_get(orbit, lat_min, orbit_count,
-					 crossings_min);
-		ret |= _tll_crossings_get(orbit, lat_max, orbit_count,
-					  crossings_max);
-
-		if (ret != 0) {
-			return -1;
-		}
-
-		if (pass->ascending) {
-			pass->duration = crossings_max[0].t - crossings_min[0].t;
-		} else {
-			pass->duration = crossings_min[1].t - crossings_max[1].t;
-		}
+	if (pass->t == UINT64_MAX) {
+		return -ENODATA;
 	}
 
 	pass->t -= pass->duration / 2;
