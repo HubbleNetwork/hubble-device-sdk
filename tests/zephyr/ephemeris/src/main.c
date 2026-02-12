@@ -109,6 +109,7 @@ static const struct hubble_sat_orbital_params orbit = {
 	.aopdot = -6.981828658074634e-07, /* approximation */
 	.inclination = 97.4608,
 	.eccentricity = 0.0010652,
+	.sat_id = 60471,
 };
 
 ZTEST(satellite_ephemeris_test, test_satellite_ephemeris_calculation)
@@ -116,8 +117,11 @@ ZTEST(satellite_ephemeris_test, test_satellite_ephemeris_calculation)
 	int ret;
 	struct hubble_sat_pass_info next_pass;
 
+	ret = hubble_sat_satellites_set(&orbit, 1);
+	zassert_equal(ret, 0, NULL);
+
 	for (uint16_t count = 0; count < ARRAY_SIZE(results); count++) {
-		ret = hubble_next_pass_get(&orbit, results[count].start_time,
+		ret = hubble_next_pass_get(results[count].start_time,
 					   &(results[count].pos), &next_pass);
 
 		zassert_equal(ret, 0, NULL);
@@ -131,16 +135,37 @@ ZTEST(satellite_ephemeris_test, test_satellite_ephemeris_invalid)
 	struct hubble_sat_pass_info next_pass;
 	int ret;
 
-	ret = hubble_next_pass_get(NULL, results[0].start_time,
-				   &(results[0].pos), &next_pass);
+	ret = hubble_sat_satellites_set(NULL, 0);
+	zassert_equal(ret, 0, NULL);
+
+	ret = hubble_sat_satellites_set(NULL, 5);
 	zassert_equal(ret, -EINVAL, NULL);
 
-	ret = hubble_next_pass_get(&orbit, results[0].start_time, NULL,
+	ret = hubble_next_pass_get(results[0].start_time, &(results[0].pos),
 				   &next_pass);
+	zassert_equal(ret, -ENOENT, NULL);
+
+	ret = hubble_next_pass_region_get(
+		0, &(struct hubble_sat_device_region){1.0, 30.0, -45.0, 50.0},
+		&next_pass);
+	zassert_equal(ret, -ENOENT, NULL);
+
+	ret = hubble_sat_satellites_set(&orbit, 1);
+	zassert_equal(ret, 0, NULL);
+
+	ret = hubble_next_pass_get(results[0].start_time, NULL, &next_pass);
 	zassert_equal(ret, -EINVAL, NULL);
 
-	ret = hubble_next_pass_get(&orbit, results[0].start_time,
-				   &(results[0].pos), NULL);
+	ret = hubble_next_pass_get(results[0].start_time, &(results[0].pos),
+				   NULL);
+	zassert_equal(ret, -EINVAL, NULL);
+
+	ret = hubble_next_pass_region_get(0, NULL, &next_pass);
+	zassert_equal(ret, -EINVAL, NULL);
+
+	ret = hubble_next_pass_region_get(
+		0, &(struct hubble_sat_device_region){1.0, 30.0, -45.0, 50.0},
+		NULL);
 	zassert_equal(ret, -EINVAL, NULL);
 }
 
@@ -165,9 +190,12 @@ ZTEST(satellite_ephemeris_test, test_satellite_ephemeris_region_calculation)
 	int ret;
 	struct hubble_sat_pass_info next_pass;
 
+	ret = hubble_sat_satellites_set(&orbit, 1);
+	zassert_equal(ret, 0, NULL);
+
 	for (uint16_t count = 0; count < ARRAY_SIZE(region_results); count++) {
 		ret = hubble_next_pass_region_get(
-			&orbit, region_results[count].start_time,
+			region_results[count].start_time,
 			&(region_results[count].region), &next_pass);
 
 		zassert_equal(ret, 0, NULL);
