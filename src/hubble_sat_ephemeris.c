@@ -619,7 +619,7 @@ int hubble_next_pass_get(uint64_t t, const struct hubble_sat_device_pos *pos,
 		}
 	}
 
-	return pass->t != UINT64_MAX ? 0 : -ENODATA;
+	return pass->t != UINT64_MAX ? 0 : -ENOENT;
 }
 
 int hubble_next_pass_region_get(uint64_t t,
@@ -737,7 +737,7 @@ int hubble_next_pass_region_get(uint64_t t,
 	}
 
 	if (pass->t == UINT64_MAX) {
-		return -ENODATA;
+		return -ENOENT;
 	}
 
 	pass->t -= pass->duration / 2;
