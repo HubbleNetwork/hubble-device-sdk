@@ -102,6 +102,35 @@ struct hubble_sat_pass_info {
 };
 
 /**
+ * @typedef hubble_sat_pass_info_filter
+ * @brief Callback function type for filtering satellite passes.
+ *
+ * This callback is used by hubble_next_pass_get() and hubble_next_pass_region_get()
+ * to filter satellite pass results. When provided, each candidate pass is evaluated
+ * by this callback before being returned.
+ *
+ * @param pass Pointer to the satellite pass information to evaluate.
+ * @return true to accept the pass, false to reject it and continue searching.
+ *
+ * Example usage:
+ * @code
+ * // Filter to only accept ascending passes
+ * bool ascending_only_filter(const struct hubble_sat_pass_info *pass)
+ * {
+ *     return pass->ascending;
+ * }
+ *
+ * // Filter to only accept passes longer than 60 seconds
+ * bool long_pass_filter(const struct hubble_sat_pass_info *pass)
+ * {
+ *     return pass->duration > 60;
+ * }
+ * @endcode
+ */
+typedef bool (*hubble_sat_pass_info_filter)(
+	const struct hubble_sat_pass_info *pass);
+
+/**
  * @brief Set orbital information for satellites.
  *
  * This function stores orbital parameters for one or more satellites. The parameters
@@ -133,10 +162,14 @@ int hubble_sat_satellites_set(
  * @param t Current time or the time from which to start the calculation.
  * @param pos Pointer to the device's location.
  * @param pass The next satellite pass in case of success.
+ * @param cb Callback to filter the result. @see hubble_sat_pass_info_filter
  * @return 0 on success or a negative value in case of error.
+ *
+ * @note @p cb If cb is NULL the next available hubble_sat_pass_info is returned.
  */
 int hubble_next_pass_get(uint64_t t, const struct hubble_sat_device_pos *pos,
-			 struct hubble_sat_pass_info *pass);
+			 struct hubble_sat_pass_info *pass,
+			 hubble_sat_pass_info_filter cb);
 
 /**
  * @brief Get the next satellite pass over a geographic region.
@@ -148,11 +181,14 @@ int hubble_next_pass_get(uint64_t t, const struct hubble_sat_device_pos *pos,
  * @param t Current time or the time from which to start the calculation.
  * @param region Pointer to the geographic region definition.
  * @param pass The next satellite pass in case of success.
+ * @param cb Callback to filter the result. @see hubble_sat_pass_info_filter
  * @return 0 on success or a negative value in case of error.
+ *
+ * @note @p cb If cb is NULL the next available hubble_sat_pass_info is returned.
  */
-int hubble_next_pass_region_get(uint64_t t,
-				const struct hubble_sat_device_region *region,
-				struct hubble_sat_pass_info *pass);
+int hubble_next_pass_region_get(
+	uint64_t t, const struct hubble_sat_device_region *region,
+	struct hubble_sat_pass_info *pass, hubble_sat_pass_info_filter cb);
 #ifdef __cplusplus
 }
 #endif

@@ -592,7 +592,8 @@ int hubble_sat_satellites_set(
 }
 
 int hubble_next_pass_get(uint64_t t, const struct hubble_sat_device_pos *pos,
-			 struct hubble_sat_pass_info *pass)
+			 struct hubble_sat_pass_info *pass,
+			 hubble_sat_pass_info_filter cb)
 {
 	struct hubble_sat_pass_info next_pass;
 	double lon_tol;
@@ -606,15 +607,36 @@ int hubble_next_pass_get(uint64_t t, const struct hubble_sat_device_pos *pos,
 		return -ENOENT;
 	}
 
-	pass->t = UINT64_MAX;
 	lon_tol = _lon_tolerance_get(pos->lat);
 
-	for (size_t i = 0; i < _satellites_count; i++) {
-		int ret = _pass_get(&_satellites[i], t, pos, lon_tol, &next_pass);
+	if (cb != NULL) {
+		do {
+			pass->t = UINT64_MAX;
 
-		if (ret == 0) {
-			if (pass->t > next_pass.t) {
-				*pass = next_pass;
+			for (size_t i = 0; i < _satellites_count; i++) {
+				int ret = _pass_get(&_satellites[i], t, pos,
+						    lon_tol, &next_pass);
+
+				if (ret == 0) {
+					if (pass->t > next_pass.t) {
+						*pass = next_pass;
+					}
+				}
+			}
+			/* Advance time to avoid finding the same pass again */
+			t = pass->t + 1;
+		} while ((pass->t != UINT64_MAX) && (!cb(pass)));
+	} else {
+		pass->t = UINT64_MAX;
+
+		for (size_t i = 0; i < _satellites_count; i++) {
+			int ret = _pass_get(&_satellites[i], t, pos, lon_tol,
+					    &next_pass);
+
+			if (ret == 0) {
+				if (pass->t > next_pass.t) {
+					*pass = next_pass;
+				}
 			}
 		}
 	}
@@ -622,44 +644,21 @@ int hubble_next_pass_get(uint64_t t, const struct hubble_sat_device_pos *pos,
 	return pass->t != UINT64_MAX ? 0 : -ENOENT;
 }
 
-int hubble_next_pass_region_get(uint64_t t,
-				const struct hubble_sat_device_region *region,
-				struct hubble_sat_pass_info *pass)
+static void _pass_region_get(
+	uint64_t t, const struct hubble_sat_device_region *region,
+	struct hubble_sat_pass_info *pass, struct hubble_sat_device_pos *pos,
+	double lon_tol, double lat_min, double lat_max)
 {
-	double lon_tol, lat_mid;
 	struct crossing_info crossings_min[2], crossings_max[2];
-	int orbit_count;
-	double lat_min, lat_max;
-	struct hubble_sat_device_pos pos;
 	struct hubble_sat_pass_info next_pass;
-
-	/* Basic sanity check */
-	if ((region == NULL) || (pass == NULL)) {
-		return -EINVAL;
-	}
-
-	if (_satellites_count == 0) {
-		return -ENOENT;
-	}
-
-	lat_mid = region->lat_mid;
-	if (lat_mid == 0.0) {
-		lat_mid = 1e-3;
-	}
-
-	lon_tol = region->lon_range / 2;
-	lat_min = lat_mid - (region->lat_range / 2);
-	lat_max = lat_mid + (region->lat_range / 2);
-
-	pos.lat = lat_mid;
-	pos.lon = region->lon_mid;
+	int orbit_count;
 
 	pass->t = UINT64_MAX;
 
 	for (size_t i = 0; i < _satellites_count; i++) {
 		int ret;
 
-		ret = _pass_get(&_satellites[i], t, &pos, lon_tol, &next_pass);
+		ret = _pass_get(&_satellites[i], t, pos, lon_tol, &next_pass);
 		if (ret != 0) {
 			continue;
 		}
@@ -734,6 +733,48 @@ int hubble_next_pass_region_get(uint64_t t,
 		if (pass->t > next_pass.t) {
 			*pass = next_pass;
 		}
+	}
+}
+
+int hubble_next_pass_region_get(
+	uint64_t t, const struct hubble_sat_device_region *region,
+	struct hubble_sat_pass_info *pass, hubble_sat_pass_info_filter cb)
+{
+	double lon_tol, lat_mid;
+	double lat_min, lat_max;
+	struct hubble_sat_device_pos pos;
+
+	/* Basic sanity check */
+	if ((region == NULL) || (pass == NULL)) {
+		return -EINVAL;
+	}
+
+	if (_satellites_count == 0) {
+		return -ENOENT;
+	}
+
+	lat_mid = region->lat_mid;
+	if (lat_mid == 0.0) {
+		lat_mid = 1e-3;
+	}
+
+	lon_tol = region->lon_range / 2;
+	lat_min = lat_mid - (region->lat_range / 2);
+	lat_max = lat_mid + (region->lat_range / 2);
+
+	pos.lat = lat_mid;
+	pos.lon = region->lon_mid;
+
+	if (cb != NULL) {
+		do {
+			_pass_region_get(t, region, pass, &pos, lon_tol,
+					 lat_min, lat_max);
+			/* Advance time to avoid finding the same pass again */
+			t = pass->t + 1;
+		} while ((pass->t != UINT64_MAX) && (!cb(pass)));
+	} else {
+		_pass_region_get(t, region, pass, &pos, lon_tol, lat_min,
+				 lat_max);
 	}
 
 	if (pass->t == UINT64_MAX) {
