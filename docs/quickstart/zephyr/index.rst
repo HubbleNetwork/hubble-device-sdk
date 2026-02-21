@@ -118,7 +118,7 @@ Building and running your first application
 
 Building and Running the First Application Once the steps in the previous
 section are complete, the system is ready to use Hubble Network. The following
-commands demonstrate how to build and flash a BLE Network application.
+commands demonstrate how to build and flash a Terrestrial Network application.
 
 Build the application
 ---------------------
