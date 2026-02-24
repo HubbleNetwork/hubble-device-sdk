@@ -11,7 +11,6 @@
 #include <stddef.h>
 #include <stdint.h>
 
-uint64_t hubble_internal_utc_time_get(void);
 
 /* Returns the last time UTC was synced. It
  * is used to accommodate clock drifts.

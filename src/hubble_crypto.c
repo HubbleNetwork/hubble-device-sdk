@@ -10,6 +10,7 @@
 #include <stdio.h>
 #include <string.h>
 
+#include <hubble/hubble.h>
 #include <hubble/port/sat_radio.h>
 #include <hubble/port/sys.h>
 #include <hubble/port/crypto.h>
@@ -61,7 +62,7 @@ int hubble_key_set(const void *key)
 
 uint32_t hubble_internal_time_counter_get(void)
 {
-	return hubble_internal_utc_time_get() / _TIMER_COUNTER_FREQUENCY;
+	return hubble_utc_get() / _TIMER_COUNTER_FREQUENCY;
 }
 
 #ifndef CONFIG_HUBBLE_NETWORK_SEQUENCE_NONCE_CUSTOM

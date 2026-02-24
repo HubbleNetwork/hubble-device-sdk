@@ -7,6 +7,7 @@
 #include <errno.h>
 #include <stdint.h>
 
+#include <hubble/hubble.h>
 #include <hubble/sat.h>
 #include <hubble/port/sys.h>
 #include <hubble/port/sat_radio.h>
@@ -96,9 +97,9 @@ static uint8_t _additional_retries_count(uint8_t interval_s)
 		return 0;
 	}
 
-	synced_interval_s = (hubble_internal_utc_time_get() -
-			     hubble_internal_utc_time_last_synced_get()) /
-			    1000;
+	synced_interval_s =
+		(hubble_utc_get() - hubble_internal_utc_time_last_synced_get()) /
+		1000;
 
 	return HUBBLE_MIN(UINT8_MAX, (synced_interval_s *
 				      CONFIG_HUBBLE_SAT_NETWORK_DEVICE_TDR) /

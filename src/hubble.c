@@ -33,6 +33,11 @@ int hubble_utc_set(uint64_t utc_time)
 	return 0;
 }
 
+uint64_t hubble_utc_get(void)
+{
+	return (utc_time_base == 0) ? 0 : utc_time_base + hubble_uptime_get();
+}
+
 int hubble_init(uint64_t utc_time, const void *key)
 {
 	int ret = hubble_crypto_init();
@@ -66,11 +71,6 @@ int hubble_init(uint64_t utc_time, const void *key)
 	HUBBLE_LOG_INFO("Hubble Network SDK initialized\n");
 
 	return 0;
-}
-
-uint64_t hubble_internal_utc_time_get(void)
-{
-	return utc_time_base + hubble_uptime_get();
 }
 
 uint64_t hubble_internal_utc_time_last_synced_get(void)

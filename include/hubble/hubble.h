@@ -61,6 +61,17 @@ int hubble_init(uint64_t utc_time, const void *key);
 int hubble_utc_set(uint64_t utc_time);
 
 /**
+ * @brief Gets the current time.
+ *
+ * Gets the time in milliseconds since the Unix epoch (January 1, 1970).
+ *
+ * @return
+ *          - 0 if time is not set.
+ *          - current time since the Unix epoch.
+ */
+uint64_t hubble_utc_get(void);
+
+/**
  * @brief Sets the encryption key for advertisement data creation.
  *
  * @param key An opaque pointer to the key.
