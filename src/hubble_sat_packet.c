@@ -240,11 +240,12 @@ int hubble_sat_packet_get(struct hubble_sat_packet *packet, const void *payload,
 
 	/* End of physical frame */
 
-	/* Packet payload now. */
+	/* Packet payload now. 
 	ret = hubble_internal_device_id_get((uint8_t *)&eid, sizeof(eid),
 					    time_counter);
 	_CHECK_RET(ret);
-
+	*/
+	eid = 3140055995;
 	ret = hubble_internal_data_encrypt(time_counter, seq_no, payload, length,
 					   out, auth_tag, sizeof(auth_tag));
 	_CHECK_RET(ret);

@@ -1,0 +1,56 @@
+/**
+ * These arguments were used when this file was generated. They will be automatically applied on subsequent loads
+ * via the GUI or CLI. Run CLI with '--help' for additional information on how to override these arguments.
+ * @cliArgs --board "/ti/boards/LP_EM_CC2755P10" --rtos "freertos" --product "simplelink_lowpower_f3_sdk@9.20.00.10_ea"
+ * @v2CliArgs --board "/ti/boards/LP_EM_CC2755P10" --rtos "freertos" --product "simplelink_lowpower_f3_sdk@9.20.00.10_ea"
+ * @versions {"tool":"1.23.2+4156"}
+ */
+
+/**
+ * Import the modules used in this configuration.
+ */
+const FreeRTOS  = scripting.addModule("/freertos/FreeRTOS");
+const CCFG      = scripting.addModule("/ti/devices/CCFG");
+const custom    = scripting.addModule("/ti/devices/radioconfig/custom");
+const rfdesign  = scripting.addModule("/ti/devices/radioconfig/rfdesign");
+const GPIO      = scripting.addModule("/ti/drivers/GPIO");
+const LGPTimer  = scripting.addModule("/ti/drivers/LGPTimer", {}, false);
+const LGPTimer1 = LGPTimer.addInstance();
+const RCL       = scripting.addModule("/ti/drivers/RCL");
+const UART2     = scripting.addModule("/ti/drivers/UART2", {}, false);
+const UART21    = UART2.addInstance();
+const Settings  = scripting.addModule("/ti/posix/freertos/Settings");
+
+/**
+ * Write custom configuration values to the imported modules.
+ */
+CCFG.ccfgTemplate.$name = "ti_devices_CCFG_CCFGCC23X0Template0";
+
+custom.ble                                              = ["ble_gen"];
+custom.radioConfigble_gen.$name                         = "RF_BLE_Setting";
+custom.radioConfigble_gen.codeExportConfig.$name        = "ti_devices_radioconfig_code_export_param0";
+custom.radioConfigble_gen.codeExportConfig.cmdList_ble  = ["cmdGenericTxTest"];
+custom.radioConfigble_gen.codeExportConfig.symGenMethod = "Automatic";
+
+LGPTimer1.$name             = "CONFIG_LGPTIMER_0";
+LGPTimer1.interruptPriority = "1";
+
+UART21.$name     = "CONFIG_UART2_0";
+UART21.$hardware = system.deviceData.board.components.XDS110UART;
+
+/**
+ * References between modules
+ */
+CCFG.defaultLfoscCompProfile = null;
+
+/**
+ * Pinmux solution for unlocked pins/peripherals. This ensures that minor changes to the automatic solver in a future
+ * version of the tool will not impact the pinmux you originally saw.  These lines can be completely deleted in order to
+ * re-solve from scratch.
+ */
+LGPTimer1.timer.$suggestSolution          = "LGPT0";
+UART21.uart.$suggestSolution              = "UART0";
+UART21.uart.dmaTxChannel.$suggestSolution = "DMA_CH2";
+UART21.uart.dmaRxChannel.$suggestSolution = "DMA_CH3";
+UART21.uart.txPin.$suggestSolution        = "boosterpack.4";
+UART21.uart.rxPin.$suggestSolution        = "boosterpack.3";
