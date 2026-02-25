@@ -38,6 +38,27 @@ extern "C" {
 #define HUBBLE_BLE_MAX_DATA_LEN 13
 
 /**
+ * @brief Fixed header size of a Hubble BLE advertisement in bytes.
+ *
+ * Every advertisement produced by @ref hubble_ble_advertise_get contains
+ * this many fixed-overhead bytes (UUID prefix, device address, and
+ * authentication tag) before any caller-supplied data.
+ *
+ * Use this to size the output buffer:
+ * @code
+ * uint8_t buf[HUBBLE_BLE_ADV_HEADER_SIZE + my_data_len];
+ * size_t buf_len = sizeof(buf);
+ * hubble_ble_advertise_get(data, my_data_len, buf, &buf_len);
+ * @endcode
+ *
+ * The maximum possible output length is:
+ * @code
+ * HUBBLE_BLE_ADV_HEADER_SIZE + HUBBLE_BLE_MAX_DATA_LEN   // = 25 bytes
+ * @endcode
+ */
+#define HUBBLE_BLE_ADV_HEADER_SIZE 12U
+
+/**
  * @brief Retrieves advertisements from the provided data.
  *
  * This function processes the input data and creates the advertisement payload.
@@ -73,7 +94,9 @@ extern "C" {
  * @param input Pointer to the input data.
  * @param input_len Length of the input data.
  * @param out Output buffer to place data into
- * @param out_len in: Maximum length in out buffer, out: Advertisement length
+ * @param out_len in: Size of the @p out buffer in bytes. Must be at least
+ *               @ref HUBBLE_BLE_ADV_HEADER_SIZE + @p input_len.
+ *               out: Actual advertisement length written.
  *
  * @return
  *          - 0 on success

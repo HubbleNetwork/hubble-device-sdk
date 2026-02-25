@@ -19,13 +19,11 @@
 #include "hubble_priv.h"
 #include "utils/macros.h"
 
+/* NOTE! These MUST add up to HUBBLE_BLE_ADV_HEADER_SIZE */
 #define HUBBLE_BLE_ADVERTISE_PREFIX 2
 #define HUBBLE_BLE_PROTOCOL_VERSION 0b000000
 #define HUBBLE_BLE_ADDR_SIZE        6
-#define HUBBLE_BLE_AUTH_TAG_SIZE    4U
-#define HUBBLE_BLE_ADV_FIELDS_SIZE                                             \
-	(HUBBLE_BLE_ADVERTISE_PREFIX + HUBBLE_BLE_ADDR_SIZE +                  \
-	 HUBBLE_BLE_AUTH_TAG_SIZE)
+#define HUBBLE_BLE_AUTH_TAG_SIZE      4U
 
 /* Define some helpers for payload offsets */
 #define _PAYLOAD_SERVICE_UUID_LO(buf) (buf + 0)
@@ -66,7 +64,7 @@ int hubble_ble_advertise_get(const uint8_t *input, size_t input_len,
 		return -EINVAL;
 	}
 
-	if (input_len + HUBBLE_BLE_ADV_FIELDS_SIZE > *out_len) {
+	if (input_len + HUBBLE_BLE_ADV_HEADER_SIZE > *out_len) {
 		return -EINVAL;
 	}
 
