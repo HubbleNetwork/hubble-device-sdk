@@ -12,7 +12,6 @@
 #include <task.h>
 #endif
 
-#include <errno.h>
 #include <stdlib.h>
 #include <string.h>
 

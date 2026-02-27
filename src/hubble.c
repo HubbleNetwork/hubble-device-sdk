@@ -4,11 +4,8 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 #include <errno.h>
-#include <inttypes.h>
-#include <stdbool.h>
 #include <stdint.h>
 #include <stdio.h>
-#include <string.h>
 
 #include <hubble/hubble.h>
 

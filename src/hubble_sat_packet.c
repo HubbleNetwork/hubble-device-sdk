@@ -6,6 +6,7 @@
 
 #include <errno.h>
 #include <string.h>
+#include <stdint.h>
 
 #include <hubble/sat/packet.h>
 #include <hubble/port/sat_radio.h>

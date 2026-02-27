@@ -11,7 +11,6 @@
 #include <string.h>
 
 #include <hubble/hubble.h>
-#include <hubble/port/sat_radio.h>
 #include <hubble/port/sys.h>
 #include <hubble/port/crypto.h>
 

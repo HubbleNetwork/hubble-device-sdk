@@ -45,10 +45,6 @@
 				 Simon Rockliff, 26th June 1991
 */
 
-#include <math.h>
-#include <stdint.h>
-#include <stdio.h>
-
 #define mm  6  /* RS code over GF(2**4) - change to suit */
 #define nn  63 /* nn=2**mm -1   length of codeword */
 #define ttt 3  /* number of errors that can be corrected */

@@ -8,7 +8,6 @@
 #include "macros.h"
 
 #include <errno.h>
-#include <stdlib.h>
 #include <sys/types.h>
 
 static int _append_bit(struct hubble_bitarray *bit_array, uint8_t value)
