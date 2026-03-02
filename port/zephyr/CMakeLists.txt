@@ -1,8 +1,8 @@
 zephyr_include_directories(../../include)
 
-zephyr_library()
-
 if (CONFIG_HUBBLE_SAT_NETWORK OR CONFIG_HUBBLE_BLE_NETWORK)
+	zephyr_library()
+
 	zephyr_library_sources(hubble_zephyr.c)
 	zephyr_library_sources(../../src/hubble.c)
 	zephyr_library_sources(../../src/hubble_crypto.c)
