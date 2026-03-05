@@ -28,10 +28,18 @@ enum hubble_log_level {
 		hubble_log((_level), __VA_ARGS__);                             \
 	} while (0)
 
+#ifndef CONFIG_HUBBLE_LOG_LEVEL_OFF
 #define HUBBLE_LOG_DEBUG(...)   HUBBLE_LOG(HUBBLE_LOG_DEBUG, __VA_ARGS__)
 #define HUBBLE_LOG_INFO(...)    HUBBLE_LOG(HUBBLE_LOG_INFO, __VA_ARGS__)
 #define HUBBLE_LOG_WARNING(...) HUBBLE_LOG(HUBBLE_LOG_WARNING, __VA_ARGS__)
 #define HUBBLE_LOG_ERROR(...)   HUBBLE_LOG(HUBBLE_LOG_ERROR, __VA_ARGS__)
+#else
+/* When the log level in Zephyr is set to OFF, don't include log statements for code size */
+#define HUBBLE_LOG_DEBUG(...)
+#define HUBBLE_LOG_INFO(...)
+#define HUBBLE_LOG_WARNING(...)
+#define HUBBLE_LOG_ERROR(...)
+#endif
 
 /**
  * @brief Function pointer to retrieve the target system uptime.
