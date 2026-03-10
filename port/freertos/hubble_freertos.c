@@ -34,6 +34,7 @@
 #define HUBBLE_WEAK __attribute__((weak))
 #endif
 
+#ifndef CONFIG_HUBBLE_UPTIME_CUSTOM
 uint64_t hubble_uptime_get(void)
 {
 	/*
@@ -59,6 +60,7 @@ uint64_t hubble_uptime_get(void)
 	return (((uint64_t)this_ticks + overflow_ticks) * 1000) /
 	       configTICK_RATE_HZ;
 }
+#endif /* CONFIG_HUBBLE_UPTIME_CUSTOM */
 
 HUBBLE_WEAK int hubble_rand_get(uint8_t *buffer, size_t len)
 {
