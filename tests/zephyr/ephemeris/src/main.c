@@ -122,7 +122,8 @@ ZTEST(satellite_ephemeris_test, test_satellite_ephemeris_calculation)
 
 	for (uint16_t count = 0; count < ARRAY_SIZE(results); count++) {
 		ret = hubble_next_pass_get(results[count].start_time,
-					   &(results[count].pos), &next_pass);
+					   &(results[count].pos), &next_pass,
+					   NULL);
 
 		zassert_equal(ret, 0, NULL);
 		zassert_within(next_pass.t, results[count].next_pass_time,
@@ -142,30 +143,30 @@ ZTEST(satellite_ephemeris_test, test_satellite_ephemeris_invalid)
 	zassert_equal(ret, -EINVAL, NULL);
 
 	ret = hubble_next_pass_get(results[0].start_time, &(results[0].pos),
-				   &next_pass);
+				   &next_pass, NULL);
 	zassert_equal(ret, -ENOENT, NULL);
 
 	ret = hubble_next_pass_region_get(
 		0, &(struct hubble_sat_device_region){1.0, 30.0, -45.0, 50.0},
-		&next_pass);
+		&next_pass, NULL);
 	zassert_equal(ret, -ENOENT, NULL);
 
 	ret = hubble_sat_satellites_set(&orbit, 1);
 	zassert_equal(ret, 0, NULL);
 
-	ret = hubble_next_pass_get(results[0].start_time, NULL, &next_pass);
+	ret = hubble_next_pass_get(results[0].start_time, NULL, &next_pass, NULL);
 	zassert_equal(ret, -EINVAL, NULL);
 
 	ret = hubble_next_pass_get(results[0].start_time, &(results[0].pos),
-				   NULL);
+				   NULL, NULL);
 	zassert_equal(ret, -EINVAL, NULL);
 
-	ret = hubble_next_pass_region_get(0, NULL, &next_pass);
+	ret = hubble_next_pass_region_get(0, NULL, &next_pass, NULL);
 	zassert_equal(ret, -EINVAL, NULL);
 
 	ret = hubble_next_pass_region_get(
 		0, &(struct hubble_sat_device_region){1.0, 30.0, -45.0, 50.0},
-		NULL);
+		NULL, NULL);
 	zassert_equal(ret, -EINVAL, NULL);
 }
 
@@ -196,7 +197,7 @@ ZTEST(satellite_ephemeris_test, test_satellite_ephemeris_region_calculation)
 	for (uint16_t count = 0; count < ARRAY_SIZE(region_results); count++) {
 		ret = hubble_next_pass_region_get(
 			region_results[count].start_time,
-			&(region_results[count].region), &next_pass);
+			&(region_results[count].region), &next_pass, NULL);
 
 		zassert_equal(ret, 0, NULL);
 		zassert_within(next_pass.t, region_results[count].next_pass_time,
