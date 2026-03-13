@@ -1,12 +1,12 @@
 # Hubble Device SDK
 
-Add global connectivity to your device using its Bluetooth chip.
+Add global connectivity to your device using its Bluetooth® chip.
 
 ## What This Does
 
-The SDK encodes your data into BLE advertisements. Hubble's gateways pick them up and deliver the data to your backend via API.
+The SDK encodes your data into Bluetooth Low Energy (BLE) advertisements. Hubble's gateways pick them up and deliver your custom payload and device location data to your backend via API.
 
-No cellular modem. No SIM card. No gateway hardware to deploy. Just Hubble firmware.
+No cellular modem. No SIM card. No gateway hardware to deploy. Just add the SDK to your application firmware.
 
 ## Supported Platforms
 
@@ -16,21 +16,21 @@ Works with any Bluetooth LE 5.0+ chip.
 
 ## Quick Start
 
-**Fastest path:** Use a supported dev kit and follow the [Dash Quick Start](https://docs.hubble.com/docs/guides/dashboard/dash-quick-start). You'll have a device transmitting on the network in minutes.
+**Fastest path:** Use a supported dev kit and follow the [Dash Quick Start](https://docs.hubble.com/docs/guides/dashboard/dash-quick-start) in your Hubble Dashboard. You'll have a device transmitting on the network in minutes.
 
-**Integrating into existing firmware:**
+**Reference apps:** [clone an app repository](https://docs.hubble.com/docs/guides/device-integration/reference-apps) for complete working examples.
 
-1. Follow the guide for your RTOS:
+**Integrating into existing firmware:** follow the guide for your RTOS.
    - [Zephyr](https://docs.hubble.com/docs/guides/device-integration/quick-start-terrestrial/zephyr)
    - [FreeRTOS](https://docs.hubble.com/docs/guides/device-integration/quick-start-terrestrial/freertos)
    - [ESP-IDF (Espressif)](https://docs.hubble.com/docs/guides/device-integration/quick-start-terrestrial/espressif)
    - [Bare-metal](https://docs.hubble.com/docs/guides/device-integration/quick-start-terrestrial/bare-metal)
 
-2. [Register your device](https://docs.hubble.com/docs/guides/cloud-integration/register-devices) to get encryption keys
-
-3. Start transmitting
-
-→ [Reference applications](https://docs.hubble.com/docs/guides/device-integration/reference-apps) for complete working examples
+#### Sign up for your Hubble Dashboard to get started.
+1. [Sign up for free](https://dash.hubble.com/login).
+2. [Register your device](https://docs.hubble.com/docs/guides/cloud-integration/register-devices) to get device encryption key.
+3. Flash your device and start transmitting.
+4. Get packet data via API or webhook.
 
 ## Resources
 
@@ -45,4 +45,4 @@ Works with any Bluetooth LE 5.0+ chip.
 
 - [GitHub Discussions](https://github.com/HubbleNetwork/hubble-device-sdk/discussions) — ask questions, share projects
 - [GitHub Issues](https://github.com/HubbleNetwork/hubble-device-sdk/issues) — report bugs, request features
-- [Contact Us](https://hubble.com/contact-us) — sales inquiries
+- [Contact Us](https://hubble.com/contact-us) — get a demo

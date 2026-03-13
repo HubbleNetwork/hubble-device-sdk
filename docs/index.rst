@@ -1,11 +1,11 @@
-.. Hubble Network SDK documentation
+.. Hubble Device SDK Documentation
 
 .. _hubble-home:
 
-Hubble Network SDK documentation
+Hubble Device SDK Documentation
 ================================
 
-**Welcome to the Hubble Network SDK documentation!**
+**Welcome to the Hubble Device SDK documentation!**
 
 This guide will walk you through everything you need to know to integrate the
 Hubble APIs with your application or service and begin leveraging the Hubble
@@ -13,7 +13,7 @@ Network. Designed for developers who want a straightforward and reliable way to
 harness Hubble’s powerful capabilities, this SDK provides a suite of tools and
 libraries that make it easy to interact with all of Hubble’s services.
 
-Using Hubble Network SDK
+Using Hubble Device SDK
 ************************
 
 
