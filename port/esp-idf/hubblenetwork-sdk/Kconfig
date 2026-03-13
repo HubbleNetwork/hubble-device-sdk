@@ -119,5 +119,3 @@ config HUBBLE_NETWORK_SEQUENCE_NONCE_CUSTOM
 		This option allows applications to override the default
 		function that returns a sequence number to be used to
 		encrypt messages.
-
-endchoice
