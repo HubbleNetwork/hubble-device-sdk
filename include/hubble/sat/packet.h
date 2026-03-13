@@ -66,11 +66,11 @@ struct hubble_sat_packet {
 	 * @brief Channel encoded in the packet that must be used to
 	 * transmit.
 	 */
-	uint8_t channel: 6;
+	uint8_t channel;
 	/**
 	 * @brief Channel sequence to be used.
 	 */
-	uint8_t hopping_sequence: 2;
+	uint8_t hopping_sequence;
 };
 
 /**

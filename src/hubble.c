@@ -7,6 +7,8 @@
 #include <stdint.h>
 #include <stdio.h>
 
+#include "hubble_priv.h"
+
 #include <hubble/hubble.h>
 
 #include <hubble/port/sat_radio.h>
@@ -87,7 +89,7 @@ int hubble_init(uint64_t initial_time, const void *key)
 	}
 
 #ifdef CONFIG_HUBBLE_SAT_NETWORK
-	ret = hubble_sat_port_init();
+	ret = hubble_internal_sat_init();
 	if (ret != 0) {
 		HUBBLE_LOG_ERROR(
 			"Hubble Satellite Network initialization failed");

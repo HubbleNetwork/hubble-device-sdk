@@ -8,6 +8,7 @@
 #include <hubble/sat.h>
 #include <hubble/sat/packet.h>
 
+#include <zephyr/random/random.h>
 #include <zephyr/sys/util.h>
 #include <zephyr/types.h>
 #include <zephyr/ztest.h>
@@ -147,32 +148,49 @@ ZTEST(sat_test, test_profile)
 ZTEST(sat_test, test_channel_hopping)
 {
 	int ret;
-	uint8_t channel_hop;
+	uint8_t rand, rand_idx, channel, channel_expected;
+	uint8_t hopping_info;
 
 	/* Some sanity API check */
-	ret = hubble_sat_channel_next_hop_get(0, 0, NULL);
+	ret = hubble_sat_channel_next_hop_get(0, &hopping_info, NULL);
 	zassert_not_ok(ret);
 
-	ret = hubble_sat_channel_next_hop_get(5, 0, &channel_hop);
+	ret = hubble_sat_channel_next_hop_get(0, NULL, &channel);
 	zassert_not_ok(ret);
 
-	ret = hubble_sat_channel_next_hop_get(0, HUBBLE_SAT_NUM_CHANNELS,
-					      &channel_hop);
+	ret = hubble_sat_channel_next_hop_get(HUBBLE_SAT_NUM_CHANNELS + 1,
+					      &hopping_info, &channel);
 	zassert_not_ok(ret);
 
-	for (uint8_t sequence = 0; sequence < ARRAY_SIZE(_channel_hops);
-	     sequence++) {
-		for (uint8_t i = 0; i < HUBBLE_SAT_NUM_CHANNELS; i++) {
-			uint8_t channel = _channel_hops[sequence][i];
-			uint8_t channel_expected =
-				_channel_hops[sequence]
-					     [(i + 1) % HUBBLE_SAT_NUM_CHANNELS];
+	for (uint8_t i = 0; i < HUBBLE_SAT_NUM_CHANNELS * 3; i++) {
+		ret = hubble_sat_channel_next_hop_get(-1, &hopping_info,
+						      &channel);
+		zassert_ok(ret);
+		channel_expected =
+			_channel_hops[hopping_info][i % HUBBLE_SAT_NUM_CHANNELS];
 
-			ret = hubble_sat_channel_next_hop_get(sequence, channel,
-							      &channel_hop);
-			zassert_ok(ret);
-			zassert_equal(channel_expected, channel_hop);
+		zassert_equal(channel_expected, channel);
+	}
+
+	/* hop checks from random pos (re-trasmission case) */
+	rand = sys_rand8_get() % HUBBLE_SAT_NUM_CHANNELS;
+	rand_idx = 0; /* Initialize it otherwise compiler will complain */
+	for (uint8_t i = 0; i < HUBBLE_SAT_NUM_CHANNELS; i++) {
+		if (_channel_hops[hopping_info][i] == rand) {
+			rand_idx = i;
 		}
+	}
+	for (uint8_t i = 0; i < 3; i++) {
+		ret = hubble_sat_channel_next_hop_get(rand, &hopping_info,
+						      &channel);
+		zassert_ok(ret);
+
+		rand_idx++;
+		rand_idx = rand_idx % HUBBLE_SAT_NUM_CHANNELS;
+		channel_expected = _channel_hops[hopping_info][rand_idx];
+		zassert_equal(channel_expected, channel);
+
+		rand = channel;
 	}
 }
 
