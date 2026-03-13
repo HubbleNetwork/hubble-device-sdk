@@ -24,7 +24,7 @@
 static uint16_t test_seq_override;
 
 /* A arbitrarily chosen start time for the test */
-static const uint64_t test_utc_time = (uint64_t)20 * TIMER_COUNTER_FREQUENCY;
+static const uint64_t test_unix_time = (uint64_t)20 * TIMER_COUNTER_FREQUENCY;
 
 /* Test uptime override */
 static uint64_t test_uptime_ms;
@@ -56,10 +56,10 @@ ZTEST(ble_advertise_test, test_advertise_with_test_vectors)
 	for (size_t i = 0; i < test_vectors_count; i++) {
 		const struct ble_adv_test_vector *tv = &test_vectors[i];
 
-		uint64_t utc_time =
+		uint64_t unix_time =
 			(uint64_t)tv->time_counter * TIMER_COUNTER_FREQUENCY;
 
-		int ret = hubble_init(utc_time, test_key_primary);
+		int ret = hubble_init(unix_time, test_key_primary);
 		zassert_ok(ret, "hubble_init failed");
 		test_seq_override = tv->seq_no;
 
@@ -86,7 +86,7 @@ ZTEST(ble_advertise_test, test_advertise_with_test_vectors)
 
 ZTEST(ble_advertise_test, test_advertise_null_input_handling)
 {
-	int ret = hubble_init(test_utc_time, test_key_primary);
+	int ret = hubble_init(test_unix_time, test_key_primary);
 	zassert_ok(ret, "hubble_init failed");
 	test_seq_override = 0;
 
@@ -117,7 +117,7 @@ ZTEST(ble_advertise_test, test_advertise_buffer_too_small)
 {
 	uint8_t payload[] = {0x01, 0x02, 0x03, 0x04, 0x05};
 
-	int ret = hubble_init(test_utc_time, test_key_primary);
+	int ret = hubble_init(test_unix_time, test_key_primary);
 	zassert_ok(ret, "hubble_init failed");
 	test_seq_override = 0;
 
@@ -132,7 +132,7 @@ ZTEST(ble_advertise_test, test_advertise_buffer_too_small)
 
 ZTEST(ble_advertise_test, test_advertise_payload_size_limits)
 {
-	int ret = hubble_init(test_utc_time, test_key_primary);
+	int ret = hubble_init(test_unix_time, test_key_primary);
 	zassert_ok(ret, "hubble_init failed");
 	test_seq_override = 0;
 
@@ -158,7 +158,7 @@ ZTEST(ble_advertise_test, test_advertise_deterministic)
 {
 	uint8_t payload[] = {0x48, 0x65, 0x6c, 0x6c, 0x6f};
 
-	int ret = hubble_init(test_utc_time, test_key_primary);
+	int ret = hubble_init(test_unix_time, test_key_primary);
 	zassert_ok(ret, "hubble_init failed");
 	test_seq_override = 100;
 
@@ -190,7 +190,7 @@ ZTEST(ble_advertise_test, test_advertise_time_dependent_output)
 
 	/* Initialize with uptime at 0 */
 	test_uptime_ms = 0;
-	int ret = hubble_init(test_utc_time, test_key_primary);
+	int ret = hubble_init(test_unix_time, test_key_primary);
 	zassert_ok(ret, "hubble_init failed");
 	test_seq_override = 100;
 
@@ -225,7 +225,7 @@ ZTEST(ble_advertise_test, test_advertise_same_time_different_sequences)
 {
 	uint8_t payload[] = {0xAA, 0xBB};
 
-	int ret = hubble_init(test_utc_time, test_key_primary);
+	int ret = hubble_init(test_unix_time, test_key_primary);
 	zassert_ok(ret, "hubble_init failed");
 
 	/* Get output with sequence number 0 */
@@ -271,7 +271,7 @@ ZTEST(ble_advertise_format_test, test_service_uuid_present)
 {
 	uint8_t payload[] = {0xAA, 0xBB, 0xCC};
 
-	int ret = hubble_init(test_utc_time, test_key_primary);
+	int ret = hubble_init(test_unix_time, test_key_primary);
 	zassert_ok(ret, "hubble_init failed");
 	test_seq_override = 0;
 
@@ -291,7 +291,7 @@ ZTEST(ble_advertise_format_test, test_service_uuid_present)
 
 ZTEST(ble_advertise_format_test, test_output_length_calculation)
 {
-	int ret = hubble_init(test_utc_time, test_key_primary);
+	int ret = hubble_init(test_unix_time, test_key_primary);
 	zassert_ok(ret, "hubble_init failed");
 
 	/* Test different payload lengths */
@@ -326,7 +326,7 @@ ZTEST(ble_advertise_format_test, test_output_length_calculation)
 
 ZTEST(ble_advertise_format_test, test_sequence_number_encoding)
 {
-	int ret = hubble_init(test_utc_time, test_key_primary);
+	int ret = hubble_init(test_unix_time, test_key_primary);
 	zassert_ok(ret, "hubble_init failed");
 
 	/* Test various sequence numbers */
@@ -409,7 +409,7 @@ ZTEST(ble_advertise_counter_test, test_counter_advertise_with_test_vectors)
 
 ZTEST(ble_advertise_counter_test, test_counter_init_zero_valid)
 {
-	/* In counter mode, 0 is a valid initial counter (unlike UTC mode) */
+	/* In counter mode, 0 is a valid initial counter (unlike Unix Epoch mode) */
 	int ret = hubble_init(0, test_key_primary);
 	zassert_ok(ret, "hubble_init with counter=0 should succeed");
 }

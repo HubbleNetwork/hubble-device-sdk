@@ -18,13 +18,13 @@ KEY_TEMPLATE = """
 static uint8_t master_key[CONFIG_HUBBLE_KEY_SIZE] = {key};
 """
 
-UTC_TEMPLATE = """
+UNIX_TIME_TEMPLATE = """
 /*
  * This file contents was automatically generated.
  */
-#define HUBBLE_UTC_SET 1
+#define HUBBLE_UNIX_TIME_SET 1
 
-static uint64_t utc_time = {utc};
+static uint64_t unix_time = {unix_time};
 """
 
 def provision_data(key: str, encoded: bool, path: str, dry: bool) -> None:
@@ -34,25 +34,25 @@ def provision_data(key: str, encoded: bool, path: str, dry: bool) -> None:
             key_data = bytearray(base64.b64decode(key_data))
 
     key_hex = "{" +", ".join([hex(x) for x in key_data]) + "}"
-    utc_ms =  str(int(time.time() * 1000))
+    unix_time_ms =  str(int(time.time() * 1000))
 
     if dry:
         print(f"static uint8_t master_key[CONFIG_HUBBLE_KEY_SIZE] = {key_hex}")
-        print(f"static uint64_t utc_time = {utc_ms}")
+        print(f"static uint64_t unix_time = {unix_time_ms}")
         return
 
     with open(path + "/key.c", "w") as f:
         f.write(KEY_TEMPLATE.format(key=key_hex))
 
-    with open(path + "/utc.c", "w") as f:
-        f.write(UTC_TEMPLATE.format(utc=utc_ms))
+    with open(path + "/time.c", "w") as f:
+        f.write(UNIX_TIME_TEMPLATE.format(unix_time=unix_time_ms))
 
 
 def parse_args() -> None:
     """
-    Embed key & utc into the fw.
+    Embed key & unix_time into the fw.
 
-    This is a simple script to provision a key and utc into a device
+    This is a simple script to provision a key and unix_time into a device
     for test purpose.
 
     usage: provisioning-key.py [-h] [-b] key
@@ -69,7 +69,7 @@ def parse_args() -> None:
     parser.add_argument("-b", "--base64",
                         help="The key is encoded in base64", action='store_true', default=False)
     parser.add_argument("-o", "--output-dir",
-                        help="Path where utc and key will be generated", default=".")
+                        help="Path where time and key will be generated", default=".")
     parser.add_argument("-d", "--dry-run",
                         help="Just print the data into console", action='store_true', default=False)
     args = parser.parse_args()

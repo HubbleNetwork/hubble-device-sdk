@@ -11,17 +11,17 @@ config HUBBLE_EID_ROTATION_PERIOD_SEC
 
 choice HUBBLE_EID_MODE
 	prompt "EID generation mode"
-	default HUBBLE_EID_UTC_BASED
+	default HUBBLE_EID_TIME_BASED
 
-config HUBBLE_EID_UTC_BASED
-	bool "UTC-based EID generation"
+config HUBBLE_EID_TIME_BASED
+	bool "Unix Time-based EID generation"
 	help
-	  EID derived from UTC time. Requires time provisioning.
+	  EID derived from Unix time. Requires time provisioning.
 
 config HUBBLE_EID_COUNTER_BASED
 	bool "Counter-based EID generation"
 	help
-	  EID derived from internal counter. No UTC time required.
+	  EID derived from internal counter. No Unix time required.
 	  Initial counter value provided via hubble_init().
 
 endchoice
@@ -59,7 +59,7 @@ config HUBBLE_SAT_NETWORK_DEVICE_TDR
 	   default 500
 	   help
 		Adds additional retries proportional to time since
-		last time the device had utc time synced. It is
+		last time the device had time synced. It is
 		represented in PPM (parts per million).
 
 choice

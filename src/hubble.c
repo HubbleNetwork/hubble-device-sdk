@@ -14,7 +14,7 @@
 #include <hubble/port/crypto.h>
 
 /* Currently, only support a rotation period of 86400 (daily) */
-#if CONFIG_HUBBLE_EID_UTC_BASED &&                                             \
+#if CONFIG_HUBBLE_EID_TIME_BASED &&                                            \
 	(CONFIG_HUBBLE_EID_ROTATION_PERIOD_SEC != 86400)
 #error Currently, only daily rotations are supported.
 #endif
@@ -28,30 +28,30 @@
 #endif
 #endif
 
-static uint64_t utc_time_synced;
-static uint64_t utc_time_base;
+static uint64_t unix_time_synced;
+static uint64_t unix_time_base;
 
 #ifdef CONFIG_HUBBLE_EID_COUNTER_BASED
 static uint32_t eid_initial_counter;
 #endif
 
-int hubble_utc_set(uint64_t utc_time)
+int hubble_time_set(uint64_t unix_time)
 {
-	if (utc_time == 0U) {
+	if (unix_time == 0U) {
 		return -EINVAL;
 	}
 
-	/* It holds when the device synced utc */
-	utc_time_synced = utc_time;
+	/* It holds when the device synced unix_time */
+	unix_time_synced = unix_time;
 
-	utc_time_base = utc_time - hubble_uptime_get();
+	unix_time_base = unix_time - hubble_uptime_get();
 
 	return 0;
 }
 
-uint64_t hubble_utc_get(void)
+uint64_t hubble_time_get(void)
 {
-	return (utc_time_synced == 0) ? 0 : utc_time_base + hubble_uptime_get();
+	return (unix_time_synced == 0) ? 0 : unix_time_base + hubble_uptime_get();
 }
 
 int hubble_init(uint64_t initial_time, const void *key)
@@ -72,10 +72,10 @@ int hubble_init(uint64_t initial_time, const void *key)
 	}
 	eid_initial_counter = (uint32_t)initial_time;
 #else
-	/* UTC-based mode: initial_time is UTC timestamp in milliseconds */
-	ret = hubble_utc_set(initial_time);
+	/* Unix Epoch-based mode: initial_time is Unix Epoch timestamp in milliseconds */
+	ret = hubble_time_set(initial_time);
 	if (ret != 0) {
-		HUBBLE_LOG_WARNING("Failed to set UTC time");
+		HUBBLE_LOG_WARNING("Failed to set Unix Epoch time");
 		return ret;
 	}
 #endif
@@ -100,9 +100,9 @@ int hubble_init(uint64_t initial_time, const void *key)
 	return 0;
 }
 
-uint64_t hubble_internal_utc_time_last_synced_get(void)
+uint64_t hubble_internal_time_last_synced_get(void)
 {
-	return utc_time_synced;
+	return unix_time_synced;
 }
 
 int hubble_eid_counter_get(uint32_t *counter)
@@ -122,16 +122,16 @@ int hubble_eid_counter_get(uint32_t *counter)
 
 	*counter = (uint32_t)(total_counter % CONFIG_HUBBLE_EID_POOL_SIZE);
 #else
-	uint64_t utc_time = hubble_utc_get();
+	uint64_t unix_time = hubble_time_get();
 
-	if (utc_time == 0U) {
-		HUBBLE_LOG_WARNING(
-			"UTC time not initialized - call hubble_utc_set() or "
-			"hubble_init() with valid UTC time");
+	if (unix_time == 0U) {
+		HUBBLE_LOG_WARNING("Unix Epoch time not initialized - call "
+				   "hubble_time_set() or "
+				   "hubble_init() with valid Unix time");
 		return -EINVAL;
 	}
 
-	*counter = (uint32_t)(utc_time / rotation_period_ms);
+	*counter = (uint32_t)(unix_time / rotation_period_ms);
 #endif
 
 	return 0;

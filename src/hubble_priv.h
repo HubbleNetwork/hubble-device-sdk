@@ -12,10 +12,10 @@
 #include <stdint.h>
 
 
-/* Returns the last time UTC was synced. It
+/* Returns the last time Unix time was synced. It
  * is used to accommodate clock drifts.
  */
-uint64_t hubble_internal_utc_time_last_synced_get(void);
+uint64_t hubble_internal_time_last_synced_get(void);
 
 /**
  * @brief Get the master encryption key.

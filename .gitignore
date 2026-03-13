@@ -13,6 +13,6 @@ docs/_doxygen/
 
 # generated files
 **/key.c
-**/utc.c
+**/time.c
 **/sdkconfig
 **/sdkconfig.old

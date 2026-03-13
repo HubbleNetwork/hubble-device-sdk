@@ -22,14 +22,14 @@
 /*
  * EID Generation Mode
  *
- * UTC-based mode is used by default. To use counter-based mode instead,
+ * Unix Time-based mode is used by default. To use counter-based mode instead,
  * define CONFIG_HUBBLE_EID_COUNTER_BASED (and CONFIG_HUBBLE_EID_POOL_SIZE).
  */
 /* #define CONFIG_HUBBLE_EID_COUNTER_BASED  1 */
 
-#if defined(CONFIG_HUBBLE_EID_UTC_BASED) &&                                    \
+#if defined(CONFIG_HUBBLE_EID_TIME_BASED) &&                                   \
 	defined(CONFIG_HUBBLE_EID_COUNTER_BASED)
-#error "Cannot define both CONFIG_HUBBLE_EID_UTC_BASED and CONFIG_HUBBLE_EID_COUNTER_BASED"
+#error "Cannot define both CONFIG_HUBBLE_EID_TIME_BASED and CONFIG_HUBBLE_EID_COUNTER_BASED"
 #endif
 
 /*
@@ -68,7 +68,7 @@
 /*
  * Device time drift retry rate in parts per million (PPM).
  * Additional retries is added proportional to time since
- * last time the device had utc time synced.
+ * last time the device had time synced.
  */
 #define CONFIG_HUBBLE_SAT_NETWORK_DEVICE_TDR  500
 

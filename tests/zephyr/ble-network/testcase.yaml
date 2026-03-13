@@ -14,11 +14,11 @@ tests:
   ble.nonce:
     extra_configs:
       - CONFIG_HUBBLE_NETWORK_CRYPTO_MBEDTLS=y
-      - CONFIG_HUBBLE_EID_UTC_BASED=y
+      - CONFIG_HUBBLE_EID_TIME_BASED=y
   ble.nonce.psa:
     extra_configs:
       - CONFIG_HUBBLE_NETWORK_CRYPTO_PSA=y
-      - CONFIG_HUBBLE_EID_UTC_BASED=y
+      - CONFIG_HUBBLE_EID_TIME_BASED=y
   ble.counter:
     extra_configs:
       - CONFIG_HUBBLE_NETWORK_CRYPTO_MBEDTLS=y

@@ -21,9 +21,9 @@
 #include "utils/macros.h"
 
 /* NOTE! These MUST add up to HUBBLE_BLE_ADV_HEADER_SIZE */
-#define HUBBLE_BLE_ADVERTISE_PREFIX 2
-#define HUBBLE_BLE_PROTOCOL_VERSION 0b000000
-#define HUBBLE_BLE_ADDR_SIZE        6
+#define HUBBLE_BLE_ADVERTISE_PREFIX   2
+#define HUBBLE_BLE_PROTOCOL_VERSION   0b000000
+#define HUBBLE_BLE_ADDR_SIZE          6
 #define HUBBLE_BLE_AUTH_TAG_SIZE      4U
 
 /* Define some helpers for payload offsets */
@@ -112,7 +112,7 @@ uint32_t hubble_ble_advertise_expiration_get(void)
 #ifdef CONFIG_HUBBLE_EID_COUNTER_BASED
 	uint64_t time_ms = hubble_uptime_get();
 #else
-	uint64_t time_ms = hubble_utc_get();
+	uint64_t time_ms = hubble_time_get();
 #endif
 	uint64_t time_in_current_period = time_ms % rotation_period_ms;
 	uint64_t time_remaining = rotation_period_ms - time_in_current_period;

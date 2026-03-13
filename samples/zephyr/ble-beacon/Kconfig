@@ -30,7 +30,7 @@ config HUBBLE_BEACON_SAMPLE_ADDITIONAL_ADV_DATA
 endif
 
 config HUBBLE_BEACON_SAMPLE_USE_CTS
-    bool "Use CTS to sync UTC time"
+    bool "Use CTS to sync Unix time"
     default n
     select BT_CTS
     select BT_CTS_HELPER_API
