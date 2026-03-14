@@ -163,7 +163,7 @@ int hubble_sat_packet_get(struct hubble_sat_packet *packet, const void *payload,
 	struct hubble_bitarray bit_array;
 	int symbols[HUBBLE_PACKET_MAX_SIZE] = {0};
 	int *rs_symbols;
-	uint8_t ecc, payload_symbols_length, payload_length_symbol, channel;
+	uint8_t ecc, payload_symbols_length, payload_length_symbol;
 	uint8_t auth_tag[HUBBLE_AUTH_TAG_SIZE / HUBBLE_BITS_PER_BYTE];
 	uint8_t out[HUBBLE_PAYLOAD_MAX_SIZE];
 	uint16_t seq_no = hubble_sequence_counter_get();
@@ -180,14 +180,11 @@ int hubble_sat_packet_get(struct hubble_sat_packet *packet, const void *payload,
 		return -EPERM;
 	}
 
-	if (hubble_rand_get(&channel, sizeof(channel))) {
+	if (hubble_sat_channel_next_hop_get(-1, &packet->hopping_sequence,
+					    &packet->channel) != 0) {
 		packet->channel = HUBBLE_SAT_CHANNEL_DEFAULT;
-		HUBBLE_LOG_WARNING("Could not pick a random channel");
-	} else {
-		packet->channel = channel % HUBBLE_SAT_NUM_CHANNELS;
+		packet->hopping_sequence = 0;
 	}
-
-	packet->hopping_sequence = channel % (1U << HUBBLE_PHY_HOP_INFO_SIZE);
 
 	if (_packet_payload_size_get(length, &payload_symbols_length,
 				     &payload_length_symbol) < 0) {

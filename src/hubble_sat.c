@@ -34,6 +34,9 @@ static uint8_t _channel_hops[_SAT_HOPPING_SEQUENCE_INFO_NUM][HUBBLE_SAT_NUM_CHAN
 	{7, 0, 11, 18, 4, 2, 13, 5, 10, 17, 3, 9, 16, 14, 8, 12, 1, 6, 15},
 };
 
+static uint8_t _hopping_sequence;
+static uint8_t _last_used_channel;
+
 static uint8_t _channel_idx_find(uint8_t hopping_sequence, uint8_t initial_channel)
 {
 	for (uint8_t idx = 0; idx < HUBBLE_SAT_NUM_CHANNELS; idx++) {
@@ -46,19 +49,25 @@ static uint8_t _channel_idx_find(uint8_t hopping_sequence, uint8_t initial_chann
 	return 0;
 }
 
-int hubble_sat_channel_next_hop_get(uint8_t hopping_sequence, uint8_t channel,
+int hubble_sat_channel_next_hop_get(int8_t channel, uint8_t *hopping_sequence,
 				    uint8_t *next_channel)
 {
 	uint8_t idx;
 
-	if ((hopping_sequence >= _SAT_HOPPING_SEQUENCE_INFO_NUM) ||
-	    (channel >= HUBBLE_SAT_NUM_CHANNELS) || (next_channel == NULL)) {
+	if (channel == -1) {
+		channel = _last_used_channel;
+	}
+
+	if ((channel >= HUBBLE_SAT_NUM_CHANNELS) ||
+	    (hopping_sequence == NULL) || (next_channel == NULL)) {
 		return -EINVAL;
 	}
 
-	idx = (_channel_idx_find(hopping_sequence, channel) + 1) %
+	idx = (_channel_idx_find(_hopping_sequence, channel) + 1) %
 	      HUBBLE_SAT_NUM_CHANNELS;
-	*next_channel = _channel_hops[hopping_sequence][idx];
+	*next_channel = _channel_hops[_hopping_sequence][idx];
+	*hopping_sequence = _hopping_sequence;
+	_last_used_channel = *next_channel;
 
 	return 0;
 }
@@ -104,6 +113,31 @@ static uint8_t _additional_retries_count(uint8_t interval_s)
 	return HUBBLE_MIN(UINT8_MAX, (synced_interval_s *
 				      CONFIG_HUBBLE_SAT_NETWORK_DEVICE_TDR) /
 					     (1000000ULL * interval_s));
+}
+
+int hubble_internal_sat_init(void)
+{
+	int ret;
+
+	ret = hubble_sat_port_init();
+	if (ret != 0) {
+		HUBBLE_LOG_ERROR(
+			"Hubble Satellite Network initialization failed");
+		return ret;
+	}
+
+	if (hubble_rand_get(&_hopping_sequence, sizeof(_hopping_sequence))) {
+		_hopping_sequence = 0;
+		HUBBLE_LOG_WARNING("Could not pick a random hopping sequence");
+	} else {
+		_hopping_sequence =
+			_hopping_sequence % _SAT_HOPPING_SEQUENCE_INFO_NUM;
+	}
+
+	_last_used_channel =
+		_channel_hops[_hopping_sequence][HUBBLE_SAT_NUM_CHANNELS - 1];
+
+	return 0;
 }
 
 int hubble_sat_packet_send(const struct hubble_sat_packet *packet,

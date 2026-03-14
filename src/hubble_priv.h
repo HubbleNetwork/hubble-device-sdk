@@ -100,4 +100,14 @@ int hubble_internal_data_encrypt(uint32_t counter, uint16_t seq_no,
 				 const uint8_t *input, size_t input_len,
 				 uint8_t *out, uint8_t *tag, size_t tag_len);
 
+/**
+ * @brief Initialize the satellite network subsys.
+ *
+ * This function performs common satellite initialization and invokes
+ * platform-specific initialization.
+ *
+ * @return 0 on success, negative error code on failure.
+ */
+int hubble_internal_sat_init(void);
+
 #endif /* SRC_HUBBLE_PRIV_H */
