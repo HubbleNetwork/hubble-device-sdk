@@ -20,6 +20,13 @@
 #define CONFIG_HUBBLE_KEY_SIZE    16
 
 /*
+ * Use the PSA Crypto API (Platform Security Architecture) for cryptographic
+ * operations. When enabled, the SDK uses the PSA API (e.g., via Mbed TLS)
+ * Enable this when the target platform provides a PSA-compliant suport.
+ */
+/* #define CONFIG_HUBBLE_NETWORK_CRYPTO_PSA 1 */
+
+/*
  * EID Generation Mode
  *
  * Unix Time-based mode is used by default. To use counter-based mode instead,
