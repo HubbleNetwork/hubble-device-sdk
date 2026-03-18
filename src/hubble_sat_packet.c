@@ -265,17 +265,18 @@ int hubble_sat_packet_get(struct hubble_sat_packet *packet, const void *payload,
 	_CHECK_RET(ret);
 
 	/* Device ID */
-	ret = hubble_bitarray_append(&bit_array, (uint8_t *)&eid,
-				     HUBBLE_DEVICE_ID_SIZE);
+	ret = hubble_bitarray_append_big(&bit_array, (uint8_t *)&eid,
+					 HUBBLE_DEVICE_ID_SIZE);
 	_CHECK_RET(ret);
 
 	/* Authentication tag */
-	ret = hubble_bitarray_append(&bit_array, auth_tag, HUBBLE_AUTH_TAG_SIZE);
+	ret = hubble_bitarray_append_big(&bit_array, auth_tag,
+					 HUBBLE_AUTH_TAG_SIZE);
 	_CHECK_RET(ret);
 
 	/* Payload */
-	ret = hubble_bitarray_append(&bit_array, (uint8_t *)payload,
-				     length * HUBBLE_BITS_PER_BYTE);
+	ret = hubble_bitarray_append_big(&bit_array, (uint8_t *)payload,
+					 length * HUBBLE_BITS_PER_BYTE);
 	_CHECK_RET(ret);
 
 	/* This returns the number of symbols */
