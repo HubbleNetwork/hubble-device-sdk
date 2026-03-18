@@ -86,6 +86,37 @@ int hubble_bitarray_append(struct hubble_bitarray *bit_array,
 	return 0;
 }
 
+int hubble_bitarray_append_big(struct hubble_bitarray *bit_array,
+			       const uint8_t *input, size_t input_len_bits)
+{
+	int ret = 0;
+	size_t leftover_bits, number_of_bytes =
+				      input_len_bits / HUBBLE_BITS_PER_BYTE;
+
+	if ((bit_array->index + input_len_bits) >=
+	    (HUBBLE_MAX_SYMBOLS * HUBBLE_BITS_PER_BYTE)) {
+		return -EINVAL;
+	}
+
+	for (size_t i = 0; i < number_of_bytes; i++) {
+		ret = hubble_bitarray_append(bit_array, &input[i],
+					     HUBBLE_BITS_PER_BYTE);
+		if (ret != 0) {
+			return ret;
+		}
+	}
+
+	leftover_bits = input_len_bits % HUBBLE_BITS_PER_BYTE;
+
+	/* Deal with possible unaligned bytes */
+	if (leftover_bits != 0) {
+		ret = hubble_bitarray_append(bit_array, &input[number_of_bytes],
+					     leftover_bits);
+	}
+
+	return ret;
+}
+
 void hubble_bitarray_init(struct hubble_bitarray *bit_array)
 {
 	bit_array->index = 0;

@@ -41,6 +41,19 @@ void hubble_bitarray_init(struct hubble_bitarray *bit_array);
  **/
 int hubble_bitarray_append(struct hubble_bitarray *bit_array,
 			   const uint8_t *input, size_t input_len_bits);
+/**
+ * @brief Append bits to a hubble bit array.
+ *
+ * This function appends the specified number of bits from the input (in big
+ * endian) to the given hubble bit array.
+ *
+ * @param bit_array Pointer to the hubble bit array structure.
+ * @param input Pointer to the input data in BIG endian.
+ * @param input_len_bits Number of bits to append from the input.
+ * @return int 0 on success, non-zero on failure.
+ **/
+int hubble_bitarray_append_big(struct hubble_bitarray *bit_array,
+			       const uint8_t *input, size_t input_len_bits);
 
 /**
  * @brief Set a bit in the hubble bit array.
