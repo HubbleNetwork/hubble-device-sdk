@@ -74,7 +74,8 @@ int hubble_init(uint64_t initial_time, const void *key);
 /**
  * @brief Sets the current Unix time in the Hubble SDK.
  *
- * @param time The Unix Epoch time in milliseconds since the Unix epoch (January 1, 1970).
+ * @param unix_time The Unix Epoch time in milliseconds since the Unix epoch
+ *                  (January 1, 1970).
  *
  * @return
  *          - 0 on success.
