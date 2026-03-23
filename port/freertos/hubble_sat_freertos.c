@@ -53,7 +53,14 @@ int hubble_sat_port_packet_send(const struct hubble_sat_packet *packet,
 	}
 
 	while (retries-- > 0) {
-		ret = hubble_sat_board_packet_send(packet);
+		struct hubble_sat_packet_frames frames = {0};
+
+		ret = hubble_sat_packet_frames_get(packet, &frames);
+		if (ret != 0) {
+			goto end;
+		}
+
+		ret = hubble_sat_board_packet_send(&frames);
 		if (ret != 0) {
 			goto end;
 		}

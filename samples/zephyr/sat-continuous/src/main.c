@@ -35,7 +35,7 @@ int hubble_sat_board_disable(void)
 	return 0;
 }
 
-int hubble_sat_board_packet_send(const struct hubble_sat_packet *packet)
+int hubble_sat_board_packet_send(const struct hubble_sat_packet_frames *packet)
 {
 	ARG_UNUSED(packet);
 

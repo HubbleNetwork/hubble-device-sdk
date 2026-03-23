@@ -42,7 +42,58 @@
 
 #define HUBBLE_PAYLOAD_MAX_SIZE              13U
 
-#define HUBBLE_SAT_CHANNEL_DEFAULT           5U
+/* Two bits used -> 2**2 */
+#define HUBBLE_HOPPING_SEQUENCE_INFO_NUM     4U
+
+static const int8_t _preamble[] = HUBBLE_SAT_PREAMBLE_SEQUENCE;
+
+/* This is pseudorandom pre-computed list of channel hopping. */
+static uint8_t _channel_hops[HUBBLE_HOPPING_SEQUENCE_INFO_NUM][HUBBLE_SAT_NUM_CHANNELS] = {
+	{3, 14, 5, 6, 9, 2, 12, 8, 15, 4, 11, 13, 17, 10, 1, 7, 0, 18, 16},
+	{10, 3, 15, 5, 0, 17, 13, 6, 11, 4, 8, 18, 9, 14, 1, 12, 7, 16, 2},
+	{14, 5, 11, 3, 8, 2, 18, 4, 10, 13, 9, 1, 16, 17, 0, 6, 15, 12, 7},
+	{7, 0, 11, 18, 4, 2, 13, 5, 10, 17, 3, 9, 16, 14, 8, 12, 1, 6, 15},
+};
+
+static uint8_t _hopping_sequence;
+static uint8_t _last_used_channel;
+
+static uint8_t _channel_idx_find(uint8_t hopping_sequence, uint8_t initial_channel)
+{
+	for (uint8_t idx = 0; idx < HUBBLE_SAT_NUM_CHANNELS; idx++) {
+		if (_channel_hops[hopping_sequence][idx] == initial_channel) {
+			return idx;
+		}
+	}
+
+	/* This condition should never happen */
+	return 0;
+}
+
+static uint8_t _channel_get(void)
+{
+	uint8_t idx;
+
+	idx = (_channel_idx_find(_hopping_sequence, _last_used_channel) + 1) %
+	      HUBBLE_SAT_NUM_CHANNELS;
+	_last_used_channel = _channel_hops[_hopping_sequence][idx];
+
+	return _last_used_channel;
+}
+
+void hubble_internal_channel_hopping_sequence_set(void)
+{
+	if (hubble_rand_get(&_hopping_sequence, sizeof(_hopping_sequence))) {
+		_hopping_sequence = 0;
+		HUBBLE_LOG_WARNING("Could not pick a random hopping sequence");
+	} else {
+		_hopping_sequence =
+			_hopping_sequence % HUBBLE_HOPPING_SEQUENCE_INFO_NUM;
+	}
+
+	_last_used_channel =
+		_channel_hops[_hopping_sequence][HUBBLE_SAT_NUM_CHANNELS - 1];
+}
 
 static int _encode(const struct hubble_bitarray *bit_array, int *symbols,
 		   size_t symbols_size)
@@ -101,34 +152,56 @@ static int _packet_payload_ecc_get(size_t len)
 	return ecc;
 }
 
-static int8_t _packet_payload_size_get(size_t len, uint8_t *length,
-				       uint8_t *symbol)
+static int8_t _packet_payload_size_get(size_t len)
 {
+	int8_t ret;
+
 	switch (len) {
 	case 0:
-		*length = 13;
-		*symbol = 0b00;
+		ret = 13;
 		break;
 	case 4:
-		*length = 18;
-		*symbol = 0b01;
+		ret = 18;
 		break;
 	case 9:
-		*length = 25;
-		*symbol = 0b10;
+		ret = 25;
 		break;
 	case 13:
-		*length = 30;
-		*symbol = 0b11;
+		ret = 30;
 		break;
 	default:
-		return -EINVAL;
+		ret = -EINVAL;
+		break;
 	}
 
-	return 0;
+	return ret;
 }
 
-static int _whitening(uint8_t seed, int *symbols, size_t len)
+static uint8_t _packet_phy_size_get(uint8_t pdu_len)
+{
+	uint8_t ret = 0;
+
+	switch (pdu_len) {
+	case 23:
+		ret = 0b00;
+		break;
+	case 30:
+		ret = 0b01;
+		break;
+	case 39:
+		ret = 0b10;
+		break;
+	case 46:
+		ret = 0b11;
+		break;
+	default:
+		break;
+	}
+
+	return ret;
+}
+
+static int _whitening(uint8_t seed, uint8_t *symbols, size_t len)
 {
 	uint8_t state;
 	size_t symbols_idx = 0U;
@@ -163,7 +236,7 @@ int hubble_sat_packet_get(struct hubble_sat_packet *packet, const void *payload,
 	struct hubble_bitarray bit_array;
 	int symbols[HUBBLE_PACKET_MAX_SIZE] = {0};
 	int *rs_symbols;
-	uint8_t ecc, payload_symbols_length, payload_length_symbol, channel;
+	uint8_t ecc, payload_len;
 	uint8_t auth_tag[HUBBLE_AUTH_TAG_SIZE / HUBBLE_BITS_PER_BYTE];
 	uint8_t out[HUBBLE_PAYLOAD_MAX_SIZE];
 	uint16_t seq_no = hubble_sequence_counter_get();
@@ -180,67 +253,15 @@ int hubble_sat_packet_get(struct hubble_sat_packet *packet, const void *payload,
 		return -EPERM;
 	}
 
-	if (hubble_rand_get(&channel, sizeof(channel))) {
-		packet->channel = HUBBLE_SAT_CHANNEL_DEFAULT;
-		HUBBLE_LOG_WARNING("Could not pick a random channel");
-	} else {
-		packet->channel = channel % HUBBLE_SAT_NUM_CHANNELS;
-	}
-
-	packet->hopping_sequence = channel % (1U << HUBBLE_PHY_HOP_INFO_SIZE);
-
-	if (_packet_payload_size_get(length, &payload_symbols_length,
-				     &payload_length_symbol) < 0) {
-		return -EINVAL;
-	}
-
-	/* Let's encode physical frame (without preamble) */
-	hubble_bitarray_init(&bit_array);
-
 #define _CHECK_RET(_ret)                                                       \
 	if (_ret < 0) {                                                        \
 		return _ret;                                                   \
 	}
 
-	ret = hubble_bitarray_append(
-		&bit_array, (uint8_t *)&(uint8_t){HUBBLE_PHY_PROTOCOL_VERSION},
-		HUBBLE_PHY_PROTOCOL_SIZE);
+	ret = _packet_payload_size_get(length);
 	_CHECK_RET(ret);
 
-	ret = hubble_bitarray_append(&bit_array, &payload_length_symbol,
-				     HUBBLE_PHY_PAYLOAD_SIZE);
-	_CHECK_RET(ret);
-
-	ret = hubble_bitarray_append(
-		&bit_array, (uint8_t *)&(uint8_t){packet->hopping_sequence},
-		HUBBLE_PHY_HOP_INFO_SIZE);
-	_CHECK_RET(ret);
-
-	ret = hubble_bitarray_append(&bit_array,
-				     (uint8_t *)&(uint8_t){packet->channel},
-				     HUBBLE_PHY_CHANNEL_SIZE);
-	_CHECK_RET(ret);
-
-	ret = _encode(&bit_array, symbols, HUBBLE_PHY_SYMBOLS_SIZE);
-	_CHECK_RET(ret);
-
-	for (uint8_t i = 0; i < HUBBLE_PHY_SYMBOLS_SIZE; i++) {
-		packet->data[i] = symbols[i];
-	}
-	packet->length = HUBBLE_PHY_SYMBOLS_SIZE;
-
-	rse_gf_generate();
-	rse_poly_generate(HUBBLE_PHY_ECC_SYMBOLS_SIZE / 2);
-	rs_symbols = rse_rs_encode(symbols, HUBBLE_PHY_SYMBOLS_SIZE,
-				   HUBBLE_PHY_ECC_SYMBOLS_SIZE / 2);
-
-	for (uint8_t i = 0; i < HUBBLE_PHY_ECC_SYMBOLS_SIZE; i++) {
-		packet->data[i + packet->length] = rs_symbols[i];
-	}
-	packet->length += HUBBLE_PHY_ECC_SYMBOLS_SIZE;
-
-	/* End of physical frame */
-
+	payload_len = ret;
 	/* Packet payload now. */
 	ret = hubble_internal_device_id_get((uint8_t *)&eid, sizeof(eid),
 					    time_counter);
@@ -294,14 +315,107 @@ int hubble_sat_packet_get(struct hubble_sat_packet *packet, const void *payload,
 	 */
 	memcpy(&symbols[ret], rs_symbols, ecc * sizeof(int));
 
-	/* data whitening symbols before add them to the packet */
-	ret = _whitening(packet->channel, symbols, ret + ecc);
+	for (uint8_t i = 0; i < payload_len + ecc; i++) {
+		packet->data[i] = symbols[i];
+	}
+
+	packet->length = payload_len + ecc;
+
+#undef _CHECK_RET
+
+	return 0;
+}
+
+int hubble_sat_packet_frames_get(const struct hubble_sat_packet *packet,
+				 struct hubble_sat_packet_frames *frames)
+{
+	int ret;
+	struct hubble_bitarray bit_array;
+	int symbols[HUBBLE_PACKET_MAX_SIZE] = {0};
+	int *rs_symbols;
+	uint8_t phy_len, channel, hop_sequence, frames_size = 0, frame_pos = 0;
+
+#define _CHECK_RET(_ret)                                                       \
+	if (_ret < 0) {                                                        \
+		return _ret;                                                   \
+	}
+
+	hop_sequence = _hopping_sequence;
+	channel = _channel_get();
+
+	frames->frame[0].channel = channel;
+
+	phy_len = _packet_phy_size_get(packet->length);
+
+	hubble_bitarray_init(&bit_array);
+	ret = hubble_bitarray_append(
+		&bit_array, (uint8_t *)&(uint8_t){HUBBLE_PHY_PROTOCOL_VERSION},
+		HUBBLE_PHY_PROTOCOL_SIZE);
 	_CHECK_RET(ret);
 
-	for (uint8_t i = 0; i < payload_symbols_length + ecc; i++) {
-		packet->data[packet->length + i] = symbols[i];
+	ret = hubble_bitarray_append(&bit_array, &phy_len,
+				     HUBBLE_PHY_PAYLOAD_SIZE);
+	_CHECK_RET(ret);
+
+	ret = hubble_bitarray_append(&bit_array, &hop_sequence,
+				     HUBBLE_PHY_HOP_INFO_SIZE);
+	_CHECK_RET(ret);
+
+	ret = hubble_bitarray_append(&bit_array, &channel,
+				     HUBBLE_PHY_CHANNEL_SIZE);
+	_CHECK_RET(ret);
+
+	ret = _encode(&bit_array, symbols, HUBBLE_PHY_SYMBOLS_SIZE);
+	_CHECK_RET(ret);
+
+	/* Start to populate the frames so we can re-use the variable
+	 * symbols.
+	 */
+
+	/* First lets fill the preamble */
+	for (uint8_t i = 0; i < sizeof(_preamble); i++) {
+		frames->frame[0].data[i] = _preamble[i];
 	}
-	packet->length += payload_symbols_length + ecc;
+	frame_pos = sizeof(_preamble);
+
+	for (uint8_t i = 0; i < HUBBLE_PHY_SYMBOLS_SIZE; i++) {
+		frames->frame[0].data[frame_pos + i] = symbols[i];
+	}
+	frame_pos += HUBBLE_PHY_SYMBOLS_SIZE;
+
+	rse_gf_generate();
+	rse_poly_generate(HUBBLE_PHY_ECC_SYMBOLS_SIZE / 2);
+	rs_symbols = rse_rs_encode(symbols, HUBBLE_PHY_SYMBOLS_SIZE,
+				   HUBBLE_PHY_ECC_SYMBOLS_SIZE / 2);
+
+	for (uint8_t i = 0; i < HUBBLE_PHY_ECC_SYMBOLS_SIZE; i++) {
+		frames->frame[0].data[frame_pos + i] = rs_symbols[i];
+	}
+	frame_pos += HUBBLE_PHY_ECC_SYMBOLS_SIZE;
+
+	/* From now on, we will need to check which frame to add data since that
+	 * depends on user controlled data.
+	 */
+
+	/* data whitening symbols before add them to the packet */
+	memcpy((uint8_t *)symbols, packet->data, packet->length);
+	ret = _whitening(channel, (uint8_t *)symbols, packet->length);
+	_CHECK_RET(ret);
+
+	for (uint8_t i = 0; i < packet->length; i++) {
+		if ((frame_pos % HUBBLE_PACKET_FRAME_PAYLOAD_MAX_SIZE) == 0) {
+			frame_pos = 0;
+			frames_size++;
+			frames->frame[frames_size].channel = _channel_get();
+		}
+
+		frames->frame[frames_size].data[frame_pos] =
+			((uint8_t *)symbols)[i];
+		frame_pos++;
+	}
+	frames->total_number_of_symbols =
+		frame_pos + (frames_size * HUBBLE_PACKET_FRAME_PAYLOAD_MAX_SIZE);
+
 
 #undef _CHECK_RET
 

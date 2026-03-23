@@ -68,15 +68,15 @@ int hubble_sat_board_disable(void);
  * the board-specific hardware. The packet must be properly formatted according
  * to the Hubble satellite protocol.
  *
- * @param packet A pointer to the hubble_sat_packet structure containing the
- *               data to be transmitted.
+ * @param packet A pointer to the hubble_sat_packet_frames structure containing
+ *               the data to be transmitted.
  *
  * @return 0 on successful transmission, or a negative error code on failure.
  *
  * @note The board hardware must be enabled using hubble_sat_board_enable()
  *       before calling this function.
  */
-int hubble_sat_board_packet_send(const struct hubble_sat_packet *packet);
+int hubble_sat_board_packet_send(const struct hubble_sat_packet_frames *packet);
 
 #ifdef __cplusplus
 }

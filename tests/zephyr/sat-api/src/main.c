@@ -8,6 +8,7 @@
 #include <hubble/sat.h>
 #include <hubble/sat/packet.h>
 
+#include <zephyr/random/random.h>
 #include <zephyr/sys/util.h>
 #include <zephyr/types.h>
 #include <zephyr/ztest.h>
@@ -48,14 +49,81 @@ int hubble_sat_board_disable(void)
 }
 
 static uint8_t _transmission_count;
+static bool _test_hopping = false;
+static int8_t _hopping_info = -1;
+static uint8_t _last_channel = 0;
 
-int hubble_sat_board_packet_send(const struct hubble_sat_packet *packet)
+static int _hopping_sequence_find(uint8_t channel1, uint8_t channel2,
+				  uint8_t channel3)
 {
-	ARG_UNUSED(packet);
+	for (uint8_t i = 0; i < ARRAY_SIZE(_channel_hops); i++) {
+		for (uint8_t j = 0; j < HUBBLE_SAT_NUM_CHANNELS; j++) {
+			if (channel1 == _channel_hops[i][j]) {
+				if ((channel2 ==
+				     _channel_hops[i][(j + 1) %
+						      HUBBLE_SAT_NUM_CHANNELS]) &&
+				    (channel3 ==
+				     _channel_hops[i][(j + 2) %
+						      HUBBLE_SAT_NUM_CHANNELS])) {
+					return i;
+				}
+			}
+		}
+	}
+
+	return -1;
+}
+
+static int _channel_hopping_check(uint8_t channel1, uint8_t channel2,
+				  uint8_t channel3)
+{
+	uint8_t expected_channel1 = 0;
+	uint8_t expected_channel2 = 0;
+	uint8_t expected_channel3 = 0;
+
+	for (uint8_t i = 0; i < HUBBLE_SAT_NUM_CHANNELS; i++) {
+		if (_channel_hops[_hopping_info][i] == _last_channel) {
+			expected_channel1 =
+				_channel_hops[_hopping_info]
+					     [(i + 1) % HUBBLE_SAT_NUM_CHANNELS];
+			expected_channel2 =
+				_channel_hops[_hopping_info]
+					     [(i + 2) % HUBBLE_SAT_NUM_CHANNELS];
+			expected_channel3 =
+				_channel_hops[_hopping_info]
+					     [(i + 3) % HUBBLE_SAT_NUM_CHANNELS];
+			break;
+		}
+	}
+
+	return (expected_channel1 == channel1) &&
+	       (expected_channel2 == channel2) &&
+	       (expected_channel3 == channel3);
+}
+
+int hubble_sat_board_packet_send(const struct hubble_sat_packet_frames *packet)
+{
+	int ret = 0;
+
+	if (_test_hopping) {
+		if (_hopping_info == -1) {
+			ret = _hopping_sequence_find(packet->frame[0].channel,
+						     packet->frame[1].channel,
+						     packet->frame[2].channel);
+			if (ret >= 0) {
+				_hopping_info = ret;
+			}
+		} else {
+			ret = _channel_hopping_check(packet->frame[0].channel,
+						     packet->frame[1].channel,
+						     packet->frame[2].channel);
+		}
+		_last_channel = packet->frame[2].channel;
+	}
 
 	_transmission_count--;
 
-	return 0;
+	return ret;
 }
 
 ZTEST(sat_test, test_packet)
@@ -129,34 +197,23 @@ ZTEST(sat_test, test_profile)
 
 ZTEST(sat_test, test_channel_hopping)
 {
-	int ret;
-	uint8_t channel_hop;
+	int err;
+	struct hubble_sat_packet pkt;
 
-	/* Some sanity API check */
-	ret = hubble_sat_channel_next_hop_get(0, 0, NULL);
-	zassert_not_ok(ret);
+	_test_hopping = true;
+	_transmission_count = 2;
 
-	ret = hubble_sat_channel_next_hop_get(5, 0, &channel_hop);
-	zassert_not_ok(ret);
+	/* Packet without data is valid */
+	err = hubble_sat_packet_get(&pkt, NULL, 0);
+	zassert_ok(err);
 
-	ret = hubble_sat_channel_next_hop_get(0, HUBBLE_SAT_NUM_CHANNELS,
-					      &channel_hop);
-	zassert_not_ok(ret);
+	err = hubble_sat_packet_send(&pkt, HUBBLE_SAT_RELIABILITY_NONE);
+	zassert_ok(err);
 
-	for (uint8_t sequence = 0; sequence < ARRAY_SIZE(_channel_hops);
-	     sequence++) {
-		for (uint8_t i = 0; i < HUBBLE_SAT_NUM_CHANNELS; i++) {
-			uint8_t channel = _channel_hops[sequence][i];
-			uint8_t channel_expected =
-				_channel_hops[sequence]
-					     [(i + 1) % HUBBLE_SAT_NUM_CHANNELS];
+	err = hubble_sat_packet_send(&pkt, HUBBLE_SAT_RELIABILITY_NONE);
+	zassert_ok(err);
 
-			ret = hubble_sat_channel_next_hop_get(sequence, channel,
-							      &channel_hop);
-			zassert_ok(ret);
-			zassert_equal(channel_expected, channel_hop);
-		}
-	}
+	_test_hopping = false;
 }
 
 static void *sat_test_setup(void)

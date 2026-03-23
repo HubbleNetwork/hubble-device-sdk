@@ -27,17 +27,22 @@ extern "C" {
  */
 
 /* @brief Max number of symbols that packet can have */
-#define HUBBLE_PACKET_MAX_SIZE 52
+#define HUBBLE_PACKET_MAX_SIZE               52
 
 /* @brief Max number of bytes for data payload */
-#define HUBBLE_SAT_PAYLOAD_MAX 13
+#define HUBBLE_SAT_PAYLOAD_MAX               13
+
+/* @brief Max number of symbols per frame */
+#define HUBBLE_PACKET_FRAME_PAYLOAD_MAX_SIZE 16U
+
+/* @brief Max number of frames per packet */
+#define HUBBLE_PACKET_FRAME_MAX_SIZE         4U
 
 /**
  * @brief Structure representing a Hubble packet.
  *
  * This structure is used to represent a Hubble packet, the data
- * is a set symbols that represents the number of frequency steps
- * that should be added from the reference frequency (channel).
+ * is a set symbols that represents the frequency in a specific channel.
  *
  * Since the preamble is a fixed pattern that is formed by the reference
  * frequency and the complete absence of tranmission for a certain period,
@@ -54,15 +59,30 @@ struct hubble_sat_packet {
 	 * @brief Number of symbols in the packet.
 	 */
 	size_t length;
-	/**
-	 * @brief Channel encoded in the packet that must be used to
-	 * transmit.
+};
+
+/**
+ * @brief Structure representing a set of Hubble packet frames.
+ *
+ * A single Hubble packet may be split into multiple frames for transmission.
+ * Each frame carries a chunk of the encoded packet payload along with the
+ * channel on which it should be transmitted.
+ *
+ * @note The preamble is included in this struct.
+ */
+struct hubble_sat_packet_frames {
+	/** @brief Individual frames derived from a Hubble packet. */
+	struct {
+		/** @brief Encoded payload data for this frame. */
+		uint8_t data[HUBBLE_PACKET_FRAME_PAYLOAD_MAX_SIZE];
+		/** @brief Channel on which this frame should be transmitted. */
+		uint8_t channel;
+	} frame[HUBBLE_PACKET_FRAME_MAX_SIZE];
+
+	/** @brief Total number of symbols used. The number of frame is
+	 *  (int)ceil(total_number_of_symbols / HUBBLE_PACKET_FRAME_PAYLOAD_MAX_SIZE)
 	 */
-	uint8_t channel: 6;
-	/**
-	 * @brief Channel sequence to be used.
-	 */
-	uint8_t hopping_sequence: 2;
+	size_t total_number_of_symbols;
 };
 
 /**
@@ -81,6 +101,22 @@ struct hubble_sat_packet {
  */
 int hubble_sat_packet_get(struct hubble_sat_packet *packet, const void *payload,
 			  size_t length);
+
+/**
+ * @brief Split a Hubble satellite packet into transmission frames.
+ *
+ * This function divides the encoded data of a Hubble packet into one or more
+ * frames suitable for transmission. Each frame carries a portion of the packet
+ * payload along with its associated channel.
+ *
+ * @param  packet Pointer to the source packet to split.
+ * @param  frames Pointer to the frames structure to be populated.
+ *
+ * @retval 0       On success.
+ * @retval -EINVAL If any of the input parameters are invalid.
+ */
+int hubble_sat_packet_frames_get(const struct hubble_sat_packet *packet,
+				 struct hubble_sat_packet_frames *frames);
 
 /**
  * @}
