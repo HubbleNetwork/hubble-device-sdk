@@ -27,10 +27,10 @@ extern "C" {
  */
 
 /* @brief Max number of symbols that packet can have */
-#define HUBBLE_PACKET_MAX_SIZE               52
+#define HUBBLE_PACKET_MAX_SIZE               52U
 
 /* @brief Max number of bytes for data payload */
-#define HUBBLE_SAT_PAYLOAD_MAX               13
+#define HUBBLE_SAT_PAYLOAD_MAX               13U
 
 /* @brief Max number of symbols per frame */
 #define HUBBLE_PACKET_FRAME_PAYLOAD_MAX_SIZE 16U
