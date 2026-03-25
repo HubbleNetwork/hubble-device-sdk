@@ -238,7 +238,7 @@ int hubble_sat_packet_get(struct hubble_sat_packet *packet, const void *payload,
 	int *rs_symbols;
 	uint8_t ecc, payload_len;
 	uint8_t auth_tag[HUBBLE_AUTH_TAG_SIZE / HUBBLE_BITS_PER_BYTE];
-	uint8_t out[HUBBLE_PAYLOAD_MAX_SIZE];
+	uint8_t out[HUBBLE_PAYLOAD_MAX_SIZE] = {0};
 	uint16_t seq_no = hubble_sequence_counter_get();
 	uint32_t time_counter = hubble_internal_time_counter_get();
 	uint32_t eid;
@@ -296,7 +296,7 @@ int hubble_sat_packet_get(struct hubble_sat_packet *packet, const void *payload,
 	_CHECK_RET(ret);
 
 	/* Payload */
-	ret = hubble_bitarray_append_big(&bit_array, (uint8_t *)payload,
+	ret = hubble_bitarray_append_big(&bit_array, (uint8_t *)out,
 					 length * HUBBLE_BITS_PER_BYTE);
 	_CHECK_RET(ret);
 
