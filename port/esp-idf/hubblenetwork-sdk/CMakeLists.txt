@@ -5,8 +5,17 @@ set(SRCS
     "${SDK_BASE_DIR}/port/freertos/hubble_freertos.c"
     "${SDK_BASE_DIR}/src/hubble.c"
     "${SDK_BASE_DIR}/src/hubble_crypto.c"
-    "${SDK_BASE_DIR}/src/crypto/mbedtls.c"
 )
+
+if(IDF_VERSION_MAJOR LESS 6)
+    list(APPEND SRCS
+        "${SDK_BASE_DIR}/src/crypto/mbedtls.c"
+    )
+else()
+    list(APPEND SRCS
+        "${SDK_BASE_DIR}/src/crypto/psa.c"
+    )
+endif()
 
 if(CONFIG_HUBBLE_BLE_NETWORK)
     list(APPEND SRCS
