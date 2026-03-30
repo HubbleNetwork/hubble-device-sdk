@@ -137,6 +137,7 @@ $(foreach c_file,$(SYSCFG_C_FILES),$(eval $(call C_RULE,$(c_file))))
 
 # HubbleNetwork SDK
 
+HUBBLENETWORK_SDK_CONFIG = $(abspath src/hubble_config.h)
 include $(HUBBLE_NETWORK_SDK)/port/freertos/hubblenetwork-sdk.mk
 
 
