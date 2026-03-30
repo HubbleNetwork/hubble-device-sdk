@@ -27,13 +27,29 @@ Adding Hubble Network to FreeRTOS
      git submodule add  https://github.com/HubbleNetwork/hubble-device-sdk .
 
 
-* Customize the configuration header
+* Provide a configuration header
 
-   * The header file at ``port/freertos/config.h`` contains macros that
-     can be customized for your application. For example, it can change
-     the encryption key size.
+   * Create a configuration header in your application with the
+     ``CONFIG_HUBBLE_*`` macros you want to customize. For example:
 
-   * All symbols defined in this file will be available at build time
+     .. code-block:: c
+
+        #define CONFIG_HUBBLE_BLE_NETWORK  0
+        #define CONFIG_HUBBLE_SAT_NETWORK  1
+        #define CONFIG_HUBBLE_KEY_SIZE     32
+
+   * Point the build system to your config file by setting
+     ``HUBBLENETWORK_SDK_CONFIG`` before including the Makefile fragment:
+
+     .. code-block:: Makefile
+
+        HUBBLENETWORK_SDK_CONFIG = $(MY_APP_DIR)/hubble_config.h
+
+   * If ``HUBBLENETWORK_SDK_CONFIG`` is not set, the SDK defaults to
+     ``port/freertos/config.h``, which serves as a reference listing all
+     available options with their default values.
+
+   * All symbols defined in the config file will be available at build time
      for all objects compiled using ``HUBBLENETWORK_SDK_FLAGS``.
 
 * Since there is no standard cryptographic API, the application has to use one of
@@ -60,6 +76,7 @@ Example of including the Makefile fragment:
 
    # Hubble Network SDK
 
+   HUBBLENETWORK_SDK_CONFIG = $(MY_APP_DIR)/hubble_config.h
    include path/to/hubblenetwork-sdk/port/freertos/hubblenetwork-sdk.mk
 
    define HUBBLE_RULE
