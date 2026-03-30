@@ -62,7 +62,12 @@ extern "C" {
  * @param initial_time For Unix Time mode: Unix time in milliseconds since
  *                     epoch. For Counter mode: Initial counter value
  *                     (0 = start at 0).
- * @param key An opaque pointer to the master key. If NULL, must be set with
+ * @param key An opaque pointer to the master key buffer. The SDK
+ *            stores this pointer directly and does not copy the key
+ *            data. The caller must ensure the buffer remains valid
+ *            for the lifetime of SDK usage (do not use stack or
+ *            temporary buffers). The key size must match
+ *            CONFIG_HUBBLE_KEY_SIZE. If NULL, must be set with
  *            hubble_key_set before getting advertisements.
  *
  * @return
@@ -97,7 +102,11 @@ uint64_t hubble_time_get(void);
 /**
  * @brief Sets the encryption key for advertisement data creation.
  *
- * @param key An opaque pointer to the key.
+ * @param key An opaque pointer to the master key buffer. The SDK
+ *            stores this pointer directly and does not copy the key
+ *            data. The caller must ensure the buffer remains valid
+ *            for the lifetime of SDK usage. The key size must match
+ *            CONFIG_HUBBLE_KEY_SIZE.
  *
  * @return
  *         - 0 on success.
