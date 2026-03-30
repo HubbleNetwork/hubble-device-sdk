@@ -10,14 +10,21 @@
 /*
  * Enable the Hubble BLE and Satellite network modules.
  */
+#ifndef CONFIG_HUBBLE_BLE_NETWORK
 #define CONFIG_HUBBLE_BLE_NETWORK 1
+#endif
+
+#ifndef CONFIG_HUBBLE_SAT_NETWORK
 #define CONFIG_HUBBLE_SAT_NETWORK 1
+#endif
 
 /*
  * Size of the encryption key in bytes. Valid options are
  * 16 for 128 bits keys or 32 for 256 bits keys.
  */
+#ifndef CONFIG_HUBBLE_KEY_SIZE
 #define CONFIG_HUBBLE_KEY_SIZE    16
+#endif
 
 /*
  * Use the PSA Crypto API (Platform Security Architecture) for cryptographic
@@ -77,14 +84,18 @@
  * Additional retries is added proportional to time since
  * last time the device had time synced.
  */
+#ifndef CONFIG_HUBBLE_SAT_NETWORK_DEVICE_TDR
 #define CONFIG_HUBBLE_SAT_NETWORK_DEVICE_TDR  500
+#endif
 
 /* Protocol version
  *
  * - CONFIG_HUBBLE_SAT_NETWORK_PROTOCOL_V1: first version of sat
  * protocol. Channel hopping during transmissions.
  */
+#ifndef CONFIG_HUBBLE_SAT_NETWORK_PROTOCOL_V1
 #define CONFIG_HUBBLE_SAT_NETWORK_PROTOCOL_V1 1
+#endif
 
 #endif /* CONFIG_HUBBLE_SAT_NETWORK */
 
