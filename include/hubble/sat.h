@@ -18,7 +18,7 @@ extern "C" {
 
 /**
  * @brief Hubble Sat Network Function APIs
- * @defgroup hubble_sat_api Sattelite Network Function APIs
+ * @defgroup hubble_sat_api Satellite Network Function APIs
  * @{
  */
 

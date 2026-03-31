@@ -81,7 +81,7 @@ int hubble_crypto_aes_ctr(const uint8_t key[CONFIG_HUBBLE_KEY_SIZE],
  * @param output Pointer to the buffer where the CMAC (message
  *               authentication code) will be stored. This buffer must
  *               be large enough to hold the CMAC value
- *              (typically the size of the AES block, 16 bytes).
+ *               (typically the size of the AES block, 16 bytes).
  *
  * @return 0 on success, non-zero on error.
  */

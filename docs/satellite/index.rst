@@ -1,4 +1,4 @@
-.. _hubble_sattelite_introduction:
+.. _hubble_satellite_introduction:
 
 Satellite Network Overview
 ###########################

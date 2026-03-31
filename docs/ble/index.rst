@@ -20,7 +20,7 @@ Key Features
 Secure Communication
 --------------------
 
-The Hubble BLE Network uses a 256-bit encryption key to safeguard all
+The Hubble BLE Network uses a 128 or 256-bit encryption key to safeguard all
 transmitted data, minimizing the risk of unauthorized access and data
 breaches. See :ref:`hubble_ble_security`
 
@@ -52,7 +52,7 @@ configurations and prepares the network for operation:
 
 .. code-block:: c
 
-    int hubble_init(uint64_t unix_time, const void *key);
+    int hubble_init(uint64_t initial_time, const void *key);
 
 Time Management
 ===============
@@ -85,7 +85,7 @@ interaction within the network:
 
 .. code-block:: c
 
-   int hubble_ble_advertise_get(const uint8_t *input, size_t len, uint8_t *output, size_t* out_len);
+   int hubble_ble_advertise_get(const uint8_t *input, size_t input_len, uint8_t *out, size_t *out_len);
 
 Security Details
 ****************

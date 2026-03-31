@@ -45,7 +45,7 @@ extern "C" {
  * is a set symbols that represents the frequency in a specific channel.
  *
  * Since the preamble is a fixed pattern that is formed by the reference
- * frequency and the complete absence of tranmission for a certain period,
+ * frequency and the complete absence of transmission for a certain period,
  * it is NOT included in this structure.
  *
  * @note The preamble is NOT included in this struct.

@@ -29,8 +29,7 @@ Using Hubble Network SDK
      - Best class support, reference implementation.
    * - FreeRTOS
      - :ref:`freertos_quick_start`
-     - Allowing to use Hubble Network SDK in FreeRTOS. Increase the
-       complexity of the integration.
+     - FreeRTOS support with user-managed build integration.
 
 Additional Resources
 ********************

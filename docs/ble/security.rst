@@ -46,7 +46,7 @@ Encryption steps
 ################
 
 
-An application will get the encrypted advertisment data using
+An application will get the encrypted advertisement data using
 :c:func:`hubble_ble_advertise_get`. This function performs the
 following steps to prepare the advertisement data:
 
