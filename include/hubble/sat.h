@@ -19,6 +19,11 @@ extern "C" {
 /**
  * @brief Hubble Sat Network Function APIs
  * @defgroup hubble_sat_api Satellite Network Function APIs
+ *
+ * @warning The satellite functionality is currently in pre-production and is
+ * not yet ready for production deployments. APIs and behavior may change in
+ * future releases.
+ *
  * @{
  */
 

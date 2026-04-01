@@ -42,9 +42,11 @@ config HUBBLE_EID_POOL_SIZE
 	    2048: ~5.6 years of unique EIDs
 
 menuconfig HUBBLE_SAT_NETWORK
-	   bool "Hubble Satellite Network Library [EXPERIMENTAL]"
+	   bool "Hubble Satellite Network Library [PRE-PRODUCTION]"
 	   help
-		Enable library for communication with Hubble network
+		Enable library for communication with Hubble network.
+		This feature is in pre-production and is not yet ready
+		for production deployments.
 
 if HUBBLE_SAT_NETWORK
 
