@@ -77,6 +77,7 @@ extern "C" {
  * The following advertisement packet shows a valid example and where the
  * returned data fits in.
  *
+ * @code
  * | len   | ad type | data   | len                  | ad type | data       |
  * |-------+---------+--------+----------------------+---------+------------|
  * | 0x03  | 0x03    | 0xFCA6 | out_len + 0x01       | 0x16    | ad_data    |
@@ -84,7 +85,7 @@ extern "C" {
  * |       |         |        | (out_len is adv_data |         |            |
  * |       |         |        |  len - returned by   |         |            |
  * |       |         |        |  this API)           |         |            |
- *
+ * @endcode
  *
  * @note - This function is neither thread-safe nor reentrant. The caller must
  *         ensure proper synchronization.
