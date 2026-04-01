@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+      - 'release/*'
 
   pull_request:
     branches: ["**"]
@@ -14,14 +15,11 @@ on:
 
   workflow_dispatch:
     inputs:
-      pr_number:
-        description: "Optional PR number to run against (use this to target a PR head)"
-        required: false
-      commit_sha:
-        description: "Optional commit SHA to checkout (overrides pr_number if provided)"
-        required: false
       ref:
-        description: "Optional branch or tag to checkout (used when not supplying pr_number or commit_sha)"
+        description: >
+          Git ref to build docs for. Accepts a branch (main), tag (v1.0),
+          commit SHA, or PR ref (refs/pull/42/head). Defaults to the
+          repository's default branch.
         required: false
 
 permissions:
@@ -30,39 +28,48 @@ permissions:
 jobs:
   build:
     runs-on: ubuntu-24.04
-    strategy:
-      fail-fast: false
-
+    outputs:
+      slug: ${{ steps.slug.outputs.slug }}
     steps:
       - name: Determine checkout ref
         id: setref
+        env:
+          # workflow_dispatch: use the user-supplied ref; otherwise build
+          # the PR merge ref for pull_request events or fall back to the
+          # branch/tag that triggered the push.
+          INPUT_REF: ${{ inputs.ref }}
+          EVENT_REF: ${{ github.event.pull_request.number && format('refs/pull/{0}/head', github.event.pull_request.number) || github.ref }}
         run: |
-          # Determine which ref we should checkout for the build
-          # Priority:
-          # 1. explicit commit_sha input
-          # 2. explicit pr_number input -> refs/pull/<pr>/head
-          # 3. if triggered by a pull_request event -> refs/pull/<pr>/head
-          # 4. explicit ref input
-          # 5. default github.ref
-          echo "event_name=${GITHUB_EVENT_NAME}"
-          if [ -n "${{ github.event.inputs.commit_sha }}" ]; then
-            echo "ref=${{ github.event.inputs.commit_sha }}" >> $GITHUB_OUTPUT
-          elif [ -n "${{ github.event.inputs.pr_number }}" ]; then
-            echo "ref=refs/pull/${{ github.event.inputs.pr_number }}/head" >> $GITHUB_OUTPUT
-          elif [ "${GITHUB_EVENT_NAME}" = "pull_request" ]; then
-            # use the PR head ref for pull_request events
-            echo "ref=refs/pull/${{ github.event.pull_request.number }}/head" >> $GITHUB_OUTPUT
-          elif [ -n "${{ github.event.inputs.ref }}" ]; then
-            echo "ref=${{ github.event.inputs.ref }}" >> $GITHUB_OUTPUT
-          else
-            echo "ref=${GITHUB_REF}" >> $GITHUB_OUTPUT
-          fi
+          REF="${INPUT_REF:-${EVENT_REF}}"
+          echo "ref=${REF}" >> "$GITHUB_OUTPUT"
+
+          # Strip the refs/ prefix so the slug step produces clean
+          # directory names (e.g. "main" instead of "refs-heads-main").
+          case "${REF}" in
+            refs/pull/*/head)
+              echo "ref_name=pr-${REF#refs/pull/}" | sed 's|/head||' >> "$GITHUB_OUTPUT" ;;
+            refs/heads/*)
+              echo "ref_name=${REF#refs/heads/}" >> "$GITHUB_OUTPUT" ;;
+            refs/tags/*)
+              echo "ref_name=${REF#refs/tags/}" >> "$GITHUB_OUTPUT" ;;
+            *)
+              echo "ref_name=${REF}" >> "$GITHUB_OUTPUT" ;;
+          esac
 
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
           ref: ${{ steps.setref.outputs.ref }}
-          fetch-depth: 0
+          fetch-depth: 1
+
+      - name: Compute branch slug
+        id: slug
+        env:
+          REF_NAME: ${{ steps.setref.outputs.ref_name }}
+        run: |
+          SLUG="${REF_NAME//\//-}"
+          echo "slug=${SLUG}" >> $GITHUB_OUTPUT
+          echo "Branch slug: ${SLUG}"
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -77,31 +84,50 @@ jobs:
           pip install -r docs/requirements.txt
 
       - name: Generate documentation
+        env:
+          DOCS_BRANCH: ${{ steps.setref.outputs.ref_name }}
+          GITHUB_REPOSITORY_NAME: ${{ github.event.repository.name }}
+          SPHINX_BASEURL: "https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/${{ steps.slug.outputs.slug }}/"
         run: |
           set -euxo pipefail
           cd docs
           make doxygen
           make html
 
-      - name: Setup Pages
-        uses: actions/configure-pages@v5
-      - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3
+      - name: Upload docs artifact
+        uses: actions/upload-artifact@v4
         with:
+          name: docs-${{ steps.slug.outputs.slug }}
           path: docs/_build/html
+          retention-days: 1
 
-  # Deployment job
   deploy:
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
+    if: |
+      github.event_name == 'push' &&
+      (
+        github.ref == 'refs/heads/main' ||
+        startsWith(github.ref, 'refs/heads/release/')
+      )
     runs-on: ubuntu-latest
     needs: build
     permissions:
-      pages: write
-      id-token: write
+      contents: write
+    concurrency:
+      group: gh-pages-deploy
+      cancel-in-progress: false
+
     steps:
+      - name: Download docs artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: docs-${{ needs.build.outputs.slug }}
+          path: docs-output
+
       - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v5
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./docs-output
+          destination_dir: ${{ needs.build.outputs.slug }}
+          keep_files: true
+          commit_message: "Deploy docs for ${{ needs.build.outputs.slug }}"

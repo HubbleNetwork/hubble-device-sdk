@@ -79,6 +79,16 @@ html_theme_options = {
     'navigation_depth': 3,
     }
 
+# -- Multi-version support ---------------------------------------------------
+# DOCS_BRANCH and GITHUB_REPOSITORY_NAME are set by CI.
+_docs_branch = os.environ.get("DOCS_BRANCH", "")
+_repo_name = os.environ.get("GITHUB_REPOSITORY_NAME", "")
+
+html_context = {
+    "is_release": _docs_branch.startswith("release"),
+    "docs_base_path": f"/{_repo_name}/" if _repo_name else "/",
+}
+
 def setup(app):
     # theme customizations
     app.add_css_file("css/custom.css")
