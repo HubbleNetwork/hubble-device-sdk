@@ -119,7 +119,7 @@ int hubble_key_set(const void *key);
  *
  * Returns the time counter based on the configured EID generation mode:
  * - Counter-based: Uses uptime-derived counter with initial offset, wrapping
- *                  at CONFIG_HUBBLE_EID_POOL_SIZE to produce values in [0, pool_size-1]
+ *                  at HUBBLE_EID_POOL_SIZE (128) to produce values in [0, pool_size-1]
  * - Unix Time-based: Uses Unix time divided by rotation period (no wrapping)
  *
  * @param counter Pointer to store the time counter value

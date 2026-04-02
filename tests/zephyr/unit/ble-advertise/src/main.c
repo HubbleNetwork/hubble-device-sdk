@@ -374,7 +374,8 @@ ZTEST_SUITE(ble_advertise_format_test, NULL, ble_advertise_format_test_setup,
 
 #define TEST_COUNTER_ROTATION_MS                                               \
 	((uint64_t)CONFIG_HUBBLE_EID_ROTATION_PERIOD_SEC * 1000ULL)
-#define TEST_COUNTER_POOL_SIZE CONFIG_HUBBLE_EID_POOL_SIZE
+/* Once pool size is configurable, do not hard code */
+#define TEST_COUNTER_POOL_SIZE 128
 
 ZTEST(ble_advertise_counter_test, test_counter_advertise_with_test_vectors)
 {
@@ -416,7 +417,7 @@ ZTEST(ble_advertise_counter_test, test_counter_init_zero_valid)
 
 ZTEST(ble_advertise_counter_test, test_counter_wraps_at_pool_size)
 {
-	/* Init at pool_size - 1 (counter=31 for pool_size=32) */
+	/* Init at pool_size - 1 (counter=127 for pool_size=128) */
 	int ret = hubble_init(TEST_COUNTER_POOL_SIZE - 1, test_key_primary);
 	zassert_ok(ret, "hubble_init failed");
 

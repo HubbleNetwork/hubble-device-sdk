@@ -2,7 +2,7 @@
  * Copyright (c) 2026 Hubble Network, Inc.
  * SPDX-License-Identifier: Apache-2.0
  *
- * Counter-based EID test vectors (pool_size=32).
+ * Counter-based EID test vectors (pool_size=128).
  *
  * Master key: cd:15:a5:ab:c0:60:b6:72:88:a6:1e:44:e9:95:ba:77:
  *             d1:40:bd:46:56:4b:88:de:41:c1:5a:92:73:b0:ce:85
