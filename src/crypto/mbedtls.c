@@ -12,12 +12,12 @@
 
 #define _STREAM_BLOCK_LEN 16
 
-#if defined(CONFIG_HUBBLE_NETWORK_KEY_256)
+#if CONFIG_HUBBLE_KEY_SIZE == 32
 #define CIPHER_TYPE MBEDTLS_CIPHER_AES_256_ECB
-#elif defined(CONFIG_HUBBLE_NETWORK_KEY_128)
+#elif CONFIG_HUBBLE_KEY_SIZE == 16
 #define CIPHER_TYPE MBEDTLS_CIPHER_AES_128_ECB
 #else
-#error "Invalid Hubble Key size"
+#error "CONFIG_HUBBLE_KEY_SIZE must be 16 or 32"
 #endif
 
 int hubble_crypto_cmac(const uint8_t key[CONFIG_HUBBLE_KEY_SIZE],
