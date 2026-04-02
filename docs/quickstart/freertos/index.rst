@@ -47,7 +47,8 @@ Adding Hubble Network to FreeRTOS
 
    * If ``HUBBLENETWORK_SDK_CONFIG`` is not set, the SDK defaults to
      ``port/freertos/config.h``, which serves as a reference listing all
-     available options with their default values.
+     available options with their default values. See
+     :ref:`hubble_configuration` for the full configuration reference.
 
    * All symbols defined in the config file will be available at build time
      for all objects compiled using ``HUBBLENETWORK_SDK_FLAGS``.

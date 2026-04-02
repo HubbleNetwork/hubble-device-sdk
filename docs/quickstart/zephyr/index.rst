@@ -50,7 +50,8 @@ To enable the required modules, add the corresponding lines to the project’s
     CONFIG_HUBBLE_SAT_NETWORK=y
 
 Use ``CONFIG_HUBBLE_BLE_NETWORK=y`` to enable the Bluetooth® Low Energy (BLE) Network module or
-``CONFIG_HUBBLE_SAT_NETWORK=y`` for the Satellite Network module.
+``CONFIG_HUBBLE_SAT_NETWORK=y`` for the Satellite Network module. For all
+available configuration options, see :ref:`hubble_configuration`.
 
 Using Hubble Network as the manifest repository
 ***********************************************
