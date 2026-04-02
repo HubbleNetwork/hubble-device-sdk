@@ -22,10 +22,8 @@ tests:
     extra_configs:
       - CONFIG_HUBBLE_NETWORK_CRYPTO_MBEDTLS=y
       - CONFIG_HUBBLE_EID_COUNTER_BASED=y
-      - CONFIG_HUBBLE_EID_POOL_SIZE=32
 
   ble.advertise.unit.counter.psa:
     extra_configs:
       - CONFIG_HUBBLE_NETWORK_CRYPTO_PSA=y
       - CONFIG_HUBBLE_EID_COUNTER_BASED=y
-      - CONFIG_HUBBLE_EID_POOL_SIZE=32

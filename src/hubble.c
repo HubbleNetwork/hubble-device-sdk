@@ -21,13 +21,8 @@
 #error Currently, only daily rotations are supported.
 #endif
 
-#if CONFIG_HUBBLE_EID_COUNTER_BASED
-#ifndef CONFIG_HUBBLE_EID_POOL_SIZE
-#error "CONFIG_HUBBLE_EID_POOL_SIZE must be defined when CONFIG_HUBBLE_EID_COUNTER_BASED is enabled"
-#endif
-#if CONFIG_HUBBLE_EID_POOL_SIZE < 16 || CONFIG_HUBBLE_EID_POOL_SIZE > 2048
-#error "CONFIG_HUBBLE_EID_POOL_SIZE must be between 16 and 2048"
-#endif
+#ifdef CONFIG_HUBBLE_EID_COUNTER_BASED
+#define HUBBLE_EID_POOL_SIZE 128
 #endif
 
 static uint64_t unix_time_synced;
@@ -122,7 +117,7 @@ int hubble_eid_counter_get(uint32_t *counter)
 	/* Use uint64_t to prevent overflow before modulo */
 	uint64_t total_counter = (uint64_t)eid_initial_counter + uptime_epochs;
 
-	*counter = (uint32_t)(total_counter % CONFIG_HUBBLE_EID_POOL_SIZE);
+	*counter = (uint32_t)(total_counter % HUBBLE_EID_POOL_SIZE);
 #else
 	uint64_t unix_time = hubble_time_get();
 

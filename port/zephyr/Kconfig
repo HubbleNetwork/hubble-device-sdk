@@ -30,21 +30,6 @@ config HUBBLE_EID_ROTATION_PERIOD_SEC
 	  EID rotation period. Currently only daily rotations
 	  are supported (86400)
 
-config HUBBLE_EID_POOL_SIZE
-	int "EID pool size"
-	default 32
-	range 16 2048
-	depends on HUBBLE_EID_COUNTER_BASED
-	help
-	  Number of unique EIDs in the pool. The counter wraps at this value.
-	  Range: 16 to 2048 unique EID epochs.
-
-	  Examples with default rotation period (86400 sec / daily):
-	    16:   ~16 days of unique EIDs
-	    64:   ~64 days of unique EIDs (default)
-	    256:  ~256 days of unique EIDs
-	    2048: ~5.6 years of unique EIDs
-
 config HUBBLE_SAT_NETWORK
 	   bool "Hubble Satellite Network Library [PRE-PRODUCTION]"
 	   select EXPERIMENTAL

@@ -37,7 +37,7 @@
  * EID Generation Mode
  *
  * Unix Time-based mode is used by default. To use counter-based mode instead,
- * define CONFIG_HUBBLE_EID_COUNTER_BASED (and CONFIG_HUBBLE_EID_POOL_SIZE).
+ * define CONFIG_HUBBLE_EID_COUNTER_BASED.
  */
 /* #define CONFIG_HUBBLE_EID_COUNTER_BASED  1 */
 
@@ -55,20 +55,6 @@
 #ifndef CONFIG_HUBBLE_EID_ROTATION_PERIOD_SEC
 #define CONFIG_HUBBLE_EID_ROTATION_PERIOD_SEC 86400
 #endif
-
-/*
- * EID pool size (counter-based mode only).
- * Range: 16 to 2048 unique EID epochs.
- *
- * Examples with default rotation period (86400 sec / daily):
- *   16:   ~16 days of unique EIDs
- *   64:   ~64 days of unique EIDs
- *   256:  ~256 days of unique EIDs
- *   2048: ~5.6 years of unique EIDs
- *
- * Must be defined when CONFIG_HUBBLE_EID_COUNTER_BASED is enabled.
- */
-/* #define CONFIG_HUBBLE_EID_POOL_SIZE 64 */
 
 #ifdef CONFIG_HUBBLE_SAT_NETWORK
 
