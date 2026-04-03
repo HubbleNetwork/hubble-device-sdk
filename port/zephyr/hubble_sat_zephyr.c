@@ -83,3 +83,80 @@ int hubble_sat_port_init(void)
 {
 	return hubble_sat_board_init();
 }
+
+#ifdef CONFIG_HUBBLE_SAT_NETWORK_DTM_MODE
+
+int hubble_sat_dtm_port_packet_send(const struct hubble_sat_packet *packet,
+				    int8_t channel)
+{
+	int ret;
+	struct hubble_sat_packet_frames frames = {0};
+
+	if ((channel < -1) || (channel >= HUBBLE_SAT_NUM_CHANNELS)) {
+		return -EINVAL;
+	}
+
+	ret = hubble_sat_packet_frames_get(packet, &frames);
+	if (ret != 0) {
+		return ret;
+	}
+
+	if (channel != -1) {
+		for (uint8_t i = 0; i < HUBBLE_PACKET_FRAME_MAX_SIZE; i++) {
+			frames.frame[i].channel = channel;
+		}
+	}
+
+	ret = hubble_sat_board_enable();
+	if (ret != 0) {
+		return ret;
+	}
+
+	ret = hubble_sat_board_packet_send(&frames);
+	if (ret != 0) {
+		(void)hubble_sat_board_disable();
+		return ret;
+	}
+
+	return hubble_sat_board_disable();
+}
+
+int hubble_sat_dtm_port_power_set(int8_t power)
+{
+	return hubble_sat_board_power_set(power);
+}
+
+int hubble_sat_dtm_port_cw_start(uint8_t channel)
+{
+	int ret;
+
+	if (channel >= HUBBLE_SAT_NUM_CHANNELS) {
+		return -EINVAL;
+	}
+
+	ret = hubble_sat_board_enable();
+	if (ret != 0) {
+		return ret;
+	}
+
+	ret = hubble_sat_board_cw_start(channel);
+	if (ret != 0) {
+		(void)hubble_sat_board_disable();
+		return ret;
+	}
+
+	return 0;
+}
+
+int hubble_sat_dtm_port_cw_stop(void)
+{
+	int ret = hubble_sat_board_cw_stop();
+	if (ret != 0) {
+		(void)hubble_sat_board_disable();
+		return ret;
+	}
+
+	return hubble_sat_board_disable();
+}
+
+#endif /* CONFIG_HUBBLE_SAT_NETWORK_DTM_MODE */
