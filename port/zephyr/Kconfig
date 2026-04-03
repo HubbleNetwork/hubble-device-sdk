@@ -82,6 +82,12 @@ config HUBBLE_SAT_NETWORK_DEVICE_TDR
 	  Default of 500 PPM is suitable for typical crystal
 	  oscillators.
 
+config HUBBLE_SAT_NETWORK_DTM_MODE
+	bool "Enable DTM mode"
+	help
+	  Enable DTM mode in the SDK. It is intended
+	  to test the operation of radio.
+
 choice
 	prompt "Hubble Sat Network protocol"
 	default HUBBLE_SAT_NETWORK_PROTOCOL_V1

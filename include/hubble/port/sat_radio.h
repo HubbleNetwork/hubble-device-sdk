@@ -96,6 +96,59 @@ int hubble_sat_port_packet_send(const struct hubble_sat_packet *packet,
 				uint8_t retries, uint8_t interval_s);
 
 /**
+ * @brief Transmit a DTM test packet over the satellite radio.
+ *
+ * Platform-specific implementation for sending a single DTM packet on the
+ * specified channel. When @p channel is -1, the transmission follows the
+ * standard channel-hopping scheme used by @ref hubble_sat_port_packet_send.
+ *
+ * @param packet  Pointer to the packet structure containing the data to transmit.
+ * @param channel RF channel to transmit on. -1 to hop between channels.
+ *
+ * @retval 0       Success.
+ * @retval -EINVAL Invalid channel.
+ */
+int hubble_sat_dtm_port_packet_send(const struct hubble_sat_packet *packet,
+				    int8_t channel);
+
+/**
+ * @brief Set the transmit power level (port implementation).
+ *
+ * Platform-specific implementation for configuring the output power used
+ * for subsequent DTM transmissions.
+ *
+ * @param power Desired TX power in dBm.
+ *
+ * @retval 0       Success.
+ * @retval -EINVAL Power level is out of the supported range.
+ */
+int hubble_sat_dtm_port_power_set(int8_t power);
+
+/**
+ * @brief Start continuous wave (CW) transmission (port implementation).
+ *
+ * Platform-specific implementation that begins transmitting an unmodulated
+ * carrier on the specified channel. Call @ref hubble_sat_dtm_port_cw_stop
+ * to end the transmission.
+ *
+ * @param channel RF channel index to transmit on.
+ *
+ * @retval 0       Success.
+ * @retval -EINVAL Invalid channel.
+ */
+int hubble_sat_dtm_port_cw_start(uint8_t channel);
+
+/**
+ * @brief Stop continuous wave (CW) transmission (port implementation).
+ *
+ * Platform-specific implementation that halts the unmodulated carrier
+ * started by @ref hubble_sat_dtm_port_cw_start.
+ *
+ * @retval 0    Success.
+ */
+int hubble_sat_dtm_port_cw_stop(void);
+
+/**
  * @}
  */
 

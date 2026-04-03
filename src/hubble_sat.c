@@ -12,6 +12,10 @@
 #include <hubble/port/sys.h>
 #include <hubble/port/sat_radio.h>
 
+#ifdef CONFIG_HUBBLE_SAT_NETWORK_DTM_MODE
+#include <hubble/sat/dtm.h>
+#endif
+
 #include "hubble_priv.h"
 #include "utils/macros.h"
 
@@ -113,3 +117,58 @@ int hubble_sat_packet_send(const struct hubble_sat_packet *packet,
 
 	return 0;
 }
+
+#ifdef CONFIG_HUBBLE_SAT_NETWORK_DTM_MODE
+
+int hubble_sat_dtm_packet_send(enum hubble_sat_dtm_packet_type type,
+			       int8_t channel)
+{
+	struct hubble_sat_packet packet;
+	/* Hold max possible user data */
+	char buffer[13];
+	uint8_t len;
+	int ret;
+
+	switch (type) {
+	case HUBBLE_SAT_DTM_PACKET_0:
+		len = 0;
+		break;
+	case HUBBLE_SAT_DTM_PACKET_4:
+		len = 4;
+		break;
+	case HUBBLE_SAT_DTM_PACKET_9:
+		len = 9;
+		break;
+	case HUBBLE_SAT_DTM_PACKET_13:
+		len = 13;
+		break;
+	default:
+		return -EINVAL;
+	}
+
+	hubble_rand_get(buffer, len);
+
+	ret = hubble_sat_packet_get(&packet, buffer, len);
+	if (ret < 0) {
+		return ret;
+	}
+
+	return hubble_sat_dtm_port_packet_send(&packet, channel);
+}
+
+int hubble_sat_dtm_power_set(int8_t power)
+{
+	return hubble_sat_dtm_port_power_set(power);
+}
+
+int hubble_sat_dtm_cw_start(uint8_t channel)
+{
+	return hubble_sat_dtm_port_cw_start(channel);
+}
+
+int hubble_sat_dtm_cw_stop(void)
+{
+	return hubble_sat_dtm_port_cw_stop();
+}
+
+#endif
