@@ -11,5 +11,8 @@ sphinx-togglebutton
 sphinx-sitemap
 sphinx-autobuild
 
+# Kconfig documentation generation
+kconfiglib
+
 # Used to organize code samples
 anytree

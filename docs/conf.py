@@ -14,6 +14,14 @@ author = "HubbleNetwork"
 release = "0.1"
 
 sys.path.insert(0,  "./_extensions")
+
+# -- Kconfig autodoc ---------------------------------------------------------
+# Resolve Zephyr base for Kconfig source directives
+kconfig_srctree = os.environ.get(
+    "ZEPHYR_BASE",
+    str(Path(__file__).resolve().parent.parent.parent / "zephyr")
+)
+
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
 
@@ -28,6 +36,7 @@ extensions = [
         "sphinx_togglebutton",
         "sphinx_copybutton",
         "breathe",
+        "kconfig_autodoc",
 ]
 
 templates_path = ["templates"]

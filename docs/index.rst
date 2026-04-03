@@ -45,6 +45,13 @@ Additional Resources
 	   <p>Architecture, features &amp; how-to-use</p>
        </li>
        <li class="grid-item">
+	   <a href="configuration/index.html">
+               <span class="grid-icon fa fa-cogs"></span>
+	       <h2>Configuration Reference</h2>
+	   </a>
+	   <p>Kconfig options for BLE, satellite, crypto &amp; more</p>
+       </li>
+       <li class="grid-item">
 	   <a href="ble/index.html">
                <span class="grid-icon fa fa-bluetooth-b"></span>
 	       <h2>BLE Network</h2>
@@ -66,6 +73,7 @@ Additional Resources
 
    introduction/index
    quickstart/index
+   configuration/index
    ble/index
    satellite/index
    security/index
