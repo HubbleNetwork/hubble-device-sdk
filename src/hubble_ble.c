@@ -61,7 +61,7 @@ int hubble_ble_advertise_get(const uint8_t *input, size_t input_len,
 		return -EINVAL;
 	}
 
-	err = hubble_eid_counter_get(&time_counter);
+	err = hubble_counter_get(&time_counter);
 	if (err != 0) {
 		return err;
 	}
@@ -109,7 +109,7 @@ uint32_t hubble_ble_advertise_expiration_get(void)
 {
 	uint64_t rotation_period_ms =
 		(uint64_t)CONFIG_HUBBLE_EID_ROTATION_PERIOD_SEC * 1000ULL;
-#ifdef CONFIG_HUBBLE_EID_COUNTER_BASED
+#ifdef CONFIG_HUBBLE_COUNTER_SOURCE_DEVICE_UPTIME
 	uint64_t time_ms = hubble_uptime_get();
 #else
 	uint64_t time_ms = hubble_time_get();

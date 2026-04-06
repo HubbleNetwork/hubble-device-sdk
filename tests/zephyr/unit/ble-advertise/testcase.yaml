@@ -21,9 +21,9 @@ tests:
   ble.advertise.unit.counter.mbedtls:
     extra_configs:
       - CONFIG_HUBBLE_NETWORK_CRYPTO_MBEDTLS=y
-      - CONFIG_HUBBLE_EID_COUNTER_BASED=y
+      - CONFIG_HUBBLE_COUNTER_SOURCE_DEVICE_UPTIME=y
 
   ble.advertise.unit.counter.psa:
     extra_configs:
       - CONFIG_HUBBLE_NETWORK_CRYPTO_PSA=y
-      - CONFIG_HUBBLE_EID_COUNTER_BASED=y
+      - CONFIG_HUBBLE_COUNTER_SOURCE_DEVICE_UPTIME=y

@@ -49,7 +49,7 @@ static const uint8_t test_key_primary[CONFIG_HUBBLE_KEY_SIZE] = {
 /* Test Suite: ble_advertise_test - Core Encryption Tests                   */
 /*===========================================================================*/
 
-#ifndef CONFIG_HUBBLE_EID_COUNTER_BASED
+#ifndef CONFIG_HUBBLE_COUNTER_SOURCE_DEVICE_UPTIME
 ZTEST(ble_advertise_test, test_advertise_with_test_vectors)
 {
 	test_uptime_ms = 0;
@@ -82,7 +82,7 @@ ZTEST(ble_advertise_test, test_advertise_with_test_vectors)
 				  tv->description);
 	}
 }
-#endif /* !CONFIG_HUBBLE_EID_COUNTER_BASED */
+#endif /* !CONFIG_HUBBLE_COUNTER_SOURCE_DEVICE_UPTIME */
 
 ZTEST(ble_advertise_test, test_advertise_null_input_handling)
 {
@@ -368,7 +368,7 @@ ZTEST_SUITE(ble_advertise_format_test, NULL, ble_advertise_format_test_setup,
 /* Test Suite: ble_advertise_counter_test - Counter-Based EID Tests          */
 /*===========================================================================*/
 
-#ifdef CONFIG_HUBBLE_EID_COUNTER_BASED
+#ifdef CONFIG_HUBBLE_COUNTER_SOURCE_DEVICE_UPTIME
 
 #include "test_vectors_counter.h"
 
@@ -526,4 +526,4 @@ static void *ble_advertise_counter_test_setup(void)
 ZTEST_SUITE(ble_advertise_counter_test, NULL, ble_advertise_counter_test_setup,
 	    NULL, NULL, NULL);
 
-#endif /* CONFIG_HUBBLE_EID_COUNTER_BASED */
+#endif /* CONFIG_HUBBLE_COUNTER_SOURCE_DEVICE_UPTIME */

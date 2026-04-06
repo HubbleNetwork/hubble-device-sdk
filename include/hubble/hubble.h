@@ -33,34 +33,34 @@ extern "C" {
  * Calling this function is essential before using any other SDK APIs.
  *
  * The interpretation of the `initial_time` parameter depends on the configured
- * EID generation mode:
+ * counter source:
  *
- * **Unix Time-based mode (CONFIG_HUBBLE_EID_TIME_BASED):**
+ * **Unix time mode (CONFIG_HUBBLE_COUNTER_SOURCE_UNIX_TIME):**
  *   - `initial_time` is the time in milliseconds since Unix epoch
  *   - Value of 0 is invalid and will return an error
  *   - Time can be updated later via hubble_time_set()
  *
- * **Counter-based mode (CONFIG_HUBBLE_EID_COUNTER_BASED):**
- *   - `initial_time` is the initial EID counter value
+ * **Device uptime mode (CONFIG_HUBBLE_COUNTER_SOURCE_DEVICE_UPTIME):**
+ *   - `initial_time` is the initial counter value
  *   - Value of 0 starts the counter at epoch 0 (valid)
  *   - The counter increments based on uptime from this initial value
  *   - Useful for resuming from a known state after reboot
  *
  * @code
- * // Unix Time-based mode example
+ * // Unix time mode example
  * uint64_t unix_time_ms = 1705881600000; // Current Unix Epoch time
  * int ret = hubble_init(unix_time_ms, master_key);
  *
- * // Counter-based mode example (start at 0)
+ * // Device uptime mode example (start at 0)
  * int ret = hubble_init(0, master_key);
  *
- * // Counter-based mode example (resume from saved counter)
+ * // Device uptime mode example (resume from saved counter)
  * uint64_t saved_counter = load_from_flash();
  * int ret = hubble_init(saved_counter, master_key);
  * @endcode
  *
- * @param initial_time For Unix Time mode: Unix time in milliseconds since
- *                     epoch. For Counter mode: Initial counter value
+ * @param initial_time For Unix time mode: Unix time in milliseconds since
+ *                     epoch. For device uptime mode: Initial counter value
  *                     (0 = start at 0).
  * @param key An opaque pointer to the master key buffer. The SDK
  *            stores this pointer directly and does not copy the key
@@ -115,17 +115,17 @@ uint64_t hubble_time_get(void);
 int hubble_key_set(const void *key);
 
 /**
- * @brief Get the current time counter value for EID derivation.
+ * @brief Get the current time counter value.
  *
- * Returns the time counter based on the configured EID generation mode:
- * - Counter-based: Uses uptime-derived counter with initial offset, wrapping
+ * Returns the time counter based on the configured counter source:
+ * - Device uptime: Uses uptime-derived counter with initial offset, wrapping
  *                  at HUBBLE_EID_POOL_SIZE (128) to produce values in [0, pool_size-1]
- * - Unix Time-based: Uses Unix time divided by rotation period (no wrapping)
+ * - Unix time: Uses Unix time divided by rotation period (no wrapping)
  *
  * @param counter Pointer to store the time counter value
  * @return 0 on success, negative error code on failure (Unix time mode only, if time not set)
  */
-int hubble_eid_counter_get(uint32_t *counter);
+int hubble_counter_get(uint32_t *counter);
 
 /**
  * @}

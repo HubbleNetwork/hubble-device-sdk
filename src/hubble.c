@@ -16,19 +16,19 @@
 #include <hubble/port/crypto.h>
 
 /* Currently, only support a rotation period of 86400 (daily) */
-#if CONFIG_HUBBLE_EID_TIME_BASED &&                                            \
+#if CONFIG_HUBBLE_COUNTER_SOURCE_UNIX_TIME &&                                  \
 	(CONFIG_HUBBLE_EID_ROTATION_PERIOD_SEC != 86400)
 #error Currently, only daily rotations are supported.
 #endif
 
-#ifdef CONFIG_HUBBLE_EID_COUNTER_BASED
+#ifdef CONFIG_HUBBLE_COUNTER_SOURCE_DEVICE_UPTIME
 #define HUBBLE_EID_POOL_SIZE 128
 #endif
 
 static uint64_t unix_time_synced;
 static uint64_t unix_time_base;
 
-#ifdef CONFIG_HUBBLE_EID_COUNTER_BASED
+#ifdef CONFIG_HUBBLE_COUNTER_SOURCE_DEVICE_UPTIME
 static uint32_t eid_initial_counter;
 #endif
 
@@ -60,7 +60,7 @@ int hubble_init(uint64_t initial_time, const void *key)
 		return ret;
 	}
 
-#ifdef CONFIG_HUBBLE_EID_COUNTER_BASED
+#ifdef CONFIG_HUBBLE_COUNTER_SOURCE_DEVICE_UPTIME
 	/* Counter-based mode: initial_time is the starting counter value */
 	/* 0 is a valid value meaning "start at epoch 0" */
 	if (initial_time > UINT32_MAX) {
@@ -102,7 +102,7 @@ uint64_t hubble_internal_time_last_synced_get(void)
 	return unix_time_synced;
 }
 
-int hubble_eid_counter_get(uint32_t *counter)
+int hubble_counter_get(uint32_t *counter)
 {
 	if (counter == NULL) {
 		return -EINVAL;
@@ -111,7 +111,7 @@ int hubble_eid_counter_get(uint32_t *counter)
 	static const uint64_t rotation_period_ms =
 		(uint64_t)CONFIG_HUBBLE_EID_ROTATION_PERIOD_SEC * 1000ULL;
 
-#ifdef CONFIG_HUBBLE_EID_COUNTER_BASED
+#ifdef CONFIG_HUBBLE_COUNTER_SOURCE_DEVICE_UPTIME
 	uint64_t uptime_ms = hubble_uptime_get();
 	uint32_t uptime_epochs = (uint32_t)(uptime_ms / rotation_period_ms);
 	/* Use uint64_t to prevent overflow before modulo */

@@ -108,7 +108,7 @@ struct test_adv test_adv_data[] = {
 
 ZTEST(ble_adv_test, test_ble_adv)
 {
-#ifdef CONFIG_HUBBLE_EID_COUNTER_BASED
+#ifdef CONFIG_HUBBLE_COUNTER_SOURCE_DEVICE_UPTIME
 	/* Skip byte-exact comparison in counter mode - protocol version differs.
 	 * Counter mode advertisement generation is tested in ble_counter_test.
 	 */
@@ -152,7 +152,7 @@ ZTEST_SUITE(ble_adv_test, NULL, ble_adv_test_setup, NULL, NULL, NULL);
 
 /* Counter-based EID test section */
 
-#ifdef CONFIG_HUBBLE_EID_COUNTER_BASED
+#ifdef CONFIG_HUBBLE_COUNTER_SOURCE_DEVICE_UPTIME
 
 static uint8_t counter_test_key[CONFIG_HUBBLE_KEY_SIZE] = {
 	0xcd, 0x15, 0xa5, 0xab, 0xc0, 0x60, 0xb6, 0x72, 0x88, 0xa6, 0x1e,
@@ -184,9 +184,9 @@ ZTEST(ble_counter_test, test_eid_counter_get)
 
 	/* At startup with counter=0, the counter should be 0 */
 	uint32_t counter;
-	ret = hubble_eid_counter_get(&counter);
+	ret = hubble_counter_get(&counter);
 
-	zassert_ok(ret, "hubble_eid_counter_get should succeed");
+	zassert_ok(ret, "hubble_counter_get should succeed");
 
 	zassert_equal(counter, 0, "Counter should be 0 at startup");
 }
@@ -200,9 +200,9 @@ ZTEST(ble_counter_test, test_eid_counter_get_with_initial)
 	zassert_ok(ret, "hubble_init should succeed");
 
 	uint32_t counter;
-	ret = hubble_eid_counter_get(&counter);
+	ret = hubble_counter_get(&counter);
 
-	zassert_ok(ret, "hubble_eid_counter_get should succeed");
+	zassert_ok(ret, "hubble_counter_get should succeed");
 
 	zassert_equal(initial_counter, counter,
 		      "Counter value should match initial counter value");
@@ -257,4 +257,4 @@ static void *ble_counter_test_setup(void)
 
 ZTEST_SUITE(ble_counter_test, NULL, ble_counter_test_setup, NULL, NULL, NULL);
 
-#endif /* CONFIG_HUBBLE_EID_COUNTER_BASED */
+#endif /* CONFIG_HUBBLE_COUNTER_SOURCE_DEVICE_UPTIME */

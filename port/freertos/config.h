@@ -34,16 +34,16 @@
 /* #define CONFIG_HUBBLE_NETWORK_CRYPTO_PSA 1 */
 
 /*
- * EID Generation Mode
+ * Counter Source
  *
- * Unix Time-based mode is used by default. To use counter-based mode instead,
- * define CONFIG_HUBBLE_EID_COUNTER_BASED.
+ * Unix time mode is used by default. To use device uptime mode instead,
+ * define CONFIG_HUBBLE_COUNTER_SOURCE_DEVICE_UPTIME.
  */
-/* #define CONFIG_HUBBLE_EID_COUNTER_BASED  1 */
+/* #define CONFIG_HUBBLE_COUNTER_SOURCE_DEVICE_UPTIME  1 */
 
-#if defined(CONFIG_HUBBLE_EID_TIME_BASED) &&                                   \
-	defined(CONFIG_HUBBLE_EID_COUNTER_BASED)
-#error "Cannot define both CONFIG_HUBBLE_EID_TIME_BASED and CONFIG_HUBBLE_EID_COUNTER_BASED"
+#if defined(CONFIG_HUBBLE_COUNTER_SOURCE_UNIX_TIME) &&                         \
+	defined(CONFIG_HUBBLE_COUNTER_SOURCE_DEVICE_UPTIME)
+#error "Cannot define both CONFIG_HUBBLE_COUNTER_SOURCE_UNIX_TIME and CONFIG_HUBBLE_COUNTER_SOURCE_DEVICE_UPTIME"
 #endif
 
 /*
