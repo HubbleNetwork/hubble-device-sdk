@@ -1,0 +1,565 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BLE Network API Reference &mdash; Hubble Network SDK Documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=4ae1632d" />
+      <link rel="stylesheet" type="text/css" href="../_static/togglebutton.css?v=9c3e77be" />
+      <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=85dd136a" />
+
+  
+    <link rel="shortcut icon" href="../_static/hubble.png"/>
+    <link rel="canonical" href="https://HubbleNetwork.github.io/hubble-device-sdk/main/ble/api.html" />
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=2709fde1"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="../_static/copybutton.js?v=f281be69"></script>
+      <script>let toggleHintShow = 'Click to show';</script>
+      <script>let toggleHintHide = 'Click to hide';</script>
+      <script>let toggleOpenOnPrint = 'true';</script>
+      <script src="../_static/togglebutton.js?v=b8b12719"></script>
+      <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Satellite Network Overview" href="../satellite/index.html" />
+    <link rel="prev" title="Best Practices for Time Management" href="timing.html" />
+  <meta name="color-scheme" content="dark light">
+  
+  <noscript id="dark-mode-toggle-stylesheets">
+    <link rel="stylesheet" href="../_static/css/light.css" type="text/css" media="(prefers-color-scheme: light)"/>
+    <link rel="stylesheet" href="../_static/css/dark.css" type="text/css" media="(prefers-color-scheme: dark)"/>
+  </noscript>
+  <script src="../_static/js/dark-mode-toggle-stylesheets-loader.min.js"></script>
+  <script type="module" src="../_static/js/dark-mode-toggle.min.mjs"></script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;1,100;1,200;1,300;1,400;1,500;1,600;1,700&family=Instrument+Sans:ital,wght@0,400..700;1,400..700&display=swap" rel="stylesheet">
+
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            Hubble Network SDK
+              <img src="../_static/hubble-logo.svg" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+  <div data-nosnippet>
+    
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../introduction/index.html">Introduction</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../introduction/index.html#architecture">Architecture</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../introduction/index.html#service-modules">Service Modules</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../introduction/index.html#port-layer">Port Layer</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../quickstart/index.html">Quick Start</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../quickstart/zephyr/index.html">Zephyr Quick Start</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../quickstart/zephyr/index.html#adding-hubble-network-to-zephyr">Adding Hubble Network to Zephyr</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../quickstart/zephyr/index.html#using-hubble-network-as-the-manifest-repository">Using Hubble Network as the manifest repository</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../quickstart/freertos/index.html">FreeRTOS Quick Start</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../quickstart/freertos/index.html#prerequisites">Prerequisites</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../quickstart/freertos/index.html#adding-hubble-network-to-freertos">Adding Hubble Network to FreeRTOS</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../configuration/index.html">Configuration Reference</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">BLE Network Overview</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="index.html#introduction">Introduction</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="index.html#key-features">Key Features</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="index.html#api-overview">API Overview</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="index.html#initialization">Initialization</a></li>
+<li class="toctree-l3"><a class="reference internal" href="index.html#time-management">Time Management</a></li>
+<li class="toctree-l3"><a class="reference internal" href="index.html#encryption-key-management">Encryption Key Management</a></li>
+<li class="toctree-l3"><a class="reference internal" href="index.html#advertisement-retrieval">Advertisement Retrieval</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="index.html#security-details">Security Details</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="security.html">BLE  Security Overview</a></li>
+<li class="toctree-l3"><a class="reference internal" href="security.html#encryption-steps">Encryption steps</a></li>
+<li class="toctree-l3"><a class="reference internal" href="security.html#additional-references">Additional references</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="index.html#timing-management">Timing management</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="timing.html">Best Practices for Time Management</a></li>
+</ul>
+</li>
+<li class="toctree-l2 current"><a class="reference internal" href="index.html#api-reference">API Reference</a><ul class="current">
+<li class="toctree-l3 current"><a class="current reference internal" href="#">BLE Network API Reference</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../satellite/index.html">Satellite Network Overview</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../satellite/index.html#api-reference">API Reference</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../satellite/api.html">Application APIs</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../satellite/api.html#port-apis">Port APIs</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../security/index.html">Security</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../security/vulnerability-process.html">Hubble Network Security Vulnerability Handling</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../security/vulnerability-process.html#introduction">Introduction</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../security/vulnerability-process.html#security-issue-management">Security Issue Management</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../security/vulnerability-process.html#fix-recommendations">Fix Recommendations</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../security/vulnerability-process.html#vulnerability-notification">Vulnerability Notification</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../security/vulnerability-process.html#backporting-of-security-vulnerabilities">Backporting of Security Vulnerabilities</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../security/vulnerabilities.html">Vulnerabilities</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../releases/index.html">Release Notes and Lifecycle</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../releases/index.html#overview">Overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../releases/index.html#release-lifecycle">Release Lifecycle</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../releases/index.html#development-phase">Development Phase</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../releases/index.html#release-candidate-phase">Release Candidate Phase</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../releases/index.html#hardening-and-validation-phase">Hardening and Validation Phase</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../releases/index.html#release-model">Release Model</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../releases/index.html#version-components">Version Components</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../releases/index.html#versioning-rules">Versioning Rules</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../releases/index.html#release-types">Release Types</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../releases/index.html#stable-releases">Stable Releases</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../releases/index.html#long-term-support-lts-releases">Long-Term Support (LTS) Releases</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../releases/index.html#support-policy">Support Policy</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../releases/index.html#id1">Stable  Releases</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../releases/index.html#long-term-support-releases">Long-Term Support Releases</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../releases/index.html#release-schedule">Release Schedule</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../releases/index.html#regular-releases">Regular Releases</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../releases/index.html#release-announcements">Release Announcements</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../releases/index.html#migration-and-upgrade-guidance">Migration and Upgrade Guidance</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../releases/index.html#release-notes">Release Notes</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../releases/1.0.html">Release 1.0.0</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+    
+  </div>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Hubble Network SDK</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+  <!--  -->
+  
+  
+  
+  
+
+  <li><a href="../index.html">Docs</a> &raquo;</li>
+  
+     <li><a href="index.html">BLE Network Overview</a> &raquo;</li>
+  
+  <li>BLE Network API Reference</li>
+
+
+  <li class="wy-breadcrumbs-aside">
+    <dark-mode-toggle id="dark-mode-toggle" appearance="three-way" permanent="true"/>
+  </li>
+  <li class="wy-breadcrumbs-aside">
+  </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+  
+  
+           <div itemprop="articleBody">
+             
+  <section id="ble-network-api-reference">
+<span id="hubble-ble-api"></span><h1>BLE Network API Reference<a class="headerlink" href="#ble-network-api-reference" title="Link to this heading"></a></h1>
+<dl>
+<dt class="sig sig-object cpp">
+<span class="target" id="group__hubble__ble__api"></span><em><span class="pre">group</span></em> <span class="sig-name descname"><span class="pre">BLE</span> <span class="pre">Network</span> <span class="pre">Function</span> <span class="pre">APIs</span></span></dt>
+<dd><p>Hubble BLE Network Function APIs. </p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-defines">Defines</p>
+<dl class="cpp macro">
+<dt class="sig sig-object cpp" id="c.HUBBLE_BLE_UUID">
+<span class="target" id="group__hubble__ble__api_1ga41fb50c39db4be60769f17cc59abd26f"></span><span class="sig-name descname"><span class="n"><span class="pre">HUBBLE_BLE_UUID</span></span></span><a class="headerlink" href="#c.HUBBLE_BLE_UUID" title="Link to this definition"></a><br /></dt>
+<dd><p>Hubble BLE Network UUID. </p>
+<p>This is the UUID should be listed in the services list. </p>
+</dd></dl>
+
+<dl class="cpp macro">
+<dt class="sig sig-object cpp" id="c.HUBBLE_BLE_MAX_DATA_LEN">
+<span class="target" id="group__hubble__ble__api_1ga11ed4310044e81bef4eb485a9b10079e"></span><span class="sig-name descname"><span class="n"><span class="pre">HUBBLE_BLE_MAX_DATA_LEN</span></span></span><a class="headerlink" href="#c.HUBBLE_BLE_MAX_DATA_LEN" title="Link to this definition"></a><br /></dt>
+<dd><p>Maximum amount of data sendable in bytes. </p>
+<p>This is the maximum length of data that can be sent with Hubble. If other services or service data are advertised then this number will be smaller for your application given the finite length of advertisements. </p>
+</dd></dl>
+
+<dl class="cpp macro">
+<dt class="sig sig-object cpp" id="c.HUBBLE_BLE_ADV_HEADER_SIZE">
+<span class="target" id="group__hubble__ble__api_1ga1f0a64639c5aa897e03f895c01d97a3e"></span><span class="sig-name descname"><span class="n"><span class="pre">HUBBLE_BLE_ADV_HEADER_SIZE</span></span></span><a class="headerlink" href="#c.HUBBLE_BLE_ADV_HEADER_SIZE" title="Link to this definition"></a><br /></dt>
+<dd><p>Fixed header size of a Hubble BLE advertisement in bytes. </p>
+<p>Every advertisement produced by <a class="reference internal" href="#group__hubble__ble__api_1gaaf81e6fb42b8a80311a1f085c2ebcc7a"><span class="std std-ref">hubble_ble_advertise_get</span></a> contains this many fixed-overhead bytes (UUID prefix, device address, and authentication tag) before any caller-supplied data.</p>
+<p>Use this to size the output buffer: <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>uint8_t buf[HUBBLE_BLE_ADV_HEADER_SIZE + my_data_len];
+size_t buf_len = sizeof(buf);
+hubble_ble_advertise_get(data, my_data_len, buf, &amp;buf_len);
+</pre></div>
+</div>
+</p>
+<p>The maximum possible output length is: <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>HUBBLE_BLE_ADV_HEADER_SIZE + HUBBLE_BLE_MAX_DATA_LEN   // = 25 bytes
+</pre></div>
+</div>
+</p>
+</dd></dl>
+
+</div>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-functions">Functions</p>
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv424hubble_ble_advertise_getPK7uint8_t6size_tP7uint8_tP6size_t">
+<span id="_CPPv324hubble_ble_advertise_getPK7uint8_t6size_tP7uint8_tP6size_t"></span><span id="_CPPv224hubble_ble_advertise_getPK7uint8_t6size_tP7uint8_tP6size_t"></span><span id="hubble_ble_advertise_get__uint8_tCP.s.uint8_tP.sP"></span><span class="target" id="group__hubble__ble__api_1gaaf81e6fb42b8a80311a1f085c2ebcc7a"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">hubble_ble_advertise_get</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">uint8_t</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">input</span></span>, <span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">input_len</span></span>, <span class="n"><span class="pre">uint8_t</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">out</span></span>, <span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">out_len</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv424hubble_ble_advertise_getPK7uint8_t6size_tP7uint8_tP6size_t" title="Link to this definition"></a><br /></dt>
+<dd><p>Retrieves advertisements from the provided data. </p>
+<p>This function processes the input data and creates the advertisement payload. The returned data should be used with Service Data - 16 bit UUID advertisement type (0x16).</p>
+<p>It is also required to add Hubble 16-bit service UUID in the complete list of 16-bit service class UUID (0x03).</p>
+<p>Example:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>int status = hubble_ble_advertise_get(data, data_len, out, &amp;out_len);
+</pre></div>
+</div>
+<p>The following advertisement packet shows a valid example and where the returned data fits in.</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>| len   | ad type | data   | len                  | ad type | data       |
+|-------+---------+--------+----------------------+---------+------------|
+| 0x03  | 0x03    | 0xFCA6 | out_len + 0x01       | 0x16    | ad_data    |
+|       |         |        | (ad type len)        |         |            |
+|       |         |        | (out_len is adv_data |         |            |
+|       |         |        |  len - returned by   |         |            |
+|       |         |        |  this API)           |         |            |
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>- This function is neither thread-safe nor reentrant. The caller must ensure proper synchronization.<ul class="simple">
+<li><p>The payload is encrypted using the key set by <a class="reference internal" href="#group__hubble__api_1ga888299129a16a442594958fb5d1585c9"><span class="std std-ref">hubble_key_set</span></a></p></li>
+<li><p>Legacy packet type (Extended Advertisements not supported)</p></li>
+</ul>
+</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>input</strong> – Pointer to the input data. </p></li>
+<li><p><strong>input_len</strong> – Length of the input data. </p></li>
+<li><p><strong>out</strong> – Output buffer to place data into </p></li>
+<li><p><strong>out_len</strong> – in: Size of the <code class="docutils literal notranslate"><span class="pre">out</span></code> buffer in bytes. Must be at least <a class="reference internal" href="#group__hubble__ble__api_1ga1f0a64639c5aa897e03f895c01d97a3e"><span class="std std-ref">HUBBLE_BLE_ADV_HEADER_SIZE</span></a> + <code class="docutils literal notranslate"><span class="pre">input_len</span></code>. out: Actual advertisement length written.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p>0 on success</p></li>
+<li><p>Non-zero on failure </p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv435hubble_ble_advertise_expiration_getv">
+<span id="_CPPv335hubble_ble_advertise_expiration_getv"></span><span id="_CPPv235hubble_ble_advertise_expiration_getv"></span><span id="hubble_ble_advertise_expiration_get__void"></span><span class="target" id="group__hubble__ble__api_1gabdcc6e98b1abc90916a123b0d9fc4c02"></span><span class="n"><span class="pre">uint32_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">hubble_ble_advertise_expiration_get</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">void</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv435hubble_ble_advertise_expiration_getv" title="Link to this definition"></a><br /></dt>
+<dd><p>Gets the time remaining until the BLE advertisement expires. </p>
+<p>Returns the number of milliseconds until the current BLE advertisement expires and a new one should be generated. This helps applications refresh their advertisements in synchronization with the EID rotation period.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Milliseconds until the current advertisement expires. </p>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+</dd></dl>
+
+<dl>
+<dt class="sig sig-object cpp">
+<span class="target" id="group__hubble__api"></span><em><span class="pre">group</span></em> <span class="sig-name descname"><span class="pre">Hubble</span> <span class="pre">Network</span> <span class="pre">APIs</span></span></dt>
+<dd><p>Hubble Network SDK APIs. </p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-functions">Functions</p>
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv411hubble_init8uint64_tPKv">
+<span id="_CPPv311hubble_init8uint64_tPKv"></span><span id="_CPPv211hubble_init8uint64_tPKv"></span><span id="hubble_init__uint64_t.voidCP"></span><span class="target" id="group__hubble__api_1ga03991712b4f80ded966f4f58e3e8813c"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">hubble_init</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">uint64_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">initial_time</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">key</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv411hubble_init8uint64_tPKv" title="Link to this definition"></a><br /></dt>
+<dd><p>Initializes the Hubble SDK. </p>
+<p>Calling this function is essential before using any other SDK APIs.</p>
+<p>The interpretation of the <code class="docutils literal notranslate"><span class="pre">initial_time</span></code> parameter depends on the configured counter source:</p>
+<p><strong>Unix time mode (CONFIG_HUBBLE_COUNTER_SOURCE_UNIX_TIME):</strong><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">initial_time</span></code> is the time in milliseconds since Unix epoch</p></li>
+<li><p>Value of 0 is invalid and will return an error</p></li>
+<li><p>Time can be updated later via <a class="reference internal" href="#group__hubble__api_1ga0da1af458a60c0ae827382536b65db08"><span class="std std-ref">hubble_time_set()</span></a></p></li>
+</ul>
+</p>
+<p><strong>Device uptime mode (CONFIG_HUBBLE_COUNTER_SOURCE_DEVICE_UPTIME):</strong><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">initial_time</span></code> is the initial counter value</p></li>
+<li><p>Value of 0 starts the counter at epoch 0 (valid)</p></li>
+<li><p>The counter increments based on uptime from this initial value</p></li>
+<li><p>Useful for resuming from a known state after reboot</p></li>
+</ul>
+</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>// Unix time mode example
+uint64_t unix_time_ms = 1705881600000; // Current Unix Epoch time
+int ret = hubble_init(unix_time_ms, master_key);
+
+// Device uptime mode example (start at 0)
+int ret = hubble_init(0, master_key);
+
+// Device uptime mode example (resume from saved counter)
+uint64_t saved_counter = load_from_flash();
+int ret = hubble_init(saved_counter, master_key);
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>initial_time</strong> – For Unix time mode: Unix time in milliseconds since epoch. For device uptime mode: Initial counter value (0 = start at 0). </p></li>
+<li><p><strong>key</strong> – An opaque pointer to the master key buffer. The SDK stores this pointer directly and does not copy the key data. The caller must ensure the buffer remains valid for the lifetime of SDK usage (do not use stack or temporary buffers). The key size must match CONFIG_HUBBLE_KEY_SIZE. If NULL, must be set with hubble_key_set before getting advertisements.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p>0 on success.</p></li>
+<li><p>Non-zero on failure. </p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv415hubble_time_set8uint64_t">
+<span id="_CPPv315hubble_time_set8uint64_t"></span><span id="_CPPv215hubble_time_set8uint64_t"></span><span id="hubble_time_set__uint64_t"></span><span class="target" id="group__hubble__api_1ga0da1af458a60c0ae827382536b65db08"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">hubble_time_set</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">uint64_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">unix_time</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv415hubble_time_set8uint64_t" title="Link to this definition"></a><br /></dt>
+<dd><p>Sets the current Unix time in the Hubble SDK. </p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>unix_time</strong> – The Unix Epoch time in milliseconds since the Unix epoch (January 1, 1970).</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p>0 on success.</p></li>
+<li><p>Non-zero on failure. </p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv415hubble_time_getv">
+<span id="_CPPv315hubble_time_getv"></span><span id="_CPPv215hubble_time_getv"></span><span id="hubble_time_get__void"></span><span class="target" id="group__hubble__api_1ga73bbf5f9d0b0a7e2c4e9b8cbc1a606e7"></span><span class="n"><span class="pre">uint64_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">hubble_time_get</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">void</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv415hubble_time_getv" title="Link to this definition"></a><br /></dt>
+<dd><p>Gets the current time. </p>
+<p>Gets the time in milliseconds since the Unix epoch (January 1, 1970).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p><ul class="simple">
+<li><p>0 if time is not set.</p></li>
+<li><p>current time since the Unix epoch. </p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv414hubble_key_setPKv">
+<span id="_CPPv314hubble_key_setPKv"></span><span id="_CPPv214hubble_key_setPKv"></span><span id="hubble_key_set__voidCP"></span><span class="target" id="group__hubble__api_1ga888299129a16a442594958fb5d1585c9"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">hubble_key_set</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">key</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv414hubble_key_setPKv" title="Link to this definition"></a><br /></dt>
+<dd><p>Sets the encryption key for advertisement data creation. </p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>key</strong> – An opaque pointer to the master key buffer. The SDK stores this pointer directly and does not copy the key data. The caller must ensure the buffer remains valid for the lifetime of SDK usage. The key size must match CONFIG_HUBBLE_KEY_SIZE.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p>0 on success.</p></li>
+<li><p>Non-zero on failure. </p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv418hubble_counter_getP8uint32_t">
+<span id="_CPPv318hubble_counter_getP8uint32_t"></span><span id="_CPPv218hubble_counter_getP8uint32_t"></span><span id="hubble_counter_get__uint32_tP"></span><span class="target" id="group__hubble__api_1ga24bdc845c6f152280edc575816ee3adf"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">hubble_counter_get</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">uint32_t</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">counter</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv418hubble_counter_getP8uint32_t" title="Link to this definition"></a><br /></dt>
+<dd><p>Get the current time counter value. </p>
+<p>Returns the time counter based on the configured counter source:<ul class="simple">
+<li><p>Device uptime: Uses uptime-derived counter with initial offset, wrapping at HUBBLE_EID_POOL_SIZE (128) to produce values in [0, pool_size-1]</p></li>
+<li><p>Unix time: Uses Unix time divided by rotation period (no wrapping)</p></li>
+</ul>
+</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>counter</strong> – Pointer to store the time counter value </p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>0 on success, negative error code on failure (Unix time mode only, if time not set) </p>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+</dd></dl>
+
+<dl id="hubble-crypto">
+<dt class="sig sig-object cpp">
+<span class="target" id="group__hubble__crypto"></span><em><span class="pre">group</span></em> <span class="sig-name descname"><span class="pre">Hubble</span> <span class="pre">Network</span> <span class="pre">Crypto</span> <span class="pre">APIs</span></span></dt>
+<dd><p>Hubble Network SDK Crypto APIs. </p>
+<p>Cryptographic functions that need to be implemented by a crypto provider. </p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-functions">Functions</p>
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv421hubble_crypto_zeroizePv6size_t">
+<span id="_CPPv321hubble_crypto_zeroizePv6size_t"></span><span id="_CPPv221hubble_crypto_zeroizePv6size_t"></span><span id="hubble_crypto_zeroize__voidP.s"></span><span class="target" id="group__hubble__crypto_1ga8ceca111b3c8081e984e328c714d56d9"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">hubble_crypto_zeroize</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">buf</span></span>, <span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">len</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv421hubble_crypto_zeroizePv6size_t" title="Link to this definition"></a><br /></dt>
+<dd><p>Securely clear out a memory region. </p>
+<p>This function is used to securely overwrite a memory buffer with zeros, ensuring that sensitive data is erased.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>buf</strong> – Pointer to the input data. </p></li>
+<li><p><strong>len</strong> – Length of the input data. </p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv418hubble_crypto_initv">
+<span id="_CPPv318hubble_crypto_initv"></span><span id="_CPPv218hubble_crypto_initv"></span><span id="hubble_crypto_init__void"></span><span class="target" id="group__hubble__crypto_1ga78b0627fff6efd6328334560dd3a1996"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">hubble_crypto_init</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">void</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv418hubble_crypto_initv" title="Link to this definition"></a><br /></dt>
+<dd><p>Cryptographic initialization. </p>
+<p>This function must be called before any other cryptographic function otherwise the behavior is undefined.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>0 on success, non-zero on error. </p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv421hubble_crypto_aes_ctrA22CONFIG_HUBBLE_KEY_SIZE_K7uint8_tA24HUBBLE_NONCE_BUFFER_SIZE_7uint8_tPK7uint8_t6size_tP7uint8_t">
+<span id="_CPPv321hubble_crypto_aes_ctrA22CONFIG_HUBBLE_KEY_SIZE_K7uint8_tA24HUBBLE_NONCE_BUFFER_SIZE_7uint8_tPK7uint8_t6size_tP7uint8_t"></span><span id="_CPPv221hubble_crypto_aes_ctrACONFIG_HUBBLE_KEY_SIZE_K7uint8_tAHUBBLE_NONCE_BUFFER_SIZE_7uint8_tPK7uint8_t6size_tP7uint8_t"></span><span id="hubble_crypto_aes_ctr__uint8_tCA.uint8_tA.uint8_tCP.s.uint8_tP"></span><span class="target" id="group__hubble__crypto_1gaf578fd8d10679877181d71a6c974d338"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">hubble_crypto_aes_ctr</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">uint8_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">key</span></span><span class="p"><span class="pre">[</span></span><span class="n"><span class="pre">CONFIG_HUBBLE_KEY_SIZE</span></span><span class="p"><span class="pre">]</span></span>, <span class="n"><span class="pre">uint8_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">nonce_counter</span></span><span class="p"><span class="pre">[</span></span><span class="n"><span class="pre">HUBBLE_NONCE_BUFFER_SIZE</span></span><span class="p"><span class="pre">]</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">uint8_t</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">data</span></span>, <span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">len</span></span>, <span class="n"><span class="pre">uint8_t</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">output</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv421hubble_crypto_aes_ctrA22CONFIG_HUBBLE_KEY_SIZE_K7uint8_tA24HUBBLE_NONCE_BUFFER_SIZE_7uint8_tPK7uint8_t6size_tP7uint8_t" title="Link to this definition"></a><br /></dt>
+<dd><p>Perform AES encryption in Counter (CTR) mode. </p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>key</strong> – A pointer to the encryption key (size: CONFIG_HUBBLE_KEY_SIZE). </p></li>
+<li><p><strong>nonce_counter</strong> – A pointer to the nonce and counter buffer (size: HUBBLE_NONCE_BUFFER_SIZE). </p></li>
+<li><p><strong>data</strong> – A pointer to the input data buffer to be encrypted. </p></li>
+<li><p><strong>len</strong> – The length of the input data in bytes. </p></li>
+<li><p><strong>output</strong> – A pointer to the output buffer where the encrypted data will be stored. It must be at least the size of the input data in bytes.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Returns 0 on success, or a non-zero error code on failure. </p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv418hubble_crypto_cmacA22CONFIG_HUBBLE_KEY_SIZE_K7uint8_tPK7uint8_t6size_tA21HUBBLE_AES_BLOCK_SIZE_7uint8_t">
+<span id="_CPPv318hubble_crypto_cmacA22CONFIG_HUBBLE_KEY_SIZE_K7uint8_tPK7uint8_t6size_tA21HUBBLE_AES_BLOCK_SIZE_7uint8_t"></span><span id="_CPPv218hubble_crypto_cmacACONFIG_HUBBLE_KEY_SIZE_K7uint8_tPK7uint8_t6size_tAHUBBLE_AES_BLOCK_SIZE_7uint8_t"></span><span id="hubble_crypto_cmac__uint8_tCA.uint8_tCP.s.uint8_tA"></span><span class="target" id="group__hubble__crypto_1ga30d1c3fb9d8536d7cc701b2b70ffc7f2"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">hubble_crypto_cmac</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">uint8_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">key</span></span><span class="p"><span class="pre">[</span></span><span class="n"><span class="pre">CONFIG_HUBBLE_KEY_SIZE</span></span><span class="p"><span class="pre">]</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">uint8_t</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">data</span></span>, <span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">len</span></span>, <span class="n"><span class="pre">uint8_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">output</span></span><span class="p"><span class="pre">[</span></span><span class="n"><span class="pre">HUBBLE_AES_BLOCK_SIZE</span></span><span class="p"><span class="pre">]</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv418hubble_crypto_cmacA22CONFIG_HUBBLE_KEY_SIZE_K7uint8_tPK7uint8_t6size_tA21HUBBLE_AES_BLOCK_SIZE_7uint8_t" title="Link to this definition"></a><br /></dt>
+<dd><p>Computes the Cipher-based Message Authentication Code (CMAC). </p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>key</strong> – The secret key used for CMAC calculation. The size of the key is defined by CONFIG_HUBBLE_KEY_SIZE. </p></li>
+<li><p><strong>data</strong> – Pointer to the input data for which the CMAC is calculated. </p></li>
+<li><p><strong>len</strong> – The length of the input data in bytes. </p></li>
+<li><p><strong>output</strong> – Pointer to the buffer where the CMAC (message authentication code) will be stored. This buffer must be large enough to hold the CMAC value (typically the size of the AES block, 16 bytes).</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>0 on success, non-zero on error. </p>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="timing.html" class="btn btn-neutral float-left" title="Best Practices for Time Management" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../satellite/index.html" class="btn btn-neutral float-right" title="Satellite Network Overview" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+<p>
+  &#169; Copyright 2025, Hubble Network, Inc.</p>
+
+  </div>
+
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
