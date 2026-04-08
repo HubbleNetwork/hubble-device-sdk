@@ -8,17 +8,28 @@ source "subsys/logging/Kconfig.template.log_config"
 choice HUBBLE_COUNTER_SOURCE
 	prompt "Counter source"
 	default HUBBLE_COUNTER_SOURCE_UNIX_TIME
+	help
+	  Selects how the SDK computes the time counter used for
+	  EID rotation and key derivation.
 
 config HUBBLE_COUNTER_SOURCE_UNIX_TIME
 	bool "Unix time counter source"
 	help
-	  Counter derived from Unix time. Requires time provisioning.
+	  Derive the time counter from Unix epoch time. The counter
+	  increments once per rotation period
+	  (CONFIG_HUBBLE_EID_ROTATION_PERIOD_SEC).
+
+	  Best for devices with access to real-time clocks or
+	  network time synchronization.
 
 config HUBBLE_COUNTER_SOURCE_DEVICE_UPTIME
 	bool "Device uptime counter source"
 	help
-	  Counter derived from device uptime. No Unix time required.
-	  Initial counter value provided via hubble_init().
+	  Derive the time counter from device uptime. No Unix time
+	  required.
+
+	  Best for devices without a real-time clock, reliable
+	  time source, or method to provision time.
 
 endchoice
 
@@ -27,129 +38,168 @@ config HUBBLE_EID_ROTATION_PERIOD_SEC
 	default 86400
 	range 86400 86400
 	help
-	  EID rotation period. Currently only daily rotations
-	  are supported (86400)
+	  Period in seconds between EID (Ephemeral Identifier)
+	  rotations. Each rotation derives new encryption keys
+	  and a new BLE address for privacy.
+
+	  Currently locked to 86400 (24 hours) for backend
+	  compatibility. Future versions may support shorter
+	  periods.
 
 config HUBBLE_SAT_NETWORK
-	   bool "Hubble Satellite Network Library [PRE-PRODUCTION]"
-	   select EXPERIMENTAL
-	   select ENTROPY_GENERATOR
-	   help
-		Enable library for communication with Hubble network.
-		This feature is in pre-production and is not yet ready
-		for production deployments.
+	bool "Hubble Satellite Network Library [PRE-PRODUCTION]"
+	select EXPERIMENTAL
+	select ENTROPY_GENERATOR
+	help
+	  Enable the satellite communication module.
+
+	  This feature is in pre-production. APIs and behavior
+	  may change in future releases. Not recommended for
+	  production deployments.
 
 if HUBBLE_SAT_NETWORK
 
 config HUBBLE_SAT_NETWORK_SMALL
-	   bool "Use smaller code size for fly by calculation"
-	   help
-		Reduces code using polynomial approximation
-		for trigonometric functions
+	bool "Use smaller code size for fly-by calculation"
+	help
+	  Use polynomial approximations for trigonometric functions
+	  in satellite pass prediction code.
+
+	  Reduces code size at the cost of reduced numerical
+	  accuracy in pass window calculations. Suitable for
+	  constrained devices where code size is critical.
 
 config HUBBLE_SAT_NETWORK_DEVICE_TDR
-	   int "Device time drift retry rate in PPM"
-	   default 500
-	   help
-		Adds additional retries proportional to time since
-		last time the device had time synced. It is
-		represented in PPM (parts per million).
+	int "Device time drift retry rate in PPM"
+	default 500
+	help
+	  Compensates for clock drift by adding retransmission
+	  retries proportional to time elapsed since the last
+	  time sync. Value is in parts per million (PPM).
+
+	  Higher values add more retries for the same drift,
+	  increasing reliability but also power consumption.
+	  Default of 500 PPM is suitable for typical crystal
+	  oscillators.
 
 choice
 	prompt "Hubble Sat Network protocol"
 	default HUBBLE_SAT_NETWORK_PROTOCOL_V1
+	help
+	  Select the satellite communication protocol version.
+	  The protocol determines packet framing and channel
+	  hopping behavior during transmissions.
 
 config HUBBLE_SAT_NETWORK_PROTOCOL_V1
-	   bool "Use V1 protocol"
-	   help
-		First version of Sat protocol. Channel hopping within transmissions.
+	bool "Use V1 protocol"
+	help
+	  First version of the satellite protocol. Uses channel
+	  hopping across 19 pre-computed channels within each
+	  transmission window. Includes Reed-Solomon forward
+	  error correction.
 
 endchoice
 
 endif
 
 menuconfig HUBBLE_BLE_NETWORK
-	   bool "Hubble BLE Network Library"
-	   help
-		Enable library for communication with Hubble BLE network
+	bool "Hubble BLE Network Library"
+	help
+	  Enable the BLE advertisement module.
 
 if HUBBLE_BLE_NETWORK || HUBBLE_SAT_NETWORK
 
 choice
 	prompt "Hubble Network key size"
+	help
+	  Select the master key size for AES encryption and CMAC
+	  authentication. Sets the derived symbol
+	  CONFIG_HUBBLE_KEY_SIZE used throughout the crypto layer
+	  for buffer sizing and key operations.
 
 config HUBBLE_NETWORK_KEY_256
-	   bool "Use 256 bits key size"
-	   help
-		256 bits key size
+	bool "Use 256 bits key size"
+	help
+	  Use AES-256 for encryption and CMAC operations.
 
 config HUBBLE_NETWORK_KEY_128
-	   bool "Use 128 bits key size"
-	   help
-		128 bits key size
+	bool "Use 128 bits key size"
+	help
+	  Use AES-128 for encryption and CMAC operations.
 
 endchoice
 
 config HUBBLE_KEY_SIZE
-	   int
-	   default 32 if HUBBLE_NETWORK_KEY_256
-	   default 16 if HUBBLE_NETWORK_KEY_128
+	int
+	default 32 if HUBBLE_NETWORK_KEY_256
+	default 16 if HUBBLE_NETWORK_KEY_128
 
 config HUBBLE_NETWORK_SECURITY_ENFORCE_NONCE_CHECK
-	   bool "Enforce check in nonce used in cryptography"
-	   default y
-	   help
-		Ensure that nonce parameters are not re-used
-		to encrypt different messages.
-		Be aware that re-using the same nonce has severe
-		security implications.
+	bool "Enforce check in nonce used in cryptography"
+	default y
+	help
+	  Validates that the encryption nonce is unique before
+	  encrypting. Prevents nonce reuse, which would compromise
+	  AES-CTR confidentiality.
+
+	  Enabled by default. Disabling removes the runtime check
+	  but risks catastrophic security failure if nonces are
+	  ever repeated. Only disable for testing or when the
+	  application guarantees uniqueness by other means.
 
 config HUBBLE_NETWORK_SEQUENCE_NONCE_CUSTOM
-	   bool "Application defined implementation"
-	   help
-		This option allows applications to override the default
-		function that returns a sequence number to be used to
-		encrypt messages.
+	bool "Application-defined sequence counter"
+	help
+	  Override the default auto-incrementing sequence counter
+	  with an application-provided implementation. Useful for
+	  deterministic testing or persisting counters across
+	  reboots.
 
 config HUBBLE_UPTIME_CUSTOM
-	   bool "Application defined uptime implementation"
-	   help
-		This option allows applications to override the default
-		function that returns the system uptime in milliseconds.
-		This is primarily useful for unit testing where controlled
-		time values are needed to verify time-dependent behavior.
-		Implement hubble_uptime_get to override.
+	bool "Application-defined uptime implementation"
+	help
+	  Override the default platform uptime function with an
+	  application-provided implementation. Primarily useful
+	  for unit testing where controlled time values are
+	  needed to verify time-dependent behavior.
 
 choice
 	prompt "Hubble Network crypto provider"
 	default HUBBLE_NETWORK_CRYPTO_PSA
+	help
+	  Select the cryptographic backend for AES-CTR encryption
+	  and CMAC authentication.
 
 config HUBBLE_NETWORK_CRYPTO_MBEDTLS
-	   bool "Use MBEDTLS"
-	   depends on !NRF_SECURITY
-	   select MBEDTLS
-	   select MBEDTLS_CMAC
-	   select MBEDTLS_CIPHER
-	   select MBEDTLS_CIPHER_AES_ENABLED
-	   select MBEDTLS_CIPHER_MODE_CTR_ENABLED
-	   help
-		Use MBEDTLS for cryptography.
+	bool "Use MbedTLS"
+	depends on !NRF_SECURITY
+	select MBEDTLS
+	select MBEDTLS_CMAC
+	select MBEDTLS_CIPHER
+	select MBEDTLS_CIPHER_AES_ENABLED
+	select MBEDTLS_CIPHER_MODE_CTR_ENABLED
+	help
+	  Use the MbedTLS library directly for AES-CTR and CMAC.
 
 config HUBBLE_NETWORK_CRYPTO_PSA
-	   bool "Use PSA Crypto"
-	   select MBEDTLS
-	   select MBEDTLS_PSA_CRYPTO_C if !BUILD_WITH_TFM
-	   select PSA_WANT_KEY_TYPE_AES
-	   select PSA_WANT_ALG_CMAC
-	   select PSA_WANT_ALG_CTR
-	   help
-		Use PSA Crypto for cryptography.
+	bool "Use PSA Crypto"
+	select MBEDTLS
+	select MBEDTLS_PSA_CRYPTO_C if !BUILD_WITH_TFM
+	select PSA_WANT_KEY_TYPE_AES
+	select PSA_WANT_ALG_CMAC
+	select PSA_WANT_ALG_CTR
+	help
+	  Use the PSA Crypto API for AES-CTR and CMAC. This is
+	  the recommended backend for Zephyr and nRF platforms.
+	  When building with TF-M, cryptographic operations are
+	  delegated to the secure processing environment.
 
 config HUBBLE_NETWORK_CRYPTO_CUSTOM
-	   bool "Custom crypto implementation"
-	   help
-	    Custom cryptography implementation. The target
-	    will implement all crypto interfaces.
+	bool "Custom crypto implementation"
+	help
+	  Provide a custom cryptographic backend. The application
+	  must implement all functions declared in
+	  <hubble/port/crypto.h>
 
 endchoice
 

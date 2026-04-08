@@ -244,6 +244,10 @@ class KconfigAutoDoc(SphinxDirective):
         choice_note += nodes.emphasis(text="Choice — select one of:")
         container += choice_note
 
+        choice_help = choice.nodes[0].help if choice.nodes else None
+        if choice_help:
+            container += nodes.paragraph(text=choice_help.strip())
+
         dl = nodes.definition_list(classes=["kconfig-options"])
         for sym in choice.syms:
             if not sym.nodes or not sym.nodes[0].prompt:
