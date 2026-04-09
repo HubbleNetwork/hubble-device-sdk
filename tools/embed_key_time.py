@@ -15,7 +15,7 @@ KEY_TEMPLATE = """
  */
 #define HUBBLE_KEY_SET 1
 
-static uint8_t master_key[CONFIG_HUBBLE_KEY_SIZE] = {key};
+static uint8_t master_key[HUBBLE_KEY_SIZE_BYTES] = {key};
 """
 
 UNIX_TIME_TEMPLATE = """
@@ -37,7 +37,7 @@ def provision_data(key: str, encoded: bool, path: str, dry: bool) -> None:
     unix_time_ms =  str(int(time.time() * 1000))
 
     if dry:
-        print(f"static uint8_t master_key[CONFIG_HUBBLE_KEY_SIZE] = {key_hex}")
+        print(f"static uint8_t master_key[HUBBLE_KEY_SIZE_BYTES] = {key_hex}")
         print(f"static uint64_t unix_time = {unix_time_ms}")
         return
 

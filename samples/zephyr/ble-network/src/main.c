@@ -4,6 +4,7 @@
  */
 
 #include <hubble/hubble.h>
+#include <hubble/port/crypto.h>
 
 #include <zephyr/kernel.h>
 #include <zephyr/bluetooth/bluetooth.h>
@@ -24,7 +25,7 @@ K_SEM_DEFINE(key_sem, 0, 1);
 #define HUBBLE_USER_BUFFER_LEN 31
 static uint8_t _hubble_user_buffer[HUBBLE_USER_BUFFER_LEN];
 
-static uint8_t master_key[CONFIG_HUBBLE_KEY_SIZE];
+static uint8_t master_key[HUBBLE_KEY_SIZE_BYTES];
 static uint64_t unix_time;
 static int sum;
 static int chunk_element;

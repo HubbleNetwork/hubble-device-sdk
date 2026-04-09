@@ -200,7 +200,7 @@ exit:
 }
 
 static int _derived_key_get(enum hubble_key_label label, uint32_t counter,
-			    uint8_t output_key[CONFIG_HUBBLE_KEY_SIZE])
+			    uint8_t output_key[HUBBLE_KEY_SIZE_BYTES])
 {
 	int err = 0;
 	uint8_t context[_CONTEXT_SIZE] = {0};
@@ -210,18 +210,18 @@ static int _derived_key_get(enum hubble_key_label label, uint32_t counter,
 	case HUBBLE_DEVICE_KEY:
 		err = _kbkdf_counter(master_key, "DeviceKey", strlen("DeviceKey"),
 				     context, strlen((const char *)context),
-				     output_key, CONFIG_HUBBLE_KEY_SIZE);
+				     output_key, HUBBLE_KEY_SIZE_BYTES);
 		break;
 	case HUBBLE_NONCE_KEY:
 		err = _kbkdf_counter(master_key, "NonceKey", strlen("NonceKey"),
 				     context, strlen((const char *)context),
-				     output_key, CONFIG_HUBBLE_KEY_SIZE);
+				     output_key, HUBBLE_KEY_SIZE_BYTES);
 		break;
 	case HUBBLE_ENCRYPTION_KEY:
 		err = _kbkdf_counter(master_key, "EncryptionKey",
 				     strlen("EncryptionKey"), context,
 				     strlen((const char *)context), output_key,
-				     CONFIG_HUBBLE_KEY_SIZE);
+				     HUBBLE_KEY_SIZE_BYTES);
 		break;
 	default:
 		err = -EINVAL;
@@ -237,7 +237,7 @@ static int _derived_value_get(enum hubble_value_label label,
 {
 	int ret = 0;
 	uint8_t context[_CONTEXT_SIZE] = {0};
-	uint8_t derived_key[CONFIG_HUBBLE_KEY_SIZE] = {0};
+	uint8_t derived_key[HUBBLE_KEY_SIZE_BYTES] = {0};
 
 	snprintf((char *)context, _CONTEXT_SIZE, "%u", seq_no);
 
@@ -295,7 +295,7 @@ int hubble_internal_data_encrypt(uint32_t counter, uint16_t seq_no,
 {
 	int err;
 	uint8_t auth_tag[_AUTH_TAG_SIZE] = {0};
-	uint8_t encryption_key[CONFIG_HUBBLE_KEY_SIZE] = {0};
+	uint8_t encryption_key[HUBBLE_KEY_SIZE_BYTES] = {0};
 	uint8_t nonce_counter[HUBBLE_NONCE_BUFFER_SIZE] = {0};
 
 	err = _derived_value_get(HUBBLE_NONCE_VALUE, counter, seq_no,

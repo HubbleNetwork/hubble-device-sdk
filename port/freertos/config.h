@@ -19,11 +19,18 @@
 #endif
 
 /*
- * Size of the encryption key in bytes. Valid options are
- * 16 for 128 bits keys or 32 for 256 bits keys.
+ * Key size selection. Define ONE of:
+ *   CONFIG_HUBBLE_NETWORK_KEY_128 - 128-bit keys (default)
+ *   CONFIG_HUBBLE_NETWORK_KEY_256 - 256-bit keys
  */
-#ifndef CONFIG_HUBBLE_KEY_SIZE
-#define CONFIG_HUBBLE_KEY_SIZE    16
+#if !defined(CONFIG_HUBBLE_NETWORK_KEY_128) &&                                 \
+	!defined(CONFIG_HUBBLE_NETWORK_KEY_256)
+#define CONFIG_HUBBLE_NETWORK_KEY_128
+#endif
+
+#if defined(CONFIG_HUBBLE_NETWORK_KEY_128) &&                                  \
+	defined(CONFIG_HUBBLE_NETWORK_KEY_256)
+#error "Cannot define both CONFIG_HUBBLE_NETWORK_KEY_128 and CONFIG_HUBBLE_NETWORK_KEY_256"
 #endif
 
 /*

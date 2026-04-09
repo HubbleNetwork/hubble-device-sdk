@@ -36,7 +36,7 @@ Adding Hubble Network to FreeRTOS
 
         #define CONFIG_HUBBLE_BLE_NETWORK  0
         #define CONFIG_HUBBLE_SAT_NETWORK  1
-        #define CONFIG_HUBBLE_KEY_SIZE     32
+        #define CONFIG_HUBBLE_NETWORK_KEY_256
 
    * Point the build system to your config file by setting
      ``HUBBLENETWORK_SDK_CONFIG`` before including the Makefile fragment:

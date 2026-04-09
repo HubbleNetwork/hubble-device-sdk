@@ -10,6 +10,14 @@
 #include <stddef.h>
 #include <stdint.h>
 
+#if defined(CONFIG_HUBBLE_NETWORK_KEY_256)
+#define HUBBLE_KEY_SIZE_BYTES 32
+#elif defined(CONFIG_HUBBLE_NETWORK_KEY_128)
+#define HUBBLE_KEY_SIZE_BYTES 16
+#else
+#error "Define CONFIG_HUBBLE_NETWORK_KEY_128 or CONFIG_HUBBLE_NETWORK_KEY_256"
+#endif
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -56,7 +64,7 @@ int hubble_crypto_init(void);
 /**
  * @brief Perform AES encryption in Counter (CTR) mode.
  *
- * @param key A pointer to the encryption key (size: CONFIG_HUBBLE_KEY_SIZE).
+ * @param key A pointer to the encryption key (size: HUBBLE_KEY_SIZE_BYTES).
  * @param nonce_counter A pointer to the nonce and counter buffer (size:
  *                      HUBBLE_NONCE_BUFFER_SIZE).
  * @param data A pointer to the input data buffer to be encrypted.
@@ -66,7 +74,7 @@ int hubble_crypto_init(void);
  *
  * @return Returns 0 on success, or a non-zero error code on failure.
  */
-int hubble_crypto_aes_ctr(const uint8_t key[CONFIG_HUBBLE_KEY_SIZE],
+int hubble_crypto_aes_ctr(const uint8_t key[HUBBLE_KEY_SIZE_BYTES],
 			  uint8_t nonce_counter[HUBBLE_NONCE_BUFFER_SIZE],
 			  const uint8_t *data, size_t len, uint8_t *output);
 
@@ -74,7 +82,7 @@ int hubble_crypto_aes_ctr(const uint8_t key[CONFIG_HUBBLE_KEY_SIZE],
  * @brief Computes the Cipher-based Message Authentication Code (CMAC).
  *
  * @param key The secret key used for CMAC calculation. The size of the
- *            key is defined by CONFIG_HUBBLE_KEY_SIZE.
+ *            key is defined by HUBBLE_KEY_SIZE_BYTES.
  * @param data Pointer to the input data for which the CMAC is
  *             calculated.
  * @param len The length of the input data in bytes.
@@ -85,7 +93,7 @@ int hubble_crypto_aes_ctr(const uint8_t key[CONFIG_HUBBLE_KEY_SIZE],
  *
  * @return 0 on success, non-zero on error.
  */
-int hubble_crypto_cmac(const uint8_t key[CONFIG_HUBBLE_KEY_SIZE],
+int hubble_crypto_cmac(const uint8_t key[HUBBLE_KEY_SIZE_BYTES],
 		       const uint8_t *data, size_t len,
 		       uint8_t output[HUBBLE_AES_BLOCK_SIZE]);
 

@@ -4,6 +4,7 @@
  */
 
 #include <hubble/hubble.h>
+#include <hubble/port/crypto.h>
 #include <hubble/sat/packet.h>
 
 #include <zephyr/kernel.h>
@@ -16,7 +17,7 @@ LOG_MODULE_REGISTER(main);
 
 /* Replace it properly for real use */
 static uint64_t _unix_time_unused = 0xdeadbeef;
-static uint8_t _key_unused[CONFIG_HUBBLE_KEY_SIZE];
+static uint8_t _key_unused[HUBBLE_KEY_SIZE_BYTES];
 
 #ifdef CONFIG_SAMPLE_PROVIDE_SAT_BOARD_SUPPORT
 

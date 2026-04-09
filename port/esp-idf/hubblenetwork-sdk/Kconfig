@@ -81,11 +81,6 @@ config HUBBLE_NETWORK_KEY_128
 
 endchoice
 
-config HUBBLE_KEY_SIZE
-	   int
-	   default 32 if HUBBLE_NETWORK_KEY_256
-	   default 16 if HUBBLE_NETWORK_KEY_128
-
 config HUBBLE_NETWORK_SECURITY_ENFORCE_NONCE_CHECK
 	   bool "Enforce check in nonce used in cryptography"
 	   default y

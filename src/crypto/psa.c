@@ -52,7 +52,7 @@ static int _psa_status_to_errno(psa_status_t status)
 	return ret;
 }
 
-int hubble_crypto_cmac(const uint8_t key[CONFIG_HUBBLE_KEY_SIZE],
+int hubble_crypto_cmac(const uint8_t key[HUBBLE_KEY_SIZE_BYTES],
 		       const uint8_t *input, size_t input_len,
 		       uint8_t output[HUBBLE_AES_BLOCK_SIZE])
 {
@@ -67,8 +67,7 @@ int hubble_crypto_cmac(const uint8_t key[CONFIG_HUBBLE_KEY_SIZE],
 	psa_set_key_algorithm(&attributes, PSA_ALG_CMAC);
 	psa_set_key_bits(&attributes, HUBBLE_KEY_SIZE_BITS);
 
-	status = psa_import_key(&attributes, key, CONFIG_HUBBLE_KEY_SIZE,
-				&key_id);
+	status = psa_import_key(&attributes, key, HUBBLE_KEY_SIZE_BYTES, &key_id);
 	if (status != PSA_SUCCESS) {
 		goto import_key_error;
 	}
@@ -94,7 +93,7 @@ import_key_error:
 	return status == PSA_SUCCESS ? 0 : -EINVAL;
 }
 
-int hubble_crypto_aes_ctr(const uint8_t key[CONFIG_HUBBLE_KEY_SIZE],
+int hubble_crypto_aes_ctr(const uint8_t key[HUBBLE_KEY_SIZE_BYTES],
 			  uint8_t nonce_counter[HUBBLE_NONCE_BUFFER_SIZE],
 			  const uint8_t *data, size_t len, uint8_t *output)
 {
@@ -110,8 +109,7 @@ int hubble_crypto_aes_ctr(const uint8_t key[CONFIG_HUBBLE_KEY_SIZE],
 	psa_set_key_type(&attributes, PSA_KEY_TYPE_AES);
 	psa_set_key_bits(&attributes, HUBBLE_KEY_SIZE_BITS);
 
-	status = psa_import_key(&attributes, key, CONFIG_HUBBLE_KEY_SIZE,
-				&key_id);
+	status = psa_import_key(&attributes, key, HUBBLE_KEY_SIZE_BYTES, &key_id);
 	if (status != PSA_SUCCESS) {
 		goto import_key_error;
 	}
