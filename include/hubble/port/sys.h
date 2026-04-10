@@ -98,6 +98,11 @@ int hubble_log(enum hubble_log_level level, const char *format, ...);
  * random number generator provided by the target platform. It does not
  * need to be a cryptographically secure random number generator (CSPRNG).
  *
+ * @note This function is only required when the satellite module is enabled
+ *       (@ref CONFIG_HUBBLE_SAT_NETWORK). It is not used by the BLE-only
+ *       path and does not need to be implemented if only BLE functionality
+ *       is needed.
+ *
  * @param buffer Pointer to the buffer to fill with random bytes.
  * @param len    Number of random bytes to generate.
  *
