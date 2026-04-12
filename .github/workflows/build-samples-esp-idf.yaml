@@ -1,0 +1,45 @@
+name: Build ESP-IDF Ble-Beacon Sample
+
+on:
+  pull_request:
+    branches: ["**"]
+    paths:
+      - "include/**"
+      - "src/**"
+      - "samples/esp-idf/**"
+      - ".github/workflows/build-samples-esp-idf.yaml"
+
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: Build ESP-IDF Ble-Beacon Sample App
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        espidf_target:
+          - esp32
+          - esp32c6
+          - esp32h2
+          - esp32s3
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          submodules: 'recursive'
+
+      - name: Generate key and time
+        run: |
+          echo -n "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=" > master.key
+          python3 tools/embed_key_time.py -b master.key -o samples/esp-idf/ble-beacon/main/
+
+      - name: esp-idf build
+        uses: espressif/esp-idf-ci-action@v1
+        with:
+          esp_idf_version: "latest"
+          target: ${{ matrix.espidf_target }}
+          path: 'samples/esp-idf/ble-beacon'
