@@ -16,6 +16,7 @@ RUN_CPPCHECK=1
 RUN_COCCINELLE=1
 TARGETS=()
 DEFAULT_TARGETS=("src" "include" "port" "samples")
+OUTPUT_DIR=""
 
 CPPCHECK_RC=0
 COCCINELLE_RC=0
@@ -29,6 +30,9 @@ Run static analysis (cppcheck + Coccinelle) on the Hubble Device SDK.
 OPTIONS:
   -v, --verbose          Enable verbose output
   --ci                   CI mode (machine-readable output, no color)
+  --output-dir DIR       Save machine-readable results to DIR
+                         (cppcheck.xml, coccinelle.txt). Implies --ci.
+                         Always exits 0; use diff-static-analysis.py for pass/fail.
   --cppcheck-only        Run only cppcheck
   --coccinelle-only      Run only Coccinelle semantic patches
   -h, --help             Show this help and exit
@@ -94,6 +98,16 @@ while [ $# -gt 0 ]; do
 			RUN_COCCINELLE=0
 			shift
 			;;
+		--output-dir)
+			OUTPUT_DIR="$2"
+			CI_MODE=1
+			shift 2
+			;;
+		--output-dir=*)
+			OUTPUT_DIR="${1#*=}"
+			CI_MODE=1
+			shift
+			;;
 		--coccinelle-only)
 			RUN_CPPCHECK=0
 			RUN_COCCINELLE=1
@@ -126,6 +140,14 @@ if [ ${#TARGETS[@]} -eq 0 ]; then
 fi
 
 setup_colors
+
+if [ -n "$OUTPUT_DIR" ]; then
+	mkdir -p "$OUTPUT_DIR"
+	# Truncate so reruns against the same directory don't accumulate
+	# stale findings.  cppcheck.xml is naturally truncated by 2> but
+	# coccinelle.txt uses >> (append per target), so clear it here.
+	: > "$OUTPUT_DIR/coccinelle.txt"
+fi
 
 cd "$PROJECT_DIR"
 
@@ -173,7 +195,13 @@ run_cppcheck() {
 		CPPCHECK_FLAGS+=(--quiet)
 	fi
 
-	cppcheck "${CPPCHECK_FLAGS[@]}" "${TARGETS[@]}"
+	if [ -n "$OUTPUT_DIR" ]; then
+		# Capture XML to file; don't exit on findings — the diff
+		# script determines pass/fail.
+		cppcheck "${CPPCHECK_FLAGS[@]}" "${TARGETS[@]}" 2>"$OUTPUT_DIR/cppcheck.xml" || true
+	else
+		cppcheck "${CPPCHECK_FLAGS[@]}" "${TARGETS[@]}"
+	fi
 }
 
 # --- Coccinelle ---
@@ -250,6 +278,9 @@ run_coccinelle() {
 		if [ -n "$findings" ]; then
 			echo "$findings"
 			has_findings=1
+			if [ -n "$OUTPUT_DIR" ]; then
+				echo "$findings" >> "$OUTPUT_DIR/coccinelle.txt"
+			fi
 		fi
 	done
 
@@ -303,6 +334,12 @@ else
 fi
 
 echo ""
+
+# In output-dir mode the diff script determines pass/fail.
+if [ -n "$OUTPUT_DIR" ]; then
+	echo "Results saved to $OUTPUT_DIR"
+	exit 0
+fi
 
 if [ "$CPPCHECK_RC" -ne 0 ]; then
 	echo -e "${RED}Static analysis found issues.${RESET}"
