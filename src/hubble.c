@@ -29,7 +29,7 @@ static uint64_t unix_time_synced;
 static uint64_t unix_time_base;
 
 #ifdef CONFIG_HUBBLE_COUNTER_SOURCE_DEVICE_UPTIME
-static uint32_t eid_initial_counter;
+static uint64_t eid_initial_counter;
 #endif
 
 int hubble_time_set(uint64_t unix_time)
@@ -63,11 +63,7 @@ int hubble_init(uint64_t initial_time, const void *key)
 #ifdef CONFIG_HUBBLE_COUNTER_SOURCE_DEVICE_UPTIME
 	/* Counter-based mode: initial_time is the starting counter value */
 	/* 0 is a valid value meaning "start at epoch 0" */
-	if (initial_time > UINT32_MAX) {
-		HUBBLE_LOG_WARNING("Initial counter value exceeds UINT32_MAX");
-		return -EINVAL;
-	}
-	eid_initial_counter = (uint32_t)initial_time;
+	eid_initial_counter = initial_time;
 #else
 	/* Unix Epoch-based mode: initial_time is Unix Epoch timestamp in milliseconds */
 	ret = hubble_time_set(initial_time);
@@ -115,7 +111,7 @@ int hubble_counter_get(uint32_t *counter)
 	uint64_t uptime_ms = hubble_uptime_get();
 	uint32_t uptime_epochs = (uint32_t)(uptime_ms / rotation_period_ms);
 	/* Use uint64_t to prevent overflow before modulo */
-	uint64_t total_counter = (uint64_t)eid_initial_counter + uptime_epochs;
+	uint64_t total_counter = eid_initial_counter + uptime_epochs;
 
 	*counter = (uint32_t)(total_counter % HUBBLE_EID_POOL_SIZE);
 #else
