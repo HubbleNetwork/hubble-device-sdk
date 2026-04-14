@@ -232,13 +232,23 @@ project header.</p>
 <div class="kconfig-choice docutils container">
 <p class="rubric">Counter source</p>
 <p><em>Choice — select one of:</em></p>
+<p>Selects how the SDK computes the time counter used for
+EID rotation and key derivation.</p>
 <dl class="kconfig-options">
 <dt><span class="target" id="config-hubble-counter-source-unix-time"></span><strong>CONFIG_HUBBLE_COUNTER_SOURCE_UNIX_TIME</strong><span> </span><em>[default]</em></dt><dd><p><span>Unix time counter source</span></p>
-<p>Counter derived from Unix time. Requires time provisioning.</p>
+<p>Derive the time counter from Unix epoch time. The counter
+increments once per rotation period
+(CONFIG_HUBBLE_EID_ROTATION_PERIOD_SEC).
+
+Best for devices with access to real-time clocks or
+network time synchronization.</p>
 </dd>
 <dt><span class="target" id="config-hubble-counter-source-device-uptime"></span><strong>CONFIG_HUBBLE_COUNTER_SOURCE_DEVICE_UPTIME</strong></dt><dd><p><span>Device uptime counter source</span></p>
-<p>Counter derived from device uptime. No Unix time required.
-Initial counter value provided via hubble_init().</p>
+<p>Derive the time counter from device uptime. No Unix time
+required.
+
+Best for devices without a real-time clock, reliable
+time source, or method to provision time.</p>
 </dd>
 </dl>
 </div>
@@ -256,8 +266,13 @@ Initial counter value provided via hubble_init().</p>
 <dd class="field-odd"><p>86400 to 86400</p>
 </dd>
 </dl>
-<p>EID rotation period. Currently only daily rotations
-are supported (86400)</p>
+<p>Period in seconds between EID (Ephemeral Identifier)
+rotations. Each rotation derives new encryption keys
+and a new BLE address for privacy.
+
+Currently locked to 86400 (24 hours) for backend
+compatibility. Future versions may support shorter
+periods.</p>
 </div>
 <div class="kconfig-option docutils container">
 <p class="rubric" id="config-hubble-sat-network">CONFIG_HUBBLE_SAT_NETWORK</p>
@@ -267,13 +282,15 @@ are supported (86400)</p>
 <dd class="field-odd"><p>bool</p>
 </dd>
 </dl>
-<p>Enable library for communication with Hubble network.
-This feature is in pre-production and is not yet ready
-for production deployments.</p>
+<p>Enable the satellite communication module.
+
+This feature is in pre-production. APIs and behavior
+may change in future releases. Not recommended for
+production deployments.</p>
 </div>
 <div class="kconfig-option docutils container">
 <p class="rubric" id="config-hubble-sat-network-small">CONFIG_HUBBLE_SAT_NETWORK_SMALL</p>
-<p><em>Use smaller code size for fly by calculation</em></p>
+<p><em>Use smaller code size for fly-by calculation</em></p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>bool</p>
@@ -282,8 +299,12 @@ for production deployments.</p>
 <dd class="field-even"><p>HUBBLE_SAT_NETWORK</p>
 </dd>
 </dl>
-<p>Reduces code using polynomial approximation
-for trigonometric functions</p>
+<p>Use polynomial approximations for trigonometric functions
+in satellite pass prediction code.
+
+Reduces code size at the cost of reduced numerical
+accuracy in pass window calculations. Suitable for
+constrained devices where code size is critical.</p>
 </div>
 <div class="kconfig-option docutils container">
 <p class="rubric" id="config-hubble-sat-network-device-tdr">CONFIG_HUBBLE_SAT_NETWORK_DEVICE_TDR</p>
@@ -299,16 +320,27 @@ for trigonometric functions</p>
 <dd class="field-odd"><p>HUBBLE_SAT_NETWORK</p>
 </dd>
 </dl>
-<p>Adds additional retries proportional to time since
-last time the device had time synced. It is
-represented in PPM (parts per million).</p>
+<p>Compensates for clock drift by adding retransmission
+retries proportional to time elapsed since the last
+time sync. Value is in parts per million (PPM).
+
+Higher values add more retries for the same drift,
+increasing reliability but also power consumption.
+Default of 500 PPM is suitable for typical crystal
+oscillators.</p>
 </div>
 <div class="kconfig-choice docutils container">
 <p class="rubric">Hubble Sat Network protocol</p>
 <p><em>Choice — select one of:</em></p>
+<p>Select the satellite communication protocol version.
+The protocol determines packet framing and channel
+hopping behavior during transmissions.</p>
 <dl class="kconfig-options">
 <dt><span class="target" id="config-hubble-sat-network-protocol-v1"></span><strong>CONFIG_HUBBLE_SAT_NETWORK_PROTOCOL_V1</strong><span> </span><em>[default]</em></dt><dd><p><span>Use V1 protocol</span></p>
-<p>First version of Sat protocol. Channel hopping within transmissions.</p>
+<p>First version of the satellite protocol. Uses channel
+hopping across 19 pre-computed channels within each
+transmission window. Includes Reed-Solomon forward
+error correction.</p>
 </dd>
 </dl>
 </div>
@@ -320,17 +352,21 @@ represented in PPM (parts per million).</p>
 <dd class="field-odd"><p>bool</p>
 </dd>
 </dl>
-<p>Enable library for communication with Hubble BLE network</p>
+<p>Enable the BLE advertisement module.</p>
 </div>
 <div class="kconfig-choice docutils container">
 <p class="rubric">Hubble Network key size</p>
 <p><em>Choice — select one of:</em></p>
+<p>Select the master key size for AES encryption and CMAC
+authentication. Sets the derived symbol
+CONFIG_HUBBLE_KEY_SIZE used throughout the crypto layer
+for buffer sizing and key operations.</p>
 <dl class="kconfig-options">
 <dt><span class="target" id="config-hubble-network-key-256"></span><strong>CONFIG_HUBBLE_NETWORK_KEY_256</strong></dt><dd><p><span>Use 256 bits key size</span></p>
-<p>256 bits key size</p>
+<p>Use AES-256 for encryption and CMAC operations.</p>
 </dd>
 <dt><span class="target" id="config-hubble-network-key-128"></span><strong>CONFIG_HUBBLE_NETWORK_KEY_128</strong></dt><dd><p><span>Use 128 bits key size</span></p>
-<p>128 bits key size</p>
+<p>Use AES-128 for encryption and CMAC operations.</p>
 </dd>
 </dl>
 </div>
@@ -348,14 +384,18 @@ represented in PPM (parts per million).</p>
 <dd class="field-odd"><p>HUBBLE_BLE_NETWORK || HUBBLE_SAT_NETWORK</p>
 </dd>
 </dl>
-<p>Ensure that nonce parameters are not re-used
-to encrypt different messages.
-Be aware that re-using the same nonce has severe
-security implications.</p>
+<p>Validates that the encryption nonce is unique before
+encrypting. Prevents nonce reuse, which would compromise
+AES-CTR confidentiality.
+
+Enabled by default. Disabling removes the runtime check
+but risks catastrophic security failure if nonces are
+ever repeated. Only disable for testing or when the
+application guarantees uniqueness by other means.</p>
 </div>
 <div class="kconfig-option docutils container">
 <p class="rubric" id="config-hubble-network-sequence-nonce-custom">CONFIG_HUBBLE_NETWORK_SEQUENCE_NONCE_CUSTOM</p>
-<p><em>Application defined implementation</em></p>
+<p><em>Application-defined sequence counter</em></p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>bool</p>
@@ -364,13 +404,14 @@ security implications.</p>
 <dd class="field-even"><p>HUBBLE_BLE_NETWORK || HUBBLE_SAT_NETWORK</p>
 </dd>
 </dl>
-<p>This option allows applications to override the default
-function that returns a sequence number to be used to
-encrypt messages.</p>
+<p>Override the default auto-incrementing sequence counter
+with an application-provided implementation. Useful for
+deterministic testing or persisting counters across
+reboots.</p>
 </div>
 <div class="kconfig-option docutils container">
 <p class="rubric" id="config-hubble-uptime-custom">CONFIG_HUBBLE_UPTIME_CUSTOM</p>
-<p><em>Application defined uptime implementation</em></p>
+<p><em>Application-defined uptime implementation</em></p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>bool</p>
@@ -379,25 +420,30 @@ encrypt messages.</p>
 <dd class="field-even"><p>HUBBLE_BLE_NETWORK || HUBBLE_SAT_NETWORK</p>
 </dd>
 </dl>
-<p>This option allows applications to override the default
-function that returns the system uptime in milliseconds.
-This is primarily useful for unit testing where controlled
-time values are needed to verify time-dependent behavior.
-Implement hubble_uptime_get to override.</p>
+<p>Override the default platform uptime function with an
+application-provided implementation. Primarily useful
+for unit testing where controlled time values are
+needed to verify time-dependent behavior.</p>
 </div>
 <div class="kconfig-choice docutils container">
 <p class="rubric">Hubble Network crypto provider</p>
 <p><em>Choice — select one of:</em></p>
+<p>Select the cryptographic backend for AES-CTR encryption
+and CMAC authentication.</p>
 <dl class="kconfig-options">
-<dt><span class="target" id="config-hubble-network-crypto-mbedtls"></span><strong>CONFIG_HUBBLE_NETWORK_CRYPTO_MBEDTLS</strong></dt><dd><p><span>Use MBEDTLS</span></p>
-<p>Use MBEDTLS for cryptography.</p>
+<dt><span class="target" id="config-hubble-network-crypto-mbedtls"></span><strong>CONFIG_HUBBLE_NETWORK_CRYPTO_MBEDTLS</strong></dt><dd><p><span>Use MbedTLS</span></p>
+<p>Use the MbedTLS library directly for AES-CTR and CMAC.</p>
 </dd>
 <dt><span class="target" id="config-hubble-network-crypto-psa"></span><strong>CONFIG_HUBBLE_NETWORK_CRYPTO_PSA</strong><span> </span><em>[default]</em></dt><dd><p><span>Use PSA Crypto</span></p>
-<p>Use PSA Crypto for cryptography.</p>
+<p>Use the PSA Crypto API for AES-CTR and CMAC. This is
+the recommended backend for Zephyr and nRF platforms.
+When building with TF-M, cryptographic operations are
+delegated to the secure processing environment.</p>
 </dd>
 <dt><span class="target" id="config-hubble-network-crypto-custom"></span><strong>CONFIG_HUBBLE_NETWORK_CRYPTO_CUSTOM</strong></dt><dd><p><span>Custom crypto implementation</span></p>
-<p>Custom cryptography implementation. The target
-will implement all crypto interfaces.</p>
+<p>Provide a custom cryptographic backend. The application
+must implement all functions declared in
+&lt;hubble/port/crypto.h&gt;</p>
 </dd>
 </dl>
 </div>
