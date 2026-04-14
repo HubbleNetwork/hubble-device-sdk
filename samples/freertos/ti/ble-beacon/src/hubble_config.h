@@ -7,8 +7,7 @@
 #ifndef SRC_HUBBLE_CONFIG_H
 #define SRC_HUBBLE_CONFIG_H
 
-#define CONFIG_HUBBLE_BLE_NETWORK             1
-#define CONFIG_HUBBLE_SAT_NETWORK             0
+#define CONFIG_HUBBLE_BLE_NETWORK              1
 
 #define CONFIG_HUBBLE_KEY_SIZE                16
 

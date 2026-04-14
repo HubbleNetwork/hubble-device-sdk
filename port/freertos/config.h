@@ -14,9 +14,11 @@
 #define CONFIG_HUBBLE_BLE_NETWORK 1
 #endif
 
-#ifndef CONFIG_HUBBLE_SAT_NETWORK
-#define CONFIG_HUBBLE_SAT_NETWORK 0
-#endif
+
+/*
+ * Enable the Hubble Satellite network module.
+ */
+/* #define CONFIG_HUBBLE_SAT_NETWORK 1 */
 
 /*
  * Size of the encryption key in bytes. Valid options are
