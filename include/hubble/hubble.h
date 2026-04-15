@@ -67,8 +67,8 @@ extern "C" {
  *            data. The caller must ensure the buffer remains valid
  *            for the lifetime of SDK usage (do not use stack or
  *            temporary buffers). The key size must match
- *            CONFIG_HUBBLE_KEY_SIZE. If NULL, must be set with
- *            hubble_key_set before getting advertisements.
+ *            CONFIG_HUBBLE_NETWORK_KEY_256 or CONFIG_HUBBLE_NETWORK_KEY_128.
+ *            If NULL, must be set with hubble_key_set before getting advertisements.
  *
  * @return
  *          - 0 on success.
@@ -106,7 +106,7 @@ uint64_t hubble_time_get(void);
  *            stores this pointer directly and does not copy the key
  *            data. The caller must ensure the buffer remains valid
  *            for the lifetime of SDK usage. The key size must match
- *            CONFIG_HUBBLE_KEY_SIZE.
+ *            CONFIG_HUBBLE_NETWORK_KEY_256 or CONFIG_HUBBLE_NETWORK_KEY_128.
  *
  * @return
  *         - 0 on success.

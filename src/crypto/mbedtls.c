@@ -8,8 +8,6 @@
 #include <hubble/port/sys.h>
 #include <hubble/port/crypto.h>
 
-#include "../utils/macros.h"
-
 #define _STREAM_BLOCK_LEN 16
 
 #if defined(CONFIG_HUBBLE_NETWORK_KEY_256)

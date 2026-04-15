@@ -6,8 +6,6 @@
 
 #include <hubble/port/crypto.h>
 
-#include "../utils/macros.h"
-
 
 static int _psa_status_to_errno(psa_status_t status)
 {

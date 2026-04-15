@@ -22,6 +22,18 @@ extern "C" {
 /* Valid range [0, 1023] */
 #define HUBBLE_MAX_SEQ_COUNTER   ((1 << 10) - 1)
 
+#ifndef CONFIG_HUBBLE_KEY_SIZE
+#if defined(CONFIG_HUBBLE_NETWORK_KEY_256)
+#define CONFIG_HUBBLE_KEY_SIZE 32
+#elif defined(CONFIG_HUBBLE_NETWORK_KEY_128)
+#define CONFIG_HUBBLE_KEY_SIZE 16
+#else
+#error "CONFIG_HUBBLE_NETWORK_KEY_256 or CONFIG_HUBBLE_NETWORK_KEY_128 must be defined."
+#endif
+#endif /* !CONFIG_HUBBLE_KEY_SIZE */
+
+#define HUBBLE_KEY_SIZE_BITS (CONFIG_HUBBLE_KEY_SIZE * 8)
+
 /**
  * @brief Hubble Network SDK Crypto APIs.
  *
