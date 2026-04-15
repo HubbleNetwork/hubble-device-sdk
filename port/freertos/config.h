@@ -22,10 +22,15 @@
 
 /*
  * Size of the encryption key in bytes. Valid options are
- * 16 for 128 bits keys or 32 for 256 bits keys.
+ * 16 for 128 bits keys or 32 for 256 bits keys. The default
+ * option is to use 256 bits key.
  */
-#ifndef CONFIG_HUBBLE_KEY_SIZE
-#define CONFIG_HUBBLE_KEY_SIZE    16
+#if defined(CONFIG_HUBBLE_NETWORK_KEY_256) &&                                  \
+	defined(CONFIG_HUBBLE_NETWORK_KEY_128)
+#error "Cannot define both CONFIG_HUBBLE_NETWORK_KEY_256 and CONFIG_HUBBLE_NETWORK_KEY_128"
+#elif !defined(CONFIG_HUBBLE_NETWORK_KEY_256) &&                               \
+	!defined(CONFIG_HUBBLE_NETWORK_KEY_128)
+#define CONFIG_HUBBLE_NETWORK_KEY_256 1
 #endif
 
 /*
@@ -73,7 +78,7 @@
  * last time the device had time synced.
  */
 #ifndef CONFIG_HUBBLE_SAT_NETWORK_DEVICE_TDR
-#define CONFIG_HUBBLE_SAT_NETWORK_DEVICE_TDR  500
+#define CONFIG_HUBBLE_SAT_NETWORK_DEVICE_TDR 500
 #endif
 
 /* Protocol version
