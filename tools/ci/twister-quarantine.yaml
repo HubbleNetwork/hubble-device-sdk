@@ -1,0 +1,10 @@
+- scenarios:
+    - app.beacon.mbedtls
+    - app.beacon.mbedtls_128key
+    - app.ble_network.mbedtls
+    - app.ble_network.mbedtls_128key
+    - app.sat.continuous.mbedtls
+    - app.sat.continuous.mbedtls_128key
+    - ble.nonce
+    - ble.counter
+  comment: "mbedTLS APIs not available since Zephyr 4.4.0"

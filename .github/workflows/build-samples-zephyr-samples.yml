@@ -79,7 +79,7 @@ jobs:
         run: |
           set -euxo pipefail
           # Build all Zephyr projects in samples/zephyr directory
-          west twister -T samples/zephyr --build-only --footprint-report
+          west twister -T samples/zephyr --build-only --footprint-report --quarantine-list tools/ci/twister-quarantine.yaml
 
       - name: Footprint report
         run: |

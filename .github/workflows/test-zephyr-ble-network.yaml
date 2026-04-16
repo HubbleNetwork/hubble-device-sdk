@@ -73,9 +73,9 @@ jobs:
         run: |
           set -euxo pipefail
           # list the tests first (useful for debugging)
-          ${ZEPHYR_BASE}/scripts/twister --list-tests -T tests/zephyr/ble-network -p nrf52_bsim -v || true
+          ${ZEPHYR_BASE}/scripts/twister --list-tests -T tests/zephyr/ble-network -p nrf52_bsim -v --quarantine-list tools/ci/twister-quarantine.yaml || true
           # run Twister (increase -j if you want parallel build jobs)
-          ${ZEPHYR_BASE}/scripts/twister -T tests/zephyr/ble-network -p nrf52_bsim -v
+          ${ZEPHYR_BASE}/scripts/twister -T tests/zephyr/ble-network -p nrf52_bsim -v --quarantine-list tools/ci/twister-quarantine.yaml
 
       - name: Show quick twister summary (testplan.json)
         if: always()
