@@ -366,7 +366,7 @@ int ret = hubble_init(saved_counter, master_key);
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>initial_time</strong> – For Unix time mode: Unix time in milliseconds since epoch. For device uptime mode: Initial counter value (0 = start at 0). </p></li>
-<li><p><strong>key</strong> – An opaque pointer to the master key buffer. The SDK stores this pointer directly and does not copy the key data. The caller must ensure the buffer remains valid for the lifetime of SDK usage (do not use stack or temporary buffers). The key size must match CONFIG_HUBBLE_KEY_SIZE. If NULL, must be set with hubble_key_set before getting advertisements.</p></li>
+<li><p><strong>key</strong> – An opaque pointer to the master key buffer. The SDK stores this pointer directly and does not copy the key data. The caller must ensure the buffer remains valid for the lifetime of SDK usage (do not use stack or temporary buffers). The key size must match CONFIG_HUBBLE_NETWORK_KEY_256 or CONFIG_HUBBLE_NETWORK_KEY_128. If NULL, must be set with hubble_key_set before getting advertisements.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -419,7 +419,7 @@ int ret = hubble_init(saved_counter, master_key);
 <dd><p>Sets the encryption key for advertisement data creation. </p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>key</strong> – An opaque pointer to the master key buffer. The SDK stores this pointer directly and does not copy the key data. The caller must ensure the buffer remains valid for the lifetime of SDK usage. The key size must match CONFIG_HUBBLE_KEY_SIZE.</p>
+<dd class="field-odd"><p><strong>key</strong> – An opaque pointer to the master key buffer. The SDK stores this pointer directly and does not copy the key data. The caller must ensure the buffer remains valid for the lifetime of SDK usage. The key size must match CONFIG_HUBBLE_NETWORK_KEY_256 or CONFIG_HUBBLE_NETWORK_KEY_128.</p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p><ul class="simple">
