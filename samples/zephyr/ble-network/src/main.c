@@ -42,7 +42,8 @@ static inline bool is_hexchar(uint8_t data)
 	       (data >= 0x61 && data <= 0x66) || (data >= 0x41 && data <= 0x46);
 }
 
-static void bypass_cb(const struct shell *sh, uint8_t *recv, size_t len)
+static void bypass_cb(const struct shell *sh, uint8_t *recv, size_t len,
+		      void *user_data)
 {
 	bool escape = false;
 	static uint8_t tail;
@@ -65,7 +66,7 @@ static void bypass_cb(const struct shell *sh, uint8_t *recv, size_t len)
 
 	if (sum > sizeof(master_key)) {
 		shell_print(sh, "Given key is too big !");
-		shell_set_bypass(sh, NULL);
+		shell_set_bypass(sh, NULL, NULL);
 		if (hubble_key_set((void *)master_key) != 0) {
 			LOG_WRN("Failed to set the encryption key");
 		}
@@ -75,7 +76,7 @@ static void bypass_cb(const struct shell *sh, uint8_t *recv, size_t len)
 
 	if (escape) {
 		shell_print(sh, "Number of bytes read: %d", sum);
-		shell_set_bypass(sh, NULL);
+		shell_set_bypass(sh, NULL, NULL);
 		if (hubble_key_set((void *)master_key) != 0) {
 			LOG_WRN("Failed to set the encryption key");
 		}
@@ -112,7 +113,7 @@ static int cmd_key(const struct shell *sh, size_t argc, char **argv, void *data)
 	chunk_element = 0;
 	sum = 0;
 
-	shell_set_bypass(sh, bypass_cb);
+	shell_set_bypass(sh, bypass_cb, NULL);
 
 	return 0;
 }
