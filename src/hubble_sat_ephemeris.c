@@ -527,7 +527,7 @@ static int _pass_get(const struct hubble_sat_orbital_params *orbit, uint64_t t,
 		return -1;
 	}
 
-	while (crossings[0].t <= t) {
+	while ((crossings[0].t <= t) && (crossings[1].t <= t)) {
 		orbit_count++;
 		if (_tll_crossings_get(orbit, pos->lat, orbit_count,
 				       crossings) != 0) {
