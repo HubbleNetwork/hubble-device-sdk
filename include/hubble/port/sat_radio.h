@@ -61,7 +61,8 @@ extern "C" {
  * - -1: no transmission
  * -  31: center channel frequency
  */
-#define HUBBLE_SAT_PREAMBLE_SEQUENCE (int8_t[]){63, 0, 63, 0, 63, 0, 63, 63}
+#define HUBBLE_SAT_PREAMBLE_SEQUENCE                                           \
+	(const int8_t[]){63, 0, 63, 0, 63, 0, 63, 63}
 
 /**
  * @brief Initialize the satellite radio port.
