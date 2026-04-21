@@ -32,7 +32,7 @@ jobs:
       uses: actions/cache@v4
       with:
         path: ~/.cache/pip
-        key: ${{ runner.os }}-pip-${{ hashFiles('.github/workflows/compliance.yml') }}
+        key: ${{ runner.os }}-pip-${{ hashFiles('.github/workflows/compliance.yaml') }}
 
     - name: Install dependencies
       run: |
