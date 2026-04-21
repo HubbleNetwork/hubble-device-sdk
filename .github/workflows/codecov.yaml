@@ -9,7 +9,7 @@ on:
     branches:
       - main
     paths:
-      - '.github/workflows/codecov.yml'
+      - '.github/workflows/codecov.yaml'
       - 'include/**'
       - 'src/**'
       - 'tests/**'
@@ -39,7 +39,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: ~/.cache/pip
-          key: ${{ runner.os }}-pip-${{ hashFiles('.github/workflows/codecov.yml') }}
+          key: ${{ runner.os }}-pip-${{ hashFiles('.github/workflows/codecov.yaml') }}
 
       - name: Install dependencies
         run: |
