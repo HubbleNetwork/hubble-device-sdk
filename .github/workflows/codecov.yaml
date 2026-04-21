@@ -21,7 +21,7 @@ permissions:
 
 jobs:
   codecov:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     name: Generate code coverage
 
     steps:
@@ -33,7 +33,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: 3.11
+          python-version: 3.12
 
       - name: cache-pip
         uses: actions/cache@v4
