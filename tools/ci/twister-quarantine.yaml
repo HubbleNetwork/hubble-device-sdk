@@ -5,6 +5,8 @@
     - app.ble_network.mbedtls_128key
     - app.sat.continuous.mbedtls
     - app.sat.continuous.mbedtls_128key
+    - ble.advertise.unit.mbedtls
+    - ble.advertise.unit.counter.mbedtls
     - ble.nonce
     - ble.counter
   comment: "mbedTLS APIs not available since Zephyr 4.4.0"
