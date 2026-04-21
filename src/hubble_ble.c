@@ -87,7 +87,7 @@ int hubble_ble_advertise_get(const uint8_t *input, size_t input_len,
 
 	err = hubble_internal_device_id_get((uint8_t *)&device_id,
 					    sizeof(device_id), time_counter);
-	if (err) {
+	if (err != 0) {
 		return err;
 	}
 	_addr_set(_PAYLOAD_ADDR(out), seq_no, device_id);
@@ -95,7 +95,7 @@ int hubble_ble_advertise_get(const uint8_t *input, size_t input_len,
 	err = hubble_internal_data_encrypt(
 		time_counter, seq_no, input, input_len, _PAYLOAD_DATA(out),
 		_PAYLOAD_AUTH_TAG(out), HUBBLE_BLE_AUTH_TAG_SIZE);
-	if (err) {
+	if (err != 0) {
 		return err;
 	}
 
