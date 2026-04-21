@@ -65,7 +65,7 @@ int hubble_bitarray_append_big(struct hubble_bitarray *bit_array,
  * @param value The value of the bit to set (0 or 1).
  * @return int 0 on success, non-zero on failure.
  **/
-int hubble_bitarray_set_bit(struct hubble_bitarray *bit_array, size_t intdex,
+int hubble_bitarray_set_bit(struct hubble_bitarray *bit_array, size_t index,
 			    uint8_t value);
 
 /**
