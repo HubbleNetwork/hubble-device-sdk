@@ -1,0 +1,350 @@
+#!/usr/bin/env bash
+# SPDX-License-Identifier: Apache-2.0
+#
+# Static analysis wrapper for the Hubble Device SDK.
+# Runs cppcheck and Coccinelle semantic patches against the codebase.
+
+set -euo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+PROJECT_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
+
+# Defaults
+VERBOSE=0
+CI_MODE=0
+RUN_CPPCHECK=1
+RUN_COCCINELLE=1
+TARGETS=()
+DEFAULT_TARGETS=("src" "include" "port" "samples")
+OUTPUT_DIR=""
+
+CPPCHECK_RC=0
+COCCINELLE_RC=0
+
+usage() {
+	cat <<EOF
+Usage: ./tools/analyze [OPTIONS] [DIRECTORY|FILE]...
+
+Run static analysis (cppcheck + Coccinelle) on the Hubble Device SDK.
+
+OPTIONS:
+  -v, --verbose          Enable verbose output
+  --ci                   CI mode (machine-readable output, no color)
+  --output-dir DIR       Save machine-readable results to DIR
+                         (cppcheck.xml, coccinelle.txt). Implies --ci.
+                         Always exits 0; use diff-static-analysis.py for pass/fail.
+  --cppcheck-only        Run only cppcheck
+  --coccinelle-only      Run only Coccinelle semantic patches
+  -h, --help             Show this help and exit
+
+If no DIRECTORY or FILE is specified, analyzes: src/ include/ port/ samples/
+
+EXAMPLES:
+  ./tools/analyze                        # Analyze all default directories
+  ./tools/analyze src/hubble_ble.c       # Analyze a single file
+  ./tools/analyze --cppcheck-only src/   # Run only cppcheck on src/
+  ./tools/analyze --ci                   # CI mode for GitHub Actions
+EOF
+}
+
+# Colors (disabled in CI mode)
+RED=""
+GREEN=""
+YELLOW=""
+BOLD=""
+RESET=""
+
+setup_colors() {
+	if [ "$CI_MODE" -eq 0 ] && [ -t 1 ]; then
+		RED="\033[0;31m"
+		GREEN="\033[0;32m"
+		YELLOW="\033[0;33m"
+		BOLD="\033[1m"
+		RESET="\033[0m"
+	fi
+}
+
+log_header() {
+	echo ""
+	echo -e "${BOLD}=== $1 ===${RESET}"
+	echo ""
+}
+
+log_pass() {
+	echo -e "  ${GREEN}PASS${RESET}: $1"
+}
+
+log_fail() {
+	echo -e "  ${RED}FAIL${RESET}: $1"
+}
+
+log_skip() {
+	echo -e "  ${YELLOW}SKIP${RESET}: $1"
+}
+
+# Parse arguments
+while [ $# -gt 0 ]; do
+	case "$1" in
+		-v|--verbose)
+			VERBOSE=1
+			shift
+			;;
+		--ci)
+			CI_MODE=1
+			shift
+			;;
+		--cppcheck-only)
+			RUN_CPPCHECK=1
+			RUN_COCCINELLE=0
+			shift
+			;;
+		--output-dir)
+			OUTPUT_DIR="$2"
+			CI_MODE=1
+			shift 2
+			;;
+		--output-dir=*)
+			OUTPUT_DIR="${1#*=}"
+			CI_MODE=1
+			shift
+			;;
+		--coccinelle-only)
+			RUN_CPPCHECK=0
+			RUN_COCCINELLE=1
+			shift
+			;;
+		-h|--help)
+			usage
+			exit 0
+			;;
+		-*)
+			echo "Unknown option: $1"
+			usage
+			exit 2
+			;;
+		*)
+			if [ -e "$PROJECT_DIR/$1" ] || [ -e "$1" ]; then
+				TARGETS+=("$1")
+			else
+				echo "Error: '$1' does not exist"
+				exit 2
+			fi
+			shift
+			;;
+	esac
+done
+
+# Use default targets if none specified
+if [ ${#TARGETS[@]} -eq 0 ]; then
+	TARGETS=("${DEFAULT_TARGETS[@]}")
+fi
+
+setup_colors
+
+if [ -n "$OUTPUT_DIR" ]; then
+	mkdir -p "$OUTPUT_DIR"
+	# Truncate so reruns against the same directory don't accumulate
+	# stale findings.  cppcheck.xml is naturally truncated by 2> but
+	# coccinelle.txt uses >> (append per target), so clear it here.
+	: > "$OUTPUT_DIR/coccinelle.txt"
+fi
+
+cd "$PROJECT_DIR"
+
+# --- cppcheck ---
+run_cppcheck() {
+	log_header "cppcheck"
+
+	if ! command -v cppcheck &>/dev/null; then
+		echo "Error: cppcheck not found. Install with:"
+		echo "  macOS:  brew install cppcheck"
+		echo "  Ubuntu: sudo apt-get install cppcheck"
+		return 1
+	fi
+
+	if [ "$VERBOSE" -eq 1 ]; then
+		echo "cppcheck version: $(cppcheck --version)"
+		echo "Targets: ${TARGETS[*]}"
+		echo ""
+	fi
+
+	local CPPCHECK_FLAGS=(
+		--enable=warning,style,performance,portability
+		--std=c99
+		--platform=unix32
+		--error-exitcode=1
+		--inline-suppr
+		-I include
+		-I src
+		-I port/zephyr
+		-I port/freertos
+		-I port/esp-idf
+		-i build
+	)
+
+	# Add suppressions file if it exists
+	if [ -f "$PROJECT_DIR/tools/cppcheck-suppressions.txt" ]; then
+		CPPCHECK_FLAGS+=(--suppressions-list="$PROJECT_DIR/tools/cppcheck-suppressions.txt")
+	fi
+
+	if [ "$CI_MODE" -eq 1 ]; then
+		CPPCHECK_FLAGS+=(--xml)
+	fi
+
+	if [ "$VERBOSE" -eq 0 ] && [ "$CI_MODE" -eq 0 ]; then
+		CPPCHECK_FLAGS+=(--quiet)
+	fi
+
+	if [ -n "$OUTPUT_DIR" ]; then
+		# Capture XML to file; don't exit on findings — the diff
+		# script determines pass/fail.
+		cppcheck "${CPPCHECK_FLAGS[@]}" "${TARGETS[@]}" 2>"$OUTPUT_DIR/cppcheck.xml" || true
+	else
+		cppcheck "${CPPCHECK_FLAGS[@]}" "${TARGETS[@]}"
+	fi
+}
+
+# --- Coccinelle ---
+run_coccinelle() {
+	log_header "Coccinelle"
+
+	if ! command -v spatch &>/dev/null; then
+		echo "Error: spatch (Coccinelle) not found. Install with:"
+		echo "  macOS:  brew install coccinelle"
+		echo "  Ubuntu: sudo apt-get install coccinelle"
+		return 1
+	fi
+
+	# Quick sanity check that spatch actually works
+	if ! spatch --version &>/dev/null; then
+		echo "Error: spatch is installed but not functional."
+		echo "This can happen on macOS with Python library path issues."
+		echo "Try: brew reinstall coccinelle"
+		return 1
+	fi
+
+	if [ "$VERBOSE" -eq 1 ]; then
+		echo "spatch version: $(spatch --version 2>&1 | head -1)"
+		echo "Targets: ${TARGETS[*]}"
+		echo ""
+	fi
+
+	# coccicheck accepts a single directory argument.
+	# When custom targets are specified, run coccicheck once per target.
+	# When using defaults, let coccicheck scan the project root.
+	local cocci_targets=()
+	if [ "${TARGETS[*]}" = "${DEFAULT_TARGETS[*]}" ]; then
+		cocci_targets=("")
+	else
+		cocci_targets=("${TARGETS[@]}")
+	fi
+
+	local COCCI_FLAGS=("--mode=report")
+	if [ "$VERBOSE" -eq 1 ]; then
+		COCCI_FLAGS+=("-v=1")
+	fi
+
+	local has_findings=0
+	for target in "${cocci_targets[@]}"; do
+		local cocci_output
+		local cocci_rc=0
+		cocci_output=$("$SCRIPT_DIR/coccicheck" "${COCCI_FLAGS[@]}" $target 2>&1) || cocci_rc=$?
+
+		# Check if coccicheck itself failed (tool error, not findings)
+		if echo "$cocci_output" | grep -q "coccicheck failed"; then
+			echo "Error: coccicheck encountered a tool error."
+			if [ "$VERBOSE" -eq 1 ]; then
+				echo "$cocci_output"
+			else
+				echo "Run with -v for details."
+			fi
+			return 1
+		fi
+
+		# Filter out informational lines from coccicheck, keep only findings
+		local findings
+		findings=$(echo "$cocci_output" | grep -v "^$" \
+			| grep -v "^You have not explicitly" \
+			| grep -v "^Available modes" \
+			| grep -v "^You can specify" \
+			| grep -v "^Note however" \
+			| grep -v "^Please check" \
+			| grep -v "^When using" \
+			| grep -v "^----" \
+			| grep -v "^Processing" \
+			| grep -v "^with option" \
+			| grep -v "^$" || true)
+
+		if [ -n "$findings" ]; then
+			echo "$findings"
+			has_findings=1
+			if [ -n "$OUTPUT_DIR" ]; then
+				echo "$findings" >> "$OUTPUT_DIR/coccinelle.txt"
+			fi
+		fi
+	done
+
+	return $has_findings
+}
+
+# --- Main ---
+log_header "Hubble Device SDK - Static Analysis"
+echo "Targets: ${TARGETS[*]}"
+
+if [ "$RUN_CPPCHECK" -eq 1 ]; then
+	if run_cppcheck; then
+		CPPCHECK_RC=0
+	else
+		CPPCHECK_RC=$?
+	fi
+fi
+
+if [ "$RUN_COCCINELLE" -eq 1 ]; then
+	if run_coccinelle; then
+		COCCINELLE_RC=0
+	else
+		COCCINELLE_RC=$?
+	fi
+fi
+
+# --- Summary ---
+log_header "Summary"
+
+if [ "$RUN_CPPCHECK" -eq 1 ]; then
+	if [ "$CPPCHECK_RC" -eq 0 ]; then
+		log_pass "cppcheck"
+	else
+		log_fail "cppcheck"
+	fi
+else
+	log_skip "cppcheck"
+fi
+
+# Coccinelle is warn-only: existing codebase has findings and Coccinelle
+# has no baseline/suppression mechanism. Findings are reported but do not
+# fail the build. Remove this once existing findings are cleaned up.
+if [ "$RUN_COCCINELLE" -eq 1 ]; then
+	if [ "$COCCINELLE_RC" -eq 0 ]; then
+		log_pass "Coccinelle"
+	else
+		echo -e "  ${YELLOW}WARN${RESET}: Coccinelle (non-blocking, existing findings)"
+	fi
+else
+	log_skip "Coccinelle"
+fi
+
+echo ""
+
+# In output-dir mode the diff script determines pass/fail.
+if [ -n "$OUTPUT_DIR" ]; then
+	echo "Results saved to $OUTPUT_DIR"
+	exit 0
+fi
+
+if [ "$CPPCHECK_RC" -ne 0 ]; then
+	echo -e "${RED}Static analysis found issues.${RESET}"
+	exit 1
+fi
+
+echo -e "${GREEN}All checks passed.${RESET}"
+exit 0
