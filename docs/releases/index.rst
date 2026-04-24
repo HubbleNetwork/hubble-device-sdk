@@ -262,4 +262,5 @@ Detailed release notes for each version:
    :maxdepth: 1
    :glob:
 
+   2.0.rst
    1.0.rst
