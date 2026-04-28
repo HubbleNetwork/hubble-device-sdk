@@ -453,10 +453,10 @@ static double _lon_tolerance_get(double lat)
 
 	A = _DEG2RAD(HUBBLE_ELEVATION_ANGLE_TOLERANCE + 90);
 
-	C = _asin(earth.radius * _sin(A) / HUBBLE_SAT_ELEVATION);
-	b = earth.radius * _cos(M_PI - _asin(HUBBLE_SAT_ELEVATION *
+	C = _asin(earth.radius * _sin(A) / (earth.radius + HUBBLE_SAT_ELEVATION));
+	b = earth.radius * _cos(M_PI - _asin((earth.radius + HUBBLE_SAT_ELEVATION) *
 					     (_sin(C) / earth.radius))) +
-	    (HUBBLE_SAT_ELEVATION * (_cos(C)));
+	    ((earth.radius + HUBBLE_SAT_ELEVATION) * (_cos(C)));
 	B = _asin(b * sin(C) / earth.radius);
 
 	return _RAD2DEG(_asin((earth.radius * _sin(B)) /
