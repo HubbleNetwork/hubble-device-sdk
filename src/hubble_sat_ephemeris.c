@@ -18,7 +18,6 @@
 #define HUBBLE_TWO_PI_DEGREES            360
 #define HUBBLE_PI_DEGREES                180
 #define HUBBLE_ELEVATION_ANGLE_TOLERANCE 30
-#define HUBBLE_SAT_ELEVATION             6892550.590445475
 
 #define HUBBLE_PI_2                      1.57079632679489661923  /* PI / 2 */
 #define HUBBLE_PI_4                      0.785398163397448309616 /* PI / 4 */
@@ -447,16 +446,25 @@ static int _tll_crossings_get(const struct hubble_sat_orbital_params *orbit,
 	return 0;
 }
 
-static double _lon_tolerance_get(double lat)
+static double _sat_altitude_get(const struct hubble_sat_orbital_params *orbit,
+				uint64_t t)
+{
+	uint64_t dt = t - orbit->t0;
+	double n = orbit->n0 + (orbit->ndot * dt);
+
+	return pow((_sqrt(earth.mu) / (2 * M_PI * n)), 2.0 / 3.0) - earth.radius;
+}
+
+static double _lon_tolerance_get(double lat, double sat_altitude)
 {
 	double A, C, b, B;
 
 	A = _DEG2RAD(HUBBLE_ELEVATION_ANGLE_TOLERANCE + 90);
 
-	C = _asin(earth.radius * _sin(A) / (earth.radius + HUBBLE_SAT_ELEVATION));
-	b = earth.radius * _cos(M_PI - _asin((earth.radius + HUBBLE_SAT_ELEVATION) *
+	C = _asin(earth.radius * _sin(A) / (earth.radius + sat_altitude));
+	b = earth.radius * _cos(M_PI - _asin((earth.radius + sat_altitude) *
 					     (_sin(C) / earth.radius))) +
-	    ((earth.radius + HUBBLE_SAT_ELEVATION) * (_cos(C)));
+	    ((earth.radius + sat_altitude) * (_cos(C)));
 	B = _asin(b * sin(C) / earth.radius);
 
 	return _RAD2DEG(_asin((earth.radius * _sin(B)) /
@@ -610,9 +618,10 @@ int hubble_next_pass_get(uint64_t t, const struct hubble_sat_device_pos *pos,
 	}
 
 	pass->t = UINT64_MAX;
-	lon_tol = _lon_tolerance_get(pos->lat);
 
 	for (size_t i = 0; i < _satellites_count; i++) {
+		double alt = _sat_altitude_get(&_satellites[i], t);
+		lon_tol = _lon_tolerance_get(pos->lat, alt);
 		int ret = _pass_get(&_satellites[i], t, pos, lon_tol, &next_pass);
 
 		if (ret == 0) {
