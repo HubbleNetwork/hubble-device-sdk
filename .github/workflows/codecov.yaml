@@ -57,6 +57,7 @@ jobs:
             -p native_sim -p unit_testing --coverage \
             -T ./tests/zephyr/ --coverage-tool gcovr \
             -e nano --coverage-basedir ${PWD} \
+            --quarantine-list tools/ci/twister-quarantine.yaml \
             -x=CONFIG_COVERAGE=y
 
       - name: Upload footprint report
