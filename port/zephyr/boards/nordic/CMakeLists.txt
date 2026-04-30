@@ -1,0 +1,1 @@
+add_subdirectory_ifdef(CONFIG_SOC_SERIES_NRF52 nrf52)

@@ -1,3 +1,15 @@
+name: hubblenetwork-sdk
+
 build:
   cmake: port/zephyr
   kconfig: port/zephyr/Kconfig
+
+
+blobs:
+  - path: nrf52/libhubble_sat_nrf52.a
+    sha256: 1b961ef4580c7a0c54780419b624a2b5913ac4cea7173f85bb1ab04d50735d36
+    type: lib
+    version: "0.9"
+    description: NRF52 Satellite library
+    license-path: zephyr/blobs/license.txt
+    url: https://github.com/HubbleNetwork/hubble-device-sdk-blobs/raw/refs/heads/main/nrf52/libhubble_sat_nrf52.a
