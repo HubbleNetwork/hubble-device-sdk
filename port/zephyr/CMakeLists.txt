@@ -20,6 +20,10 @@ if(CONFIG_HUBBLE_SAT_NETWORK)
 	zephyr_library_sources_ifdef(CONFIG_HUBBLE_SAT_NETWORK_PROTOCOL_V1 ../../src/hubble_sat_packet.c)
 	zephyr_library_sources(../../src/reed_solomon_encoder.c)
 	zephyr_library_sources(hubble_sat_zephyr.c)
+
+	# Boards
+	set(HUBBLE_BLOBS_DIR ${ZEPHYR_HUBBLENETWORK_SDK_MODULE_DIR}/zephyr/blobs/)
+	add_subdirectory_ifdef(CONFIG_SOC_COMPATIBLE_NRF boards/nordic)
 	zephyr_include_directories(.)
 endif()
 
