@@ -1,0 +1,36 @@
+name: Build TI Samples
+
+on:
+  pull_request:
+    branches: ["**"]
+    paths:
+      - "include/**"
+      - "src/**"
+      - "samples/freertos/ti/**"
+      - ".github/workflows/build-sampes-ti.yaml"
+
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+  packages: read
+
+jobs:
+  build:
+    name: Build TI Ble Beacon Sample
+    runs-on: ubuntu-24.04
+    container:
+      image: ghcr.io/hubblenetwork/ti-ci-docker:latest
+      credentials:
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Generate key and time
+        run: |
+          echo -n "AAAAAAAAAAAAAAAAAAAAAA==" > master.key
+          python3 tools/embed_key_time.py -b master.key -o samples/freertos/ti/ble-beacon/src/
+
+      - name: build TI
+        run: make -C samples/freertos/ti/ble-beacon/
