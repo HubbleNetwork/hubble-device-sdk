@@ -1,4 +1,4 @@
-name: Build ESP-IDF Ble-Beacon Sample
+name: Build ESP-IDF Samples
 
 on:
   pull_request:
@@ -16,7 +16,7 @@ permissions:
 
 jobs:
   build:
-    name: Build ESP-IDF Ble-Beacon Sample App
+    name: Build ESP-IDF Sample Apps
     runs-on: ubuntu-24.04
     strategy:
       fail-fast: false
@@ -32,14 +32,91 @@ jobs:
         with:
           submodules: 'recursive'
 
+      # only need for the beacon sample, but simpler to do once here
       - name: Generate key and time
         run: |
           echo -n "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=" > master.key
           python3 tools/embed_key_time.py -b master.key -o samples/esp-idf/ble-beacon/main/
 
-      - name: esp-idf build
+      - name: Build all samples and generate component size
         uses: espressif/esp-idf-ci-action@v1
         with:
           esp_idf_version: "latest"
           target: ${{ matrix.espidf_target }}
-          path: 'samples/esp-idf/ble-beacon'
+          command: |
+            set -euxo pipefail
+            pip install idf-build-apps
+            idf-build-apps build -p samples/esp-idf --recursive --target ${{ matrix.espidf_target }}
+            for app in samples/esp-idf/*/; do
+              app_name=$(basename "$app")
+              target=${{ matrix.espidf_target }}
+              (cd "$app" && \
+                 idf.py size-components --format json2 \
+                   --output-file "size-components-${app_name}-${target}.json" && \
+                 idf.py size-files --format json2 \
+                   --output-file "size-files-${app_name}-${target}.json")
+            done
+            idf.py --version > samples/esp-idf/idf-version.txt
+
+      - name: Stage footprint artifacts
+        if: always()
+        run: |
+          set -euxo pipefail
+          mkdir -p esp-idf-footprint-out
+          # Collect every size-* JSON the build emitted across all samples.
+          find samples/esp-idf -maxdepth 2 \
+            \( -name "size-components-*.json" -o -name "size-files-*.json" \) \
+            -exec cp {} esp-idf-footprint-out/ \;
+          if [ -f samples/esp-idf/idf-version.txt ]; then
+            cp samples/esp-idf/idf-version.txt \
+               esp-idf-footprint-out/idf-version.txt
+          fi
+
+      - name: Upload footprint artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: footprint-${{ matrix.espidf_target }}
+          path: esp-idf-footprint-out/
+          if-no-files-found: warn
+
+  footprint-summary:
+    name: Footprint Summary
+    needs: build
+    if: always()
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Download all footprint artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: footprint-artifacts
+          pattern: footprint-*
+          merge-multiple: true
+
+      - name: Resolve revision and ESP-IDF version
+        id: meta
+        run: |
+          set -euxo pipefail
+          echo "revision=$(git rev-parse --short HEAD)" >> "$GITHUB_OUTPUT"
+          if [ -f footprint-artifacts/idf-version.txt ]; then
+            idf_version=$(head -n1 footprint-artifacts/idf-version.txt | tr -d '\r')
+          else
+            idf_version=unknown
+          fi
+          echo "idf_version=${idf_version}" >> "$GITHUB_OUTPUT"
+
+      - name: Print footprint table to log
+        run: |
+          python3 tools/ci/summarize_footprint_esp_idf.py footprint-artifacts \
+            --revision "${{ steps.meta.outputs.revision }}" \
+            --idf-version "${{ steps.meta.outputs.idf_version }}"
+
+      - name: Render footprint summary in GitHub UI
+        run: |
+          python3 tools/ci/summarize_footprint_esp_idf.py footprint-artifacts \
+            --revision "${{ steps.meta.outputs.revision }}" \
+            --idf-version "${{ steps.meta.outputs.idf_version }}" \
+            --format markdown >> "$GITHUB_STEP_SUMMARY"
