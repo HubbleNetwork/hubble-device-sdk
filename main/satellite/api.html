@@ -479,6 +479,75 @@
 </dl>
 </dd></dl>
 
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv431hubble_sat_dtm_port_packet_sendPK17hubble_sat_packet6int8_t">
+<span id="_CPPv331hubble_sat_dtm_port_packet_sendPK17hubble_sat_packet6int8_t"></span><span id="_CPPv231hubble_sat_dtm_port_packet_sendPK17hubble_sat_packet6int8_t"></span><span id="hubble_sat_dtm_port_packet_send__hubble_sat_packetCP.int8_t"></span><span class="target" id="group__hubble__sat__radio__port_1ga8a64f3af52ec7580bcab27e562d8705a"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">hubble_sat_dtm_port_packet_send</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="k"><span class="pre">struct</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv417hubble_sat_packet" title="hubble_sat_packet"><span class="n"><span class="pre">hubble_sat_packet</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">packet</span></span>, <span class="n"><span class="pre">int8_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">channel</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv431hubble_sat_dtm_port_packet_sendPK17hubble_sat_packet6int8_t" title="Link to this definition"></a><br /></dt>
+<dd><p>Transmit a DTM test packet over the satellite radio. </p>
+<p>Platform-specific implementation for sending a single DTM packet on the specified channel. When <code class="docutils literal notranslate"><span class="pre">channel</span></code> is -1, the transmission follows the standard channel-hopping scheme used by <a class="reference internal" href="#group__hubble__sat__radio__port_1ga79ef67483a21ea8535a761eef11b4e25"><span class="std std-ref">hubble_sat_port_packet_send</span></a>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>packet</strong> – Pointer to the packet structure containing the data to transmit. </p></li>
+<li><p><strong>channel</strong> – RF channel to transmit on. -1 to hop between channels.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return values<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>0</strong> – Success. </p></li>
+<li><p><strong>-EINVAL</strong> – Invalid channel. </p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv429hubble_sat_dtm_port_power_set6int8_t">
+<span id="_CPPv329hubble_sat_dtm_port_power_set6int8_t"></span><span id="_CPPv229hubble_sat_dtm_port_power_set6int8_t"></span><span id="hubble_sat_dtm_port_power_set__int8_t"></span><span class="target" id="group__hubble__sat__radio__port_1ga4e208ff586d3dc49819a8410cfc05fde"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">hubble_sat_dtm_port_power_set</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">int8_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">power</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv429hubble_sat_dtm_port_power_set6int8_t" title="Link to this definition"></a><br /></dt>
+<dd><p>Set the transmit power level (port implementation). </p>
+<p>Platform-specific implementation for configuring the output power used for subsequent DTM transmissions.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>power</strong> – Desired TX power in dBm.</p>
+</dd>
+<dt class="field-even">Return values<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>0</strong> – Success. </p></li>
+<li><p><strong>-EINVAL</strong> – Power level is out of the supported range. </p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv428hubble_sat_dtm_port_cw_start7uint8_t">
+<span id="_CPPv328hubble_sat_dtm_port_cw_start7uint8_t"></span><span id="_CPPv228hubble_sat_dtm_port_cw_start7uint8_t"></span><span id="hubble_sat_dtm_port_cw_start__uint8_t"></span><span class="target" id="group__hubble__sat__radio__port_1ga6c2b23c88e8ec5c06a7216fbc08e57e3"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">hubble_sat_dtm_port_cw_start</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">uint8_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">channel</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv428hubble_sat_dtm_port_cw_start7uint8_t" title="Link to this definition"></a><br /></dt>
+<dd><p>Start continuous wave (CW) transmission (port implementation). </p>
+<p>Platform-specific implementation that begins transmitting an unmodulated carrier on the specified channel. Call <a class="reference internal" href="#group__hubble__sat__radio__port_1ga7ed15858aaefa605e5c6969563744bfc"><span class="std std-ref">hubble_sat_dtm_port_cw_stop</span></a> to end the transmission.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>channel</strong> – RF channel index to transmit on.</p>
+</dd>
+<dt class="field-even">Return values<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>0</strong> – Success. </p></li>
+<li><p><strong>-EINVAL</strong> – Invalid channel. </p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv427hubble_sat_dtm_port_cw_stopv">
+<span id="_CPPv327hubble_sat_dtm_port_cw_stopv"></span><span id="_CPPv227hubble_sat_dtm_port_cw_stopv"></span><span id="hubble_sat_dtm_port_cw_stop__void"></span><span class="target" id="group__hubble__sat__radio__port_1ga7ed15858aaefa605e5c6969563744bfc"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">hubble_sat_dtm_port_cw_stop</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">void</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv427hubble_sat_dtm_port_cw_stopv" title="Link to this definition"></a><br /></dt>
+<dd><p>Stop continuous wave (CW) transmission (port implementation). </p>
+<p>Platform-specific implementation that halts the unmodulated carrier started by <a class="reference internal" href="#group__hubble__sat__radio__port_1ga6c2b23c88e8ec5c06a7216fbc08e57e3"><span class="std std-ref">hubble_sat_dtm_port_cw_start</span></a>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return values<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>0</strong> – Success. </p>
+</dd>
+</dl>
+</dd></dl>
+
 </div>
 </dd></dl>
 
