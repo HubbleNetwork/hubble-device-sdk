@@ -52,6 +52,8 @@ jobs:
           app-path: .
 
       - name: Generate Coverage Information
+        env:
+          ZEPHYR_TOOLCHAIN_VARIANT: zephyr
         run: |
           west twister -i --force-color -N -v --filter runnable \
             -p native_sim -p unit_testing --coverage \
