@@ -24,6 +24,7 @@ if(CONFIG_HUBBLE_SAT_NETWORK)
 	# Boards
 	set(HUBBLE_BLOBS_DIR ${ZEPHYR_HUBBLENETWORK_SDK_MODULE_DIR}/zephyr/blobs/)
 	add_subdirectory_ifdef(CONFIG_SOC_COMPATIBLE_NRF boards/nordic)
+	add_subdirectory_ifdef(CONFIG_SOC_GECKO_HAS_RADIO boards/silabs/efr32)
 	zephyr_include_directories(.)
 endif()
 
