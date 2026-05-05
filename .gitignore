@@ -16,3 +16,8 @@ docs/_doxygen/
 **/time.c
 **/sdkconfig
 **/sdkconfig.old
+
+# Blobs
+zephyr/blobs/nrf52
+zephyr/blobs/nrf53
+zephyr/blobs/nrf54
