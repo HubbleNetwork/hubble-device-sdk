@@ -56,6 +56,7 @@ static int _transmission_params_get(enum hubble_sat_transmission_mode mode,
 
 static uint8_t _additional_retries_count(uint8_t interval_s)
 {
+	uint8_t ret;
 	uint64_t synced_interval_s;
 
 	if (interval_s == 0U) {
@@ -66,9 +67,16 @@ static uint8_t _additional_retries_count(uint8_t interval_s)
 		(hubble_time_get() - hubble_internal_time_last_synced_get()) /
 		1000;
 
-	return HUBBLE_MIN(UINT8_MAX, (synced_interval_s *
-				      CONFIG_HUBBLE_SAT_NETWORK_DEVICE_TDR) /
-					     (1000000ULL * interval_s));
+	HUBBLE_LOG_DEBUG("Interval since time was synced: %lu seconds",
+			 synced_interval_s);
+
+	ret = HUBBLE_MIN(UINT8_MAX, (synced_interval_s *
+				     CONFIG_HUBBLE_SAT_NETWORK_DEVICE_TDR) /
+					    (1000000ULL * interval_s));
+
+	HUBBLE_LOG_DEBUG("Number of additional retries due TDR: %u", ret);
+
+	return ret;
 }
 
 int hubble_internal_sat_init(void)
@@ -105,6 +113,9 @@ int hubble_sat_packet_send(const struct hubble_sat_packet *packet,
 
 	retries = HUBBLE_MIN(UINT8_MAX,
 			     retries + _additional_retries_count(interval_s));
+
+	HUBBLE_LOG_DEBUG("Number of retries: %u - interval: %u seconds",
+			 retries, interval_s);
 
 	ret = hubble_sat_port_packet_send(packet, retries, interval_s);
 	if (ret < 0) {
@@ -150,10 +161,18 @@ int hubble_sat_dtm_packet_send(enum hubble_sat_dtm_packet_type type,
 
 	ret = hubble_sat_packet_get(&packet, buffer, len);
 	if (ret < 0) {
+		HUBBLE_LOG_WARNING("Hubble Satellite dtm packet get failed");
 		return ret;
 	}
 
-	return hubble_sat_dtm_port_packet_send(&packet, channel);
+	ret = hubble_sat_dtm_port_packet_send(&packet, channel);
+	if (ret < 0) {
+		HUBBLE_LOG_WARNING(
+			"Hubble Satellite dtm packet transmission failed");
+		return ret;
+	}
+
+	return 0;
 }
 
 int hubble_sat_dtm_power_set(int8_t power)
