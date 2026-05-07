@@ -178,6 +178,8 @@ int hubble_sat_soc_enable(void)
 
 	(void)hubble_nrf_lib_enable();
 
+	NRF_RADIO->SUBSCRIBE_RXEN = 0;
+
 	nrf_radio_fast_ramp_up_enable_set(NRF_RADIO, true);
 	nrf_radio_mode_set(NRF_RADIO, NRF_RADIO_MODE_BLE_1MBIT);
 	nrf_radio_shorts_enable(NRF_RADIO, NRF_RADIO_SHORT_READY_START_MASK);
