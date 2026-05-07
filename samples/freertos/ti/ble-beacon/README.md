@@ -73,6 +73,16 @@ make
 
    Flash the generated firmware (*ble-beacon.out*) onto the target device using your preferred flashing tool.
 
+5. **View Log**
+
+   View log using TI `tiutils`. See setup instruction at `<TI_SDK_INSTALL_DIR>/tools/log/tiutils/README.md`.
+
+   Example:
+
+```bash
+   tilogger --elf ./build/ble-beacon.out uart /dev/tty.usbmodemLS470FPO1 3000000 stdout
+```
+
 ### Usage
 
 Once the firmware is flashed:

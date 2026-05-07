@@ -9,6 +9,7 @@
 #include "ti/drivers/dpl/ClockP.h"
 #include "ti/drivers/dpl/SemaphoreP.h"
 #include "ti/drivers/dpl/TaskP.h"
+#include <ti/log/Log.h>
 
 #include <hubble/ble.h>
 
@@ -102,20 +103,28 @@ static void hubble_ble_adv_update(void *arg)
 		NULL, 0, &advData[HUBBLE_BLE_ADV_HEADER_SIZE], &len);
 
 	if (status) {
+		Log_printf(LogModule_Beacon, Log_ERROR,
+			   "Failed to get advertise data, err: %d", status);
 		return;
 	}
 
 	advData[4] = len + 1; /* output len + BLE service data type */
 
 	if (BLEAppUtil_advStop(bleAdvHandle) != SUCCESS) {
+		Log_printf(LogModule_Beacon, Log_ERROR,
+			   "Failed to stop advertising");
 		return;
 	}
 
 	if (BLEAppUtil_initAdvSet(&bleAdvHandle, &hubbleInitAdvSet) != SUCCESS) {
+		Log_printf(LogModule_Beacon, Log_ERROR,
+			   "Failed to initialize advertising set");
 		return;
 	}
 
 	(void)BLEAppUtil_advStart(bleAdvHandle, &hubbleStartAdvSet);
+
+	Log_printf(LogModule_Beacon, Log_INFO, "Advertise data updated");
 }
 
 static void hubble_adv_entry(void *arg)
@@ -127,6 +136,8 @@ static void hubble_adv_entry(void *arg)
 		if (BLEAppUtil_invokeFunction(
 			    (InvokeFromBLEAppUtilContext_t)hubble_ble_adv_update,
 			    NULL) != SUCCESS) {
+			Log_printf(LogModule_Beacon, Log_ERROR,
+				   "Failed to invoke BLEAppUtil function");
 			break;
 		}
 	}
@@ -139,12 +150,16 @@ bStatus_t hubble_ble_adv_start(void)
 	uint8_t *data;
 
 	if (_adv_timer_setup() == FAILURE) {
+		Log_printf(LogModule_Beacon, Log_ERROR,
+			   "Failed to setup advertisement timer");
 		return (FAILURE);
 	}
 
 	len = BLE_ADV_LEN - BLE_ADV_HEADER_SIZE;
 	if (hubble_ble_advertise_get(
 		    NULL, 0, &advData[HUBBLE_BLE_ADV_HEADER_SIZE], &len) != 0) {
+		Log_printf(LogModule_Beacon, Log_ERROR,
+			   "Failed to get advertise data");
 		return (FAILURE);
 	}
 
@@ -153,20 +168,28 @@ bStatus_t hubble_ble_adv_start(void)
 
 	status = BLEAppUtil_initAdvSet(&bleAdvHandle, &hubbleInitAdvSet);
 	if (status != SUCCESS) {
+		Log_printf(LogModule_Beacon, Log_ERROR,
+			   "Failed to initialize advertising set");
 		return (status);
 	}
 
 	status = BLEAppUtil_advStart(bleAdvHandle, &hubbleStartAdvSet);
 	if (status != SUCCESS) {
+		Log_printf(LogModule_Beacon, Log_ERROR,
+			   "Failed to start advertising");
 		return (status);
 	}
 
 	taskHandle = TaskP_construct(&taskStruct, hubble_adv_entry, &taskParams);
 	if (taskHandle == NULL) {
+		Log_printf(LogModule_Beacon, Log_ERROR,
+			   "Failed to construct task");
 		return (FAILURE);
 	}
 
 	ClockP_start(clockHandle);
+
+	Log_printf(LogModule_Beacon, Log_INFO, "Advertising started");
 
 	return (status);
 }

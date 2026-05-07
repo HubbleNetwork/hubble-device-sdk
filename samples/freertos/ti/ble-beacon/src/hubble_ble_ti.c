@@ -10,6 +10,7 @@
 #include <ti/drivers/AESCMAC.h>
 #include <ti/drivers/AESCTR.h>
 #include <ti/drivers/cryptoutils/cryptokey/CryptoKeyPlaintext.h>
+#include <ti/log/Log.h>
 
 #include <hubble/ble.h>
 #include <hubble/port/sys.h>
@@ -41,7 +42,8 @@ int hubble_crypto_cmac(const uint8_t key[CONFIG_HUBBLE_KEY_SIZE],
 
 	handle = AESCMAC_open(AESCMAC_INSTANCE, &params);
 	if (handle == NULL) {
-		/* TODO: Log errror here */
+		Log_printf(LogModule_Beacon, Log_ERROR,
+			   "Failed to open AESCMAC instance");
 		return -1;
 	}
 
@@ -80,6 +82,8 @@ int hubble_crypto_aes_ctr(const uint8_t key[CONFIG_HUBBLE_KEY_SIZE],
 
 	handle = AESCTR_open(AESCTR_INSTANCE, NULL);
 	if (handle == NULL) {
+		Log_printf(LogModule_Beacon, Log_ERROR,
+			   "Failed to open AESCTR instance");
 		return -1;
 	}
 

@@ -131,3 +131,32 @@ ble.basicBLE = true;
 /* ======== RNG ======== */
 var RNG = scripting.addModule("/ti/drivers/RNG");
 RNG.rngReturnBehavior = "RNG_RETURN_BEHAVIOR_BLOCKING";
+
+/**
+ * Import log module used in this configuration.
+ */
+const LogModule    = scripting.addModule("/ti/log/LogModule", {}, false);
+const LogModule1   = LogModule.addInstance();
+const LogSinkUART  = scripting.addModule("/ti/log/LogSinkUART", {}, false);
+const LogSinkUART1 = LogSinkUART.addInstance();
+
+/**
+ * Write custom configuration values to the imported modules.
+ */
+LogModule1.$name      = "LogModule_Beacon";
+LogModule1.loggerSink = "/ti/log/LogSinkUART";
+
+LogSinkUART1.$name          = "CONFIG_ti_log_LogSinkUART_0";
+LogModule1.logger           = LogSinkUART1;
+LogSinkUART1.uart.$name     = "CONFIG_UART2_0";
+LogSinkUART1.uart.$hardware = system.deviceData.board.components.XDS110UART;
+
+/**
+ * Pinmux solution for unlocked pins/peripherals. This ensures that minor changes to the automatic solver in a future
+ * version of the tool will not impact the pinmux you originally saw.  These lines can be completely deleted in order to
+ * re-solve from scratch.
+ */
+LogSinkUART1.uart.uart.$suggestSolution              = "UART0";
+LogSinkUART1.uart.uart.dmaTxChannel.$suggestSolution = "DMA_CH1";
+LogSinkUART1.uart.uart.dmaRxChannel.$suggestSolution = "DMA_CH0";
+LogSinkUART1.uart.uart.txPin.$suggestSolution        = "boosterpack.4";

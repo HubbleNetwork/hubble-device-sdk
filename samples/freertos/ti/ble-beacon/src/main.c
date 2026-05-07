@@ -9,6 +9,7 @@
 
 #include <ti/drivers/Power.h>
 #include <ti/devices/DeviceFamily.h>
+#include <ti/log/Log.h>
 
 #include "ti_ble_config.h"
 #include "ti/ble/stack_util/icall/app/icall.h"
@@ -59,13 +60,21 @@ void App_StackInitDoneHandler(gapDeviceInitDoneEvent_t *deviceInitDoneData)
 
 	err = hubble_init(unix_time, master_key);
 	if (err != 0) {
+		Log_printf(LogModule_Beacon, Log_ERROR,
+			   "Failed to initialize Hubble, err: %d", err);
 		return;
 	}
 
 	status = hubble_ble_adv_start();
 	if (status != SUCCESS) {
+		Log_printf(LogModule_Beacon, Log_ERROR,
+			   "Failed to start BLE advertising, err: %d", status);
+
 		/* TODO: Call Error Handler */
+		return;
 	}
+
+	Log_printf(LogModule_Beacon, Log_INFO, "Hubble Beacon Started");
 }
 
 int main()
