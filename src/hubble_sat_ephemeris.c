@@ -1,4 +1,5 @@
 #include <hubble/sat/ephemeris.h>
+#include <hubble/port/sys.h>
 
 #include <math.h>
 #include <string.h>
@@ -590,6 +591,9 @@ int hubble_sat_satellites_set(
 	const struct hubble_sat_orbital_params *const satellites, size_t count)
 {
 	if ((satellites == NULL) && (count > 0)) {
+		HUBBLE_LOG_WARNING("Hubble Satellite ephemeris set failed: "
+				   "NULL satellites with count %zu",
+				   count);
 		_satellites_count = 0;
 		_satellites = NULL;
 
@@ -598,6 +602,10 @@ int hubble_sat_satellites_set(
 
 	_satellites_count = count;
 	_satellites = satellites;
+
+	HUBBLE_LOG_DEBUG(
+		"Hubble Satellite ephemeris configured with %zu satellites",
+		count);
 
 	return 0;
 }
@@ -610,12 +618,19 @@ int hubble_next_pass_get(uint64_t t, const struct hubble_sat_device_pos *pos,
 
 	/* Basic sanity check */
 	if ((pos == NULL) || (pass == NULL)) {
+		HUBBLE_LOG_WARNING(
+			"Hubble Satellite next pass get: invalid arguments");
 		return -EINVAL;
 	}
 
 	if (_satellites_count == 0) {
+		HUBBLE_LOG_WARNING("Hubble Satellite next pass get: no "
+				   "satellites configured");
 		return -ENOENT;
 	}
+
+	HUBBLE_LOG_DEBUG("Searching next pass from t=%llu lat=%f lon=%f",
+			 (unsigned long long)t, pos->lat, pos->lon);
 
 	pass->t = UINT64_MAX;
 
@@ -631,7 +646,18 @@ int hubble_next_pass_get(uint64_t t, const struct hubble_sat_device_pos *pos,
 		}
 	}
 
-	return pass->t != UINT64_MAX ? 0 : -ENOENT;
+	if (pass->t == UINT64_MAX) {
+		HUBBLE_LOG_WARNING("Hubble Satellite next pass get: no pass "
+				   "found across %zu satellites",
+				   _satellites_count);
+		return -ENOENT;
+	}
+
+	HUBBLE_LOG_DEBUG("Next pass found: t=%llu lon=%f ascending=%d",
+			 (unsigned long long)pass->t, pass->lon,
+			 (int)pass->ascending);
+
+	return 0;
 }
 
 int hubble_next_pass_region_get(uint64_t t,
@@ -647,12 +673,21 @@ int hubble_next_pass_region_get(uint64_t t,
 
 	/* Basic sanity check */
 	if ((region == NULL) || (pass == NULL)) {
+		HUBBLE_LOG_WARNING("Hubble Satellite next pass region get: "
+				   "invalid arguments");
 		return -EINVAL;
 	}
 
 	if (_satellites_count == 0) {
+		HUBBLE_LOG_WARNING("Hubble Satellite next pass region get: no "
+				   "satellites configured");
 		return -ENOENT;
 	}
+
+	HUBBLE_LOG_DEBUG("Searching next pass for region t=%llu lat_mid=%f "
+			 "lon_mid=%f lat_range=%f lon_range=%f",
+			 (unsigned long long)t, region->lat_mid,
+			 region->lon_mid, region->lat_range, region->lon_range);
 
 	lat_mid = region->lat_mid;
 	if (lat_mid == 0.0) {
@@ -749,10 +784,19 @@ int hubble_next_pass_region_get(uint64_t t,
 	}
 
 	if (pass->t == UINT64_MAX) {
+		HUBBLE_LOG_WARNING("Hubble Satellite next pass region get: no "
+				   "pass found across %zu satellites",
+				   _satellites_count);
 		return -ENOENT;
 	}
 
 	pass->t -= pass->duration / 2;
+
+	HUBBLE_LOG_DEBUG("Next region pass found: t=%llu lon=%f duration=%llu "
+			 "ascending=%d",
+			 (unsigned long long)pass->t, pass->lon,
+			 (unsigned long long)pass->duration,
+			 (int)pass->ascending);
 
 	return 0;
 }
