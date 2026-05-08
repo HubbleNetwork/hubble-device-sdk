@@ -54,25 +54,33 @@ static int _transmission_params_get(enum hubble_sat_transmission_mode mode,
 	return ret;
 }
 
+uint32_t hubble_internal_time_drift_get(void)
+{
+	uint64_t elapsed_ms;
+	uint64_t drift_ms;
+
+	elapsed_ms = hubble_time_get() - hubble_internal_time_last_synced_get();
+
+	drift_ms =
+		(elapsed_ms * CONFIG_HUBBLE_SAT_NETWORK_DEVICE_TDR) / 1000000ULL;
+
+	return (uint32_t)HUBBLE_MIN(UINT32_MAX, drift_ms);
+}
+
 static uint8_t _additional_retries_count(uint8_t interval_s)
 {
 	uint8_t ret;
-	uint64_t synced_interval_s;
+	uint32_t drift_ms;
 
 	if (interval_s == 0U) {
 		return 0;
 	}
 
-	synced_interval_s =
-		(hubble_time_get() - hubble_internal_time_last_synced_get()) /
-		1000;
+	drift_ms = hubble_internal_time_drift_get();
 
-	HUBBLE_LOG_DEBUG("Interval since time was synced: %lu seconds",
-			 synced_interval_s);
+	HUBBLE_LOG_DEBUG("Time drift since last sync: %u ms", drift_ms);
 
-	ret = HUBBLE_MIN(UINT8_MAX, (synced_interval_s *
-				     CONFIG_HUBBLE_SAT_NETWORK_DEVICE_TDR) /
-					    (1000000ULL * interval_s));
+	ret = HUBBLE_MIN(UINT8_MAX, drift_ms / (1000U * interval_s));
 
 	HUBBLE_LOG_DEBUG("Number of additional retries due TDR: %u", ret);
 

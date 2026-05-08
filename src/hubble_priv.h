@@ -119,4 +119,18 @@ int hubble_internal_sat_init(void);
  */
 void hubble_internal_channel_hopping_sequence_set(void);
 
+
+/**
+ * @brief Get the estimated clock drift since the last time sync.
+ *
+ * Computes the accumulated drift based on the elapsed time since the
+ * last successful time synchronization and the configured device
+ * time drift rate (in PPM). This value is used to compensate for
+ * hardware clock inaccuracies by, for example, adding extra
+ * transmission retries proportional to the elapsed drift.
+ *
+ * @return Estimated drift in milliseconds.
+ */
+uint32_t hubble_internal_time_drift_get(void);
+
 #endif /* SRC_HUBBLE_PRIV_H */

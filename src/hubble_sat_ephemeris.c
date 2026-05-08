@@ -8,6 +8,8 @@
 #include <string.h>
 #include <errno.h>
 
+#include "hubble_priv.h"
+
 #ifndef M_PI
 #define M_PI 3.14159265358979323846
 #endif
@@ -652,6 +654,15 @@ int hubble_next_pass_get(uint64_t t, const struct hubble_sat_device_pos *pos,
 				   _satellites_count);
 		return -ENOENT;
 	}
+
+	/* Compensate for clock drift: the device may be ahead or behind by up
+	 * to hubble_internal_time_drift_get() ms, so start half a drift-window
+	 * early to keep the pass centered on the actual reception window.
+	 *
+	 * hubble_internal_time_drift_get() returns ms so we need make it
+	 * seconds and divide by 2.
+	 */
+	pass->t -= hubble_internal_time_drift_get() / 2000U;
 
 	HUBBLE_LOG_DEBUG("Next pass found: t=%llu lon=%f ascending=%d",
 			 (unsigned long long)pass->t, pass->lon,
