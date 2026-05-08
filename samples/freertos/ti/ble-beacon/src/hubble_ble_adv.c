@@ -100,7 +100,7 @@ static void hubble_ble_adv_update(void *arg)
 
 	size_t len = BLE_ADV_LEN - BLE_ADV_HEADER_SIZE;
 	int status = hubble_ble_advertise_get(
-		NULL, 0, &advData[HUBBLE_BLE_ADV_HEADER_SIZE], &len);
+		NULL, 0, &advData[BLE_ADV_HEADER_SIZE], &len);
 
 	if (status) {
 		Log_printf(LogModule_Beacon, Log_ERROR,
@@ -147,7 +147,6 @@ bStatus_t hubble_ble_adv_start(void)
 {
 	bStatus_t status = SUCCESS;
 	size_t len;
-	uint8_t *data;
 
 	if (_adv_timer_setup() == FAILURE) {
 		Log_printf(LogModule_Beacon, Log_ERROR,
@@ -156,14 +155,13 @@ bStatus_t hubble_ble_adv_start(void)
 	}
 
 	len = BLE_ADV_LEN - BLE_ADV_HEADER_SIZE;
-	if (hubble_ble_advertise_get(
-		    NULL, 0, &advData[HUBBLE_BLE_ADV_HEADER_SIZE], &len) != 0) {
+	if (hubble_ble_advertise_get(NULL, 0, &advData[BLE_ADV_HEADER_SIZE],
+				     &len) != 0) {
 		Log_printf(LogModule_Beacon, Log_ERROR,
 			   "Failed to get advertise data");
 		return (FAILURE);
 	}
 
-	memcpy(&advData[HUBBLE_BLE_ADV_HEADER_SIZE], data, len);
 	advData[4] = len + 1; /* output len + BLE service data type */
 
 	status = BLEAppUtil_initAdvSet(&bleAdvHandle, &hubbleInitAdvSet);
