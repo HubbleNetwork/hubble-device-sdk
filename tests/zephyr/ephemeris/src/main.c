@@ -8,12 +8,17 @@
 #include <zephyr/types.h>
 #include <zephyr/ztest.h>
 
-#define EPHEMERIS_DELTA (3)
+#define EPHEMERIS_DELTA                   (3)
+
+/* The transmission period is the product of the number of retries +
+ * the interval between them.
+ */
+#define TRANSMISSION_PERIOD_SINGLE_PACKET (160U)
 
 struct test_result {
 	struct hubble_sat_device_pos pos;
 	uint64_t start_time;
-	uint64_t next_pass_time;
+	uint64_t culmination_time;
 };
 
 static const struct test_result results[] = {
@@ -125,8 +130,8 @@ ZTEST(satellite_ephemeris_test, test_satellite_ephemeris_calculation)
 					   &(results[count].pos), &next_pass);
 
 		zassert_equal(ret, 0, NULL);
-		zassert_within(next_pass.t, results[count].next_pass_time,
-			       EPHEMERIS_DELTA);
+		zassert_within(next_pass.culmination,
+			       results[count].culmination_time, EPHEMERIS_DELTA);
 	}
 }
 
@@ -172,17 +177,17 @@ ZTEST(satellite_ephemeris_test, test_satellite_ephemeris_invalid)
 struct test_region_result {
 	struct hubble_sat_device_region region;
 	uint64_t start_time;
-	uint64_t next_pass_time;
+	uint64_t culmination_time;
 	uint32_t duration;
 };
 
 static const struct test_region_result region_results[] = {
-	{{1.0, 30.0, -45.0, 50.0}, 1711296587, 1711299181, 477},
-	{{1.0, 30.0, -45.0, 50.0}, 1711299660, 1711336226, 479},
-	{{-45.0, 30.0, -45.0, 50.0}, 1711296587, 1711299912, 482},
-	{{-45.0, 30.0, -45.0, 50.0}, 1711335912, 1711341182, 484},
-	{{45.0, 30.0, -45.0, 50.0}, 1711296587, 1711298475, 483},
-	{{45.0, 30.0, -45.0, 50.0}, 1711334475, 1711336929, 484},
+	{{1.0, 30.0, -45.0, 50.0}, 1711296587, 1711299419, 477},
+	{{1.0, 30.0, -45.0, 50.0}, 1711299660, 1711336468, 479},
+	{{-45.0, 30.0, -45.0, 50.0}, 1711296587, 1711300154, 482},
+	{{-45.0, 30.0, -45.0, 50.0}, 1711335912, 1711341426, 484},
+	{{45.0, 30.0, -45.0, 50.0}, 1711296587, 1711298717, 483},
+	{{45.0, 30.0, -45.0, 50.0}, 1711334475, 1711337171, 484},
 };
 
 ZTEST(satellite_ephemeris_test, test_satellite_ephemeris_region_calculation)
@@ -199,10 +204,13 @@ ZTEST(satellite_ephemeris_test, test_satellite_ephemeris_region_calculation)
 			&(region_results[count].region), &next_pass);
 
 		zassert_equal(ret, 0, NULL);
-		zassert_within(next_pass.t, region_results[count].next_pass_time,
+		zassert_within(next_pass.culmination,
+			       region_results[count].culmination_time,
 			       EPHEMERIS_DELTA);
 		zassert_within(next_pass.duration,
-			       region_results[count].duration, EPHEMERIS_DELTA);
+			       region_results[count].duration +
+				       TRANSMISSION_PERIOD_SINGLE_PACKET,
+			       EPHEMERIS_DELTA);
 	}
 }
 

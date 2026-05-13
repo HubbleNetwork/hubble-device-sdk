@@ -499,14 +499,14 @@ static int _next_pass_get(const struct hubble_sat_orbital_params *orbit,
 	}
 
 	/* Iterate until a valid pass is found */
-	while (pass->t == 0 &&
+	while (pass->culmination == 0 &&
 	       (HUBBLE_TWO_PI_DEGREES -
 			_zero_to_360(pos->lon - lon_tol - crossings[index].lon) <
 		HUBBLE_PI_DEGREES)) {
 		if ((fabs(_minus_180_to_180(crossings[index].lon - pos->lon)) <=
 		     lon_tol) &&
 		    (crossings[index].t > t)) {
-			pass->t = crossings[index].t;
+			pass->culmination = crossings[index].t;
 			pass->lon = crossings[index].lon;
 			pass->ascending =
 				(ascending) ? pos->lat > 0 : pos->lat <= 0;
@@ -550,18 +550,18 @@ static int _pass_get(const struct hubble_sat_orbital_params *orbit, uint64_t t,
 
 	if ((fabs(_minus_180_to_180(crossings[0].lon - pos->lon)) <= lon_tol) &&
 	    (crossings[0].t > t)) {
-		pass->t = crossings[0].t;
+		pass->culmination = crossings[0].t;
 		pass->lon = crossings[0].lon;
 		pass->ascending = pos->lat > 0;
 	} else if ((fabs(_minus_180_to_180(crossings[1].lon - pos->lon)) <=
 		    lon_tol) &&
 		   (crossings[1].t > t)) {
-		pass->t = crossings[1].t;
+		pass->culmination = crossings[1].t;
 		pass->lon = crossings[1].lon;
 		pass->ascending = pos->lat <= 0;
 	}
 
-	while (pass->t == 0) {
+	while (pass->culmination == 0) {
 		int ret;
 
 		double delta_lon_a =
@@ -617,6 +617,7 @@ int hubble_next_pass_get(uint64_t t, const struct hubble_sat_device_pos *pos,
 {
 	struct hubble_sat_pass_info next_pass;
 	double lon_tol;
+	uint16_t transmission_period_s;
 
 	/* Basic sanity check */
 	if ((pos == NULL) || (pass == NULL)) {
@@ -634,7 +635,7 @@ int hubble_next_pass_get(uint64_t t, const struct hubble_sat_device_pos *pos,
 	HUBBLE_LOG_DEBUG("Searching next pass from t=%llu lat=%f lon=%f",
 			 (unsigned long long)t, pos->lat, pos->lon);
 
-	pass->t = UINT64_MAX;
+	pass->culmination = UINT64_MAX;
 
 	for (size_t i = 0; i < _satellites_count; i++) {
 		double alt = _sat_altitude_get(&_satellites[i], t);
@@ -642,13 +643,13 @@ int hubble_next_pass_get(uint64_t t, const struct hubble_sat_device_pos *pos,
 		int ret = _pass_get(&_satellites[i], t, pos, lon_tol, &next_pass);
 
 		if (ret == 0) {
-			if (pass->t > next_pass.t) {
+			if (pass->culmination > next_pass.culmination) {
 				*pass = next_pass;
 			}
 		}
 	}
 
-	if (pass->t == UINT64_MAX) {
+	if (pass->culmination == UINT64_MAX) {
 		HUBBLE_LOG_WARNING("Hubble Satellite next pass get: no pass "
 				   "found across %zu satellites",
 				   _satellites_count);
@@ -662,10 +663,17 @@ int hubble_next_pass_get(uint64_t t, const struct hubble_sat_device_pos *pos,
 	 * hubble_internal_time_drift_get() returns ms so we need make it
 	 * seconds and divide by 2.
 	 */
-	pass->t -= hubble_internal_time_drift_get() / 2000U;
+	pass->culmination -= hubble_internal_time_drift_get() / 2000U;
 
-	HUBBLE_LOG_DEBUG("Next pass found: t=%llu lon=%f ascending=%d",
-			 (unsigned long long)pass->t, pass->lon,
+	transmission_period_s =
+		hubble_internal_sat_transmission_period_get() / 1000U;
+	pass->start = pass->culmination - (transmission_period_s / 2U);
+	pass->duration = transmission_period_s;
+
+	HUBBLE_LOG_DEBUG("Next pass found: start=%llu culmination=%llu lon=%f "
+			 "ascending=%d",
+			 (unsigned long long)pass->start,
+			 (unsigned long long)pass->culmination, pass->lon,
 			 (int)pass->ascending);
 
 	return 0;
@@ -681,6 +689,7 @@ int hubble_next_pass_region_get(uint64_t t,
 	double lat_min, lat_max;
 	struct hubble_sat_device_pos pos;
 	struct hubble_sat_pass_info next_pass;
+	uint16_t transmission_period_s;
 
 	/* Basic sanity check */
 	if ((region == NULL) || (pass == NULL)) {
@@ -712,7 +721,7 @@ int hubble_next_pass_region_get(uint64_t t,
 	pos.lat = lat_mid;
 	pos.lon = region->lon_mid;
 
-	pass->t = UINT64_MAX;
+	pass->culmination = UINT64_MAX;
 
 	for (size_t i = 0; i < _satellites_count; i++) {
 		int ret;
@@ -722,7 +731,8 @@ int hubble_next_pass_region_get(uint64_t t,
 			continue;
 		}
 
-		orbit_count = _orbit_count_get(&_satellites[i], next_pass.t);
+		orbit_count =
+			_orbit_count_get(&_satellites[i], next_pass.culmination);
 		if (orbit_count < 0) {
 			continue;
 		}
@@ -789,23 +799,33 @@ int hubble_next_pass_region_get(uint64_t t,
 			}
 		}
 
-		if (pass->t > next_pass.t) {
+		if (pass->culmination > next_pass.culmination) {
 			*pass = next_pass;
 		}
 	}
 
-	if (pass->t == UINT64_MAX) {
+	if (pass->culmination == UINT64_MAX) {
 		HUBBLE_LOG_WARNING("Hubble Satellite next pass region get: no "
 				   "pass found across %zu satellites",
 				   _satellites_count);
 		return -ENOENT;
 	}
 
-	pass->t -= pass->duration / 2;
+	transmission_period_s =
+		hubble_internal_sat_transmission_period_get() / 1000U;
 
-	HUBBLE_LOG_DEBUG("Next region pass found: t=%llu lon=%f duration=%llu "
+	pass->duration += transmission_period_s;
+
+	/* Compensate the drift the same way we do on hubble_next_pass_get() */
+	pass->culmination -= hubble_internal_time_drift_get() / 2000U;
+
+	pass->start = pass->culmination - (pass->duration / 2U);
+
+	HUBBLE_LOG_DEBUG("Next region pass found: start=%llu culmination=%llu "
+			 "lon=%f duration=%llu "
 			 "ascending=%d",
-			 (unsigned long long)pass->t, pass->lon,
+			 (unsigned long long)pass->start,
+			 (unsigned long long)pass->culmination, pass->lon,
 			 (unsigned long long)pass->duration,
 			 (int)pass->ascending);
 

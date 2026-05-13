@@ -133,4 +133,19 @@ void hubble_internal_channel_hopping_sequence_set(void);
  */
 uint32_t hubble_internal_time_drift_get(void);
 
+/**
+ * @brief Get the total transmission period for a satellite packet.
+ *
+ * Returns the worst-case duration of a satellite packet transmission
+ * in the normal mode, including the base number of retries plus any
+ * additional retries added to compensate for the estimated clock
+ * drift since the last time synchronization.
+ *
+ * The returned value is computed as:
+ *   (base_retries + drift_retries) * retransmission_interval
+ *
+ * @return Total transmission period in milliseconds.
+ */
+uint32_t hubble_internal_sat_transmission_period_get(void);
+
 #endif /* SRC_HUBBLE_PRIV_H */

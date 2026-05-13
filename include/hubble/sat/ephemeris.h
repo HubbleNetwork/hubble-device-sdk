@@ -93,8 +93,10 @@ struct hubble_sat_device_region {
 struct hubble_sat_pass_info {
 	/** Longitude of the satellite pass (degrees, East positive). */
 	double lon;
-	/** Time of the satellite pass (Unix time, seconds since epoch). */
-	uint64_t t;
+	/** Pass start time (Unix time, seconds since epoch). */
+	uint64_t start;
+	/** Time the satellite reaches culmination (Unix time, seconds since epoch). */
+	uint64_t culmination;
 	/** Time duration of the pass in seconds. */
 	uint32_t duration;
 	/** True if the satellite is ascending (moving northward), false if descending. */

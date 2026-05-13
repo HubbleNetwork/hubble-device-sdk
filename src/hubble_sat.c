@@ -87,6 +87,17 @@ static uint8_t _additional_retries_count(uint8_t interval_s)
 	return ret;
 }
 
+uint32_t hubble_internal_sat_transmission_period_get(void)
+{
+	uint8_t additional_retries =
+		_additional_retries_count(_SAT_RETRANSMISSION_INTERVAL_NORMAL_S);
+
+	/* x1000U to return the interval in ms */
+	return ((_SAT_RETRANSMISSION_RETRIES_NORMAL + additional_retries) *
+		_SAT_RETRANSMISSION_INTERVAL_NORMAL_S) *
+	       1000U;
+}
+
 int hubble_internal_sat_init(void)
 {
 	int ret;
