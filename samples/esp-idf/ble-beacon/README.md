@@ -55,10 +55,10 @@ examples/esp_idf/README.md
 source ~/esp/esp-idf/export.sh
 ```
 You may have to set target based on the ESP32 chip you are using.
-For example, if you are using ESP32-C3, enter this:
+For example, if you are using ESP32-C6, enter this:
 
 ```
-idf.py set-target esp32c3
+idf.py set-target esp32c6
 ```
 
 Next, `cd` to the hello example where you can build/flash/monitor:
