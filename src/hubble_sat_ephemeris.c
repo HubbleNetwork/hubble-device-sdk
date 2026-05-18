@@ -19,6 +19,7 @@
 #define HUBBLE_TEME_REF_DATETIME_2027    1798761600
 #define HUBBLE_TEME_ANGLE_2027           1.7526971469712507
 #define HUBBLE_TWO_PI_DEGREES            360
+#define HUBBLE_TWO_PI                    (2.0 * M_PI)
 #define HUBBLE_PI_DEGREES                180
 #define HUBBLE_ELEVATION_ANGLE_TOLERANCE 30
 
@@ -31,6 +32,8 @@
 
 /* Converts an angle in radians to degrees */
 #define _RAD2DEG(_rad)                   ((_rad) * (HUBBLE_PI_DEGREES / M_PI))
+
+#define _SIGN(x)                         ((x > 0) - (x < 0))
 
 struct crossing_info {
 	uint64_t t;
@@ -248,6 +251,21 @@ static double _tan_small(double x)
 	return _sin_small(x) / _cos_small(x);
 }
 
+static double _atan2_small(double y, double x)
+{
+	if (x > 0.0) {
+		return _atan_small(y / x);
+	}
+	if (x < 0.0) {
+		return (y >= 0.0) ? _atan_small(y / x) + M_PI
+				  : _atan_small(y / x) - M_PI;
+	}
+	if (y != 0.0) {
+		return copysign(HUBBLE_PI_2, y);
+	}
+	return 0.0;
+}
+
 static inline double _asin_small(double x)
 {
 	double denom;
@@ -270,25 +288,33 @@ static inline double _asin_small(double x)
 	return _atan_small(x / denom);
 }
 
-#define _cos  _cos_small
-#define _sin  _sin_small
-#define _sqrt _sqrt_small
-#define _atan _atan_small
-#define _asin _asin_small
-#define _tan  _tan_small
-#define _fmod _fmod_small
+#define _cos   _cos_small
+#define _sin   _sin_small
+#define _sqrt  _sqrt_small
+#define _atan  _atan_small
+#define _asin  _asin_small
+#define _tan   _tan_small
+#define _fmod  _fmod_small
+#define _atan2 _atan2_small
 
 #else
 
-#define _cos  cos
-#define _sin  sin
-#define _sqrt sqrt
-#define _atan atan
-#define _asin asin
-#define _tan  tan
-#define _fmod fmod
+#define _cos   cos
+#define _sin   sin
+#define _sqrt  sqrt
+#define _atan  atan
+#define _asin  asin
+#define _tan   tan
+#define _fmod  fmod
+#define _atan2 atan2
 
 #endif /* CONFIG_HUBBLE_SAT_NETWORK_SMALL */
+
+/* float wrappers: computation stays in double, result narrowed to float */
+#define _cosf(x)      ((float)_cos((double)(x)))
+#define _sinf(x)      ((float)_sin((double)(x)))
+#define _sqrtf(x)     ((float)_sqrt((double)(x)))
+#define _atan2f(y, x) ((float)_atan2((double)(y), (double)(x)))
 
 static double _signed_fmod(double x, double y)
 {
@@ -612,12 +638,101 @@ int hubble_sat_satellites_set(
 	return 0;
 }
 
+static int _next_pass_culmination_get(
+	const struct hubble_sat_orbital_params *orbit_params,
+	const struct hubble_sat_device_pos *pos,
+	struct hubble_sat_pass_info *pass)
+{
+	float alpha =
+		((float)orbit_params->inclination - 90.0f) * (float)_DEG2RAD(1);
+	float cos_a = _cosf(alpha);
+	float sin_a = _sinf(alpha);
+	float z1 = _sinf((float)pos->lat * (float)_DEG2RAD(1));
+	float omega1 = (float)HUBBLE_TWO_PI / (24 * 3600);
+	float omega2 = (float)HUBBLE_TWO_PI * (float)orbit_params->n0;
+	float delta_phi =
+		((float)pos->lon - (float)pass->lon) * (float)_DEG2RAD(1);
+	float o1sq = omega1 * omega1;
+	float o2sq = omega2 * omega2;
+	float r1, c2, s_omega_cos, sin_sign, s2, phi2;
+	float sp2, cp2, phi1, sp1, cp1;
+	float dP0, dP1, dP2, dV0, dV1, dV2, dA0, dA1, dA2;
+	float num, den, dt, phi2_t, sp2t, cp2t, lon0, lon_t, dlon;
+
+	if (fabsf(cos_a) < 1e-12f) {
+		return -1;
+	}
+
+	r1 = _sqrtf(1.0f - z1 * z1);
+	c2 = z1 / cos_a;
+	if (fabsf(c2) > 1.0f) {
+		return -1;
+	}
+
+	s_omega_cos = (float)_SIGN(omega2 * cos_a);
+	sin_sign = pass->ascending ? -s_omega_cos : s_omega_cos;
+	s2 = sin_sign * _sqrtf(fmaxf(0.0f, 1.0f - c2 * c2));
+	phi2 = _atan2f(s2, c2);
+
+	sp2 = _sinf(phi2);
+	cp2 = _cosf(phi2);
+
+	phi1 = _atan2f(sp2, -sin_a * cp2) + delta_phi;
+	sp1 = _sinf(phi1);
+	cp1 = _cosf(phi1);
+
+	/* dP = P1 - P2 */
+	dP0 = r1 * cp1 + sin_a * cp2;
+	dP1 = r1 * sp1 - sp2;
+	dP2 = z1 - cos_a * cp2;
+
+	/* dV = V1 - V2 */
+	dV0 = omega1 * (-r1 * sp1) - omega2 * (sin_a * sp2);
+	dV1 = omega1 * (r1 * cp1) - omega2 * cp2;
+	dV2 = omega2 * cos_a * sp2;
+
+	/* dA = A1 - A2  (centripetal; A1.z = 0) */
+	dA0 = -o1sq * r1 * cp1 - o2sq * (-sin_a * cp2);
+	dA1 = -o1sq * r1 * sp1 - o2sq * sp2;
+	dA2 = -o2sq * cos_a * cp2;
+
+	num = dP0 * dV0 + dP1 * dV1 + dP2 * dV2;
+	den = dV0 * dV0 + dV1 * dV1 + dV2 * dV2 + dP0 * dA0 + dP1 * dA1 +
+	      dP2 * dA2;
+
+	if (fabsf(den) < 1e-15f) {
+		return -1;
+	}
+
+	dt = -num / den;
+
+	phi2_t = omega2 * dt + phi2;
+	sp2t = _sinf(phi2_t);
+	cp2t = _cosf(phi2_t);
+
+	lon0 = _atan2f(sp2, -sin_a * cp2);
+	lon_t = _atan2f(sp2t, -sin_a * cp2t);
+
+	dlon = fmodf(lon_t - lon0 + (float)M_PI, (float)HUBBLE_TWO_PI);
+	if (dlon < 0.0f) {
+		dlon += (float)HUBBLE_TWO_PI;
+	}
+	dlon -= (float)M_PI;
+
+	pass->culmination =
+		(uint64_t)((int64_t)pass->culmination + (int64_t)lroundf(dt));
+	pass->lon += (double)(dlon * (float)_RAD2DEG(1));
+
+	return 0;
+}
+
 int hubble_next_pass_get(uint64_t t, const struct hubble_sat_device_pos *pos,
 			 struct hubble_sat_pass_info *pass)
 {
 	struct hubble_sat_pass_info next_pass;
 	double lon_tol;
 	uint16_t transmission_period_s;
+	uint8_t sat_id = 0;
 
 	/* Basic sanity check */
 	if ((pos == NULL) || (pass == NULL)) {
@@ -645,6 +760,7 @@ int hubble_next_pass_get(uint64_t t, const struct hubble_sat_device_pos *pos,
 		if (ret == 0) {
 			if (pass->culmination > next_pass.culmination) {
 				*pass = next_pass;
+				sat_id = i;
 			}
 		}
 	}
@@ -667,6 +783,7 @@ int hubble_next_pass_get(uint64_t t, const struct hubble_sat_device_pos *pos,
 
 	transmission_period_s =
 		hubble_internal_sat_transmission_period_get() / 1000U;
+	_next_pass_culmination_get(&_satellites[sat_id], pos, pass);
 	pass->start = pass->culmination - (transmission_period_s / 2U);
 	pass->duration = transmission_period_s;
 
