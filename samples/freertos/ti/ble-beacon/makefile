@@ -38,7 +38,7 @@ OBJECTS = $(addprefix $(BUILD_DIR)/, \
 	  common_Startup_rom_init.obj \
 	  common_Drivers_NV_crc.obj \
 	  common_Drivers_NV_nvocmp.obj \
-	  common_iCall_icall_cc23x0.obj \
+	  common_iCall_icall.obj \
 	  common_iCall_icall_user_config.obj \
 	  common_iCall_icall_POSIX.obj \
 	  common_config_ble_user_config.obj \
@@ -206,7 +206,7 @@ $(BUILD_DIR)/common_Drivers_NV_nvocmp.obj: $(SIMPLELINK_LOWPOWER_F3_SDK_INSTALL_
 	@ echo Building $@
 	$(V) $(CC) $(CFLAGS) -c $< -o $@
 
-$(BUILD_DIR)/common_iCall_icall_cc23x0.obj: $(SIMPLELINK_LOWPOWER_F3_SDK_INSTALL_DIR)/source/ti/ble/stack_util/icall/app/src/icall_cc23x0.c $(SYSCFG_H_FILES) $(BUILD_DIR)
+$(BUILD_DIR)/common_iCall_icall.obj: $(SIMPLELINK_LOWPOWER_F3_SDK_INSTALL_DIR)/source/ti/ble/stack_util/icall/app/src/icall.c $(SYSCFG_H_FILES) $(BUILD_DIR)
 	@ echo Building $@
 	$(V) $(CC) $(CFLAGS) -c $< -o $@
 
