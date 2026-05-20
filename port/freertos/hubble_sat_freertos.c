@@ -24,7 +24,7 @@
 
 #define MSEC_PER_SEC 1000U
 
-static SemaphoreHandle_t _transmit_sem;
+static SemaphoreHandle_t _sat_freertos_sem;
 
 static inline int16_t _time_offset_get_ms(void)
 {
@@ -45,7 +45,7 @@ int hubble_sat_port_packet_send(const struct hubble_sat_packet *packet,
 	int ret;
 
 	/* TODO: Should we add a parameter in the API instead of wait forever? */
-	xSemaphoreTake(_transmit_sem, portMAX_DELAY);
+	xSemaphoreTake(_sat_freertos_sem, portMAX_DELAY);
 
 	ret = hubble_sat_board_enable();
 	if (ret != 0) {
@@ -82,20 +82,20 @@ end:
 	}
 
 enable_error:
-	(void)xSemaphoreGive(_transmit_sem);
+	(void)xSemaphoreGive(_sat_freertos_sem);
 	return ret;
 }
 
 int hubble_sat_port_init(void)
 {
-	_transmit_sem = xSemaphoreCreateBinary();
-	if (_transmit_sem == NULL) {
+	_sat_freertos_sem = xSemaphoreCreateBinary();
+	if (_sat_freertos_sem == NULL) {
 		return -ENOMEM;
 	}
 
-	if (xSemaphoreGive(_transmit_sem) != pdTRUE) {
-		vSemaphoreDelete(_transmit_sem);
-		_transmit_sem = NULL;
+	if (xSemaphoreGive(_sat_freertos_sem) != pdTRUE) {
+		vSemaphoreDelete(_sat_freertos_sem);
+		_sat_freertos_sem = NULL;
 		return -EAGAIN;
 	}
 
