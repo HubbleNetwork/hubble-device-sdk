@@ -51,6 +51,12 @@ export SIMPLELINK_LOWPOWER_F3_SDK_INSTALL_DIR=/Applications/ti/simplelink_lowpow
 export SYSCONFIG_TOOL=/Applications/ti/sysconfig_1.23.2/sysconfig_cli.sh
 ```
 
+   When using the SysConfig-based build (*makefile-syscfg*), also set *HUBBLE_NETWORK_SDK* to the
+   root of this SDK (defaults to four directories above the sample if unset):
+```bash
+export HUBBLE_NETWORK_SDK=/path/to/hubblenetwork-sdk
+```
+
 2. **Embed Key and Unix Time**
 
    Use the *embed_key_time.py* script to provision a BLE key and Unix timestamp:
@@ -67,6 +73,13 @@ python ../../../../tools/embed_key_time.py --base64 <path-to-key> -o src/
 
 ```bash
 make
+```
+
+   Alternatively, use the SysConfig-based build (*makefile-syscfg*), which generates driver and
+   peripheral configuration via SysConfig using both the TI SDK and Hubble Network SDK products:
+
+```bash
+make -f makefile-syscfg
 ```
 
 4. **Flash the Firmware**
@@ -95,3 +108,5 @@ Once the firmware is flashed:
 + **src/hubble_ble_adv.c**: BLE advertising implementation.
 + **src/hubble_ble_ti.c**: This is a core file to integrate with HubbleNetwork SDK. It implements the required cryptograhic API.
 + **makefile**: Build system for the project.
++ **makefile-syscfg**: SysConfig-based build system; generates driver configuration using both the TI SDK and Hubble Network SDK SysConfig products.
++ **ble-beacon-hubble.syscfg**: SysConfig script that configures drivers, BLE stack, FreeRTOS, and the Hubble Network SDK module.
