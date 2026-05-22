@@ -30,6 +30,9 @@ Using Hubble Network SDK
    * - FreeRTOS
      - :ref:`freertos_quick_start`
      - FreeRTOS support with user-managed build integration.
+   * - TI SIMPLELINK / SysConfig
+     - :ref:`ti_quick_start`
+     - TI SimpleLink SDK + SysConfig integration.
 
 Additional Resources
 ********************

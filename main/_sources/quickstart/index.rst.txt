@@ -10,5 +10,6 @@ Quick Start
 
    zephyr/index
    freertos/index
+   ti/index
 
 
