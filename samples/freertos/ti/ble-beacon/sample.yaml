@@ -1,0 +1,8 @@
+sample:
+  name: ble-beacon
+
+builds:
+  - id: default
+    makefile: makefile
+  - id: SysConfig-based
+    makefile: makefile-syscfg
