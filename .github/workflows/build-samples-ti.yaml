@@ -7,7 +7,7 @@ on:
       - "include/**"
       - "src/**"
       - "samples/freertos/ti/**"
-      - ".github/workflows/build-sampes-ti.yaml"
+      - ".github/workflows/build-samples-ti.yaml"
 
   workflow_dispatch: {}
 
