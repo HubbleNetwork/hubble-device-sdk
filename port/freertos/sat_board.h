@@ -78,6 +78,31 @@ int hubble_sat_board_disable(void);
  */
 int hubble_sat_board_packet_send(const struct hubble_sat_packet_frames *packet);
 
+/**
+ * @brief Set the transmit power level.
+ *
+ * @param power Desired TX power in dBm.
+ *
+ * @return 0 on success, or a negative error code if the power level is out of range.
+ */
+int hubble_sat_board_power_set(int8_t power);
+
+/**
+ * @brief Start continuous wave (CW) transmission on the specified channel.
+ *
+ * @param channel RF channel index to transmit on.
+ *
+ * @return 0 on success, or a negative error code if the channel is invalid.
+ */
+int hubble_sat_board_cw_start(uint8_t channel);
+
+/**
+ * @brief Stop continuous wave (CW) transmission.
+ *
+ * @return 0 on success, or a negative error code on failure.
+ */
+int hubble_sat_board_cw_stop(void);
+
 #ifdef __cplusplus
 }
 #endif
