@@ -1,0 +1,6 @@
+sample:
+  name: sat-dtm
+
+builds:
+  - id: default-cc2755p10
+    makefile: cc2755p10.mk
