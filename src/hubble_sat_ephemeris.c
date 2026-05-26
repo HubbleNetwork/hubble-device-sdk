@@ -536,7 +536,7 @@ static int _tll_crossings_get(const struct hubble_sat_orbital_params *orbit,
 static double _sat_altitude_get(const struct hubble_sat_orbital_params *orbit,
 				uint64_t t)
 {
-	uint64_t dt = t - orbit->t0;
+	int64_t dt = t - orbit->t0;
 	double n = orbit->n0 + (orbit->ndot * dt);
 
 	return _pow((_sqrt(earth.mu) / (2 * M_PI * n)), 2.0 / 3.0) - earth.radius;
