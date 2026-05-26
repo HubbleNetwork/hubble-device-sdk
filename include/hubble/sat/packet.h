@@ -93,7 +93,8 @@ struct hubble_sat_packet_frames {
  *
  * @param  packet  Pointer to the packet structure to be populated.
  * @param  payload Pointer to the payload data to be included in the packet.
- * @param  length  Length of the payload data in bytes.
+ * @param  length  Length of the payload data in bytes. Must be one of the
+ *                 supported sizes: 0, 4, 9, or 13 bytes.
  *
  * @retval 0       On success.
  * @retval -EINVAL If any of the input parameters are invalid.
