@@ -288,6 +288,62 @@ static inline double _asin_small(double x)
 	return _atan_small(x / denom);
 }
 
+/* Extracts log2 of a positive normal double via IEEE 754 exponent + atanh series */
+static double _log2_small(double x)
+{
+	union {
+		double d;
+		uint64_t u;
+	} v;
+	double m, t, t2, p;
+	int e;
+
+	v.d = x;
+	e = (int)((v.u >> 52) & 0x7ff) - 1023;
+	v.u = (v.u & 0x000fffffffffffffULL) | 0x3ff0000000000000ULL;
+	m = v.d;
+
+	/* ln(m) = 2 * atanh(t), t = (m-1)/(m+1), m in [1, 2), t in [0, 1/3) */
+	t = (m - 1.0) / (m + 1.0);
+	t2 = t * t;
+	p = 1.0 + t2 * (0.33333333333333333 +
+			t2 * (0.2 + t2 * (0.14285714285714285 +
+					  t2 * 0.11111111111111111)));
+
+	return e + 2.0 * t * p * 1.4426950408889634; /* 1 / ln(2) */
+}
+
+/* Computes 2^x using integer exponent scaling and a Taylor series on [0, 1) */
+static double _exp2_small(double x)
+{
+	union {
+		double d;
+		uint64_t u;
+	} v;
+	int n = (int)floor(x);
+	double r = x - n;
+
+	/* 2^r = sum_{k=0}^6 (r * ln2)^k / k! */
+	double p = 1.0 + r * (6.9314718055994531e-1 +
+			      r * (2.4022650695910072e-1 +
+				   r * (5.5504108664821580e-2 +
+					r * (9.6181291076284770e-3 +
+					     r * (1.3333558146428443e-3 +
+						  r * 1.5403530393381612e-4)))));
+
+	v.u = (uint64_t)(n + 1023) << 52;
+	return p * v.d;
+}
+
+static double _pow_small(double base, double exp)
+{
+	if (base <= 0.0) {
+		return (base == 0.0) ? 0.0 : (double)NAN;
+	}
+
+	return _exp2_small(exp * _log2_small(base));
+}
+
 #define _cos   _cos_small
 #define _sin   _sin_small
 #define _sqrt  _sqrt_small
@@ -296,6 +352,7 @@ static inline double _asin_small(double x)
 #define _tan   _tan_small
 #define _fmod  _fmod_small
 #define _atan2 _atan2_small
+#define _pow   _pow_small
 
 #else
 
@@ -307,6 +364,7 @@ static inline double _asin_small(double x)
 #define _tan   tan
 #define _fmod  fmod
 #define _atan2 atan2
+#define _pow   pow
 
 #endif /* CONFIG_HUBBLE_SAT_NETWORK_SMALL */
 
@@ -481,7 +539,7 @@ static double _sat_altitude_get(const struct hubble_sat_orbital_params *orbit,
 	uint64_t dt = t - orbit->t0;
 	double n = orbit->n0 + (orbit->ndot * dt);
 
-	return pow((_sqrt(earth.mu) / (2 * M_PI * n)), 2.0 / 3.0) - earth.radius;
+	return _pow((_sqrt(earth.mu) / (2 * M_PI * n)), 2.0 / 3.0) - earth.radius;
 }
 
 static double _lon_tolerance_get(double lat, double sat_altitude)
