@@ -706,7 +706,7 @@ static int _next_pass_culmination_get(
 	float cos_a = _cosf(alpha);
 	float sin_a = _sinf(alpha);
 	float z1 = _sinf((float)pos->lat * (float)_DEG2RAD(1));
-	float omega1 = (float)HUBBLE_TWO_PI / (24 * 3600);
+	float omega1 = (float)earth.earth_rotation_rate;
 	float omega2 = (float)HUBBLE_TWO_PI * (float)orbit_params->n0;
 	float delta_phi =
 		((float)pos->lon - (float)pass->lon) * (float)_DEG2RAD(1);
