@@ -30,11 +30,15 @@ extern "C" {
  * All the payload is random bytes.
  */
 enum hubble_sat_dtm_packet_type {
+	HUBBLE_SAT_DTM_PACKET_SINGLE_FRAME,
 	HUBBLE_SAT_DTM_PACKET_0,
 	HUBBLE_SAT_DTM_PACKET_4,
 	HUBBLE_SAT_DTM_PACKET_9,
 	HUBBLE_SAT_DTM_PACKET_13,
 };
+
+/* @brief Flag to indicate 'payload -1' mode, where only the first frame is transmitted */
+#define HUBBLE_SAT_DTM_PACKET_ONE_FRAME_ONLY_LEN UINT8_MAX
 
 /**
  * @brief Send a DTM test packet.

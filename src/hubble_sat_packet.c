@@ -12,6 +12,10 @@
 #include <hubble/port/sat_radio.h>
 #include <hubble/port/sys.h>
 
+#ifdef CONFIG_HUBBLE_SAT_NETWORK_DTM_MODE
+#include <hubble/sat/dtm.h>
+#endif
+
 #include "reed_solomon_encoder.h"
 #include "hubble_priv.h"
 #include "utils/bitarray.h"
@@ -392,6 +396,16 @@ int hubble_sat_packet_frames_get(const struct hubble_sat_packet *packet,
 		frames->frame[0].data[frame_pos + i] = rs_symbols[i];
 	}
 	frame_pos += HUBBLE_PHY_ECC_SYMBOLS_SIZE;
+
+#ifdef CONFIG_HUBBLE_SAT_NETWORK_DTM_MODE
+	/* Payload -1 mode will cause an early return */
+	if (packet->length == HUBBLE_SAT_DTM_PACKET_ONE_FRAME_ONLY_LEN) {
+		frames->total_number_of_symbols =
+			HUBBLE_PACKET_FRAME_PAYLOAD_MAX_SIZE;
+		return 0;
+	}
+
+#endif /* CONFIG_HUBBLE_SAT_NETWORK_DTM_MODE */
 
 	/* From now on, we will need to check which frame to add data since that
 	 * depends on user controlled data.

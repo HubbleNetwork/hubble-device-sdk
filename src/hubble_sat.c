@@ -159,6 +159,10 @@ int hubble_sat_dtm_packet_send(enum hubble_sat_dtm_packet_type type,
 	uint8_t len;
 	int ret;
 
+	if (type == HUBBLE_SAT_DTM_PACKET_SINGLE_FRAME) {
+		packet.length = HUBBLE_SAT_DTM_PACKET_ONE_FRAME_ONLY_LEN;
+		goto end;
+	}
 	switch (type) {
 	case HUBBLE_SAT_DTM_PACKET_0:
 		len = 0;
@@ -184,6 +188,7 @@ int hubble_sat_dtm_packet_send(enum hubble_sat_dtm_packet_type type,
 		return ret;
 	}
 
+end:
 	ret = hubble_sat_dtm_port_packet_send(&packet, channel);
 	if (ret < 0) {
 		HUBBLE_LOG_WARNING(
