@@ -494,7 +494,7 @@ static double _lon_tolerance_get(double lat, double sat_altitude)
 	b = earth.radius * _cos(M_PI - _asin((earth.radius + sat_altitude) *
 					     (_sin(C) / earth.radius))) +
 	    ((earth.radius + sat_altitude) * (_cos(C)));
-	B = _asin(b * sin(C) / earth.radius);
+	B = _asin(b * _sin(C) / earth.radius);
 
 	return _RAD2DEG(_asin((earth.radius * _sin(B)) /
 			      (earth.radius * _cos(_DEG2RAD(lat)))));
