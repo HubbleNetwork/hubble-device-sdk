@@ -126,7 +126,7 @@ static void _range_reduce(double x, int *q, double *r)
 {
 	/* Reduce x/π to integer multiple of 0.5 */
 	double n = nearbyint(
-		x * (0.5 * HUBBLE_INV_PI)); /* round to nearest multiple of π/2 */
+		x * (2.0 * HUBBLE_INV_PI)); /* round to nearest multiple of π/2 */
 
 	*q = (int)n;
 	*r = x - n * HUBBLE_PI_2;
