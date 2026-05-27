@@ -35,6 +35,7 @@ K_SEM_DEFINE(_symbol_sem, 0, 1);
 
 static sl_rail_handle_t _rail_handle = SL_RAIL_EFR32_HANDLE;
 static sl_rail_tx_power_t _power;
+static sl_rail_tx_power_t _sat_tx_power = MAX_POWER_DDBM;
 
 /*
  * Generally there is 100 - 150 us between idle to tx,
@@ -240,7 +241,7 @@ int hubble_sat_board_enable(void)
 {
 	_power = sl_rail_get_tx_power_dbm(_rail_handle);
 	return _sl_status_to_errno(
-		sl_rail_set_tx_power_dbm(_rail_handle, MAX_POWER_DDBM));
+		sl_rail_set_tx_power_dbm(_rail_handle, _sat_tx_power));
 }
 
 int hubble_sat_board_disable(void)
@@ -284,5 +285,46 @@ end:
 	k_sem_give(&_transmit_sem);
 	return ret;
 }
+
+#ifdef CONFIG_HUBBLE_SAT_NETWORK_DTM_MODE
+
+int hubble_sat_board_power_set(int8_t power)
+{
+	sl_rail_status_t status =
+		sl_rail_set_tx_power_dbm(_rail_handle, power * 10);
+
+	if (status == SL_RAIL_STATUS_NO_ERROR) {
+		_sat_tx_power = power * 10;
+	}
+
+	return _sl_status_to_errno(status);
+}
+
+int hubble_sat_board_cw_start(uint8_t channel)
+{
+	sl_rail_status_t status;
+
+	status = sl_rail_prepare_channel(_rail_handle, channel);
+	if (status != SL_RAIL_STATUS_NO_ERROR) {
+		return _sl_status_to_errno(status);
+	}
+
+	/* CW at the channel's center frequency */
+	status = sl_rail_set_freq_offset(_rail_handle, EFR32_STEP_SCALE(32));
+	if (status != SL_RAIL_STATUS_NO_ERROR) {
+		return _sl_status_to_errno(status);
+	}
+
+	return _sl_status_to_errno(sl_rail_start_tx_stream(
+		_rail_handle, channel, SL_RAIL_STREAM_CARRIER_WAVE,
+		SL_RAIL_TX_OPTIONS_DEFAULT));
+}
+
+int hubble_sat_board_cw_stop(void)
+{
+	return _sl_status_to_errno(sl_rail_stop_tx_stream(_rail_handle));
+}
+
+#endif /* CONFIG_HUBBLE_SAT_NETWORK_DTM_MODE */
 
 SYS_INIT(_rail_radio_init, POST_KERNEL, 0);
