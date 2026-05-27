@@ -92,7 +92,7 @@ int hubble_sat_dtm_port_packet_send(const struct hubble_sat_packet *packet,
 	int ret;
 	struct hubble_sat_packet_frames frames = {0};
 
-	if ((channel < -1) || (channel >= HUBBLE_SAT_NUM_CHANNELS)) {
+	if ((channel < -1) || (channel >= (int8_t)HUBBLE_SAT_NUM_CHANNELS)) {
 		return -EINVAL;
 	}
 
