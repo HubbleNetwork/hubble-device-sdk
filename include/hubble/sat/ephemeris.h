@@ -101,8 +101,6 @@ struct hubble_sat_pass_info {
 	uint64_t culmination;
 	/** Time duration of the pass in seconds. */
 	uint32_t duration;
-	/** True if the satellite is ascending (moving northward), false if descending. */
-	bool ascending;
 };
 
 /**
