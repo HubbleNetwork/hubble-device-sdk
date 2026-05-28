@@ -583,7 +583,7 @@ static double _elevation_angle_get(double sat_lon, double dev_lat,
  * descending crossings
  */
 static int _next_pass_get(const struct hubble_sat_orbital_params *orbit,
-			  bool ascending, double delta_lon, double lon_tol,
+			  bool *ascending, double delta_lon, double lon_tol,
 			  const struct hubble_sat_device_pos *pos,
 			  struct crossing_info crossings[2],
 			  struct hubble_sat_pass_info *pass, uint64_t t)
@@ -593,7 +593,7 @@ static int _next_pass_get(const struct hubble_sat_orbital_params *orbit,
 	double dt = _DEG2RAD(delta_lon) / earth.earth_rotation_rate;
 
 	/* Determine the index for ascending or descending crossing */
-	index = ascending ? 0 : 1;
+	index = *ascending ? 0 : 1;
 	orbit_count = _orbit_count_get(
 		orbit, crossings[index].t + (uint64_t)lround(dt));
 
@@ -612,8 +612,7 @@ static int _next_pass_get(const struct hubble_sat_orbital_params *orbit,
 		    (crossings[index].t > t)) {
 			pass->culmination = crossings[index].t;
 			pass->lon = crossings[index].lon;
-			pass->ascending =
-				(ascending) ? pos->lat > 0 : pos->lat <= 0;
+			*ascending = *ascending ? pos->lat > 0 : pos->lat <= 0;
 		} else {
 			orbit_count++;
 			if (_tll_crossings_get(orbit, pos->lat, orbit_count,
@@ -628,7 +627,7 @@ static int _next_pass_get(const struct hubble_sat_orbital_params *orbit,
 
 static int _pass_get(const struct hubble_sat_orbital_params *orbit, uint64_t t,
 		     const struct hubble_sat_device_pos *pos, double lon_tol,
-		     struct hubble_sat_pass_info *pass)
+		     struct hubble_sat_pass_info *pass, bool *ascending)
 {
 	struct crossing_info crossings[2];
 	int orbit_count;
@@ -656,13 +655,13 @@ static int _pass_get(const struct hubble_sat_orbital_params *orbit, uint64_t t,
 	    (crossings[0].t > t)) {
 		pass->culmination = crossings[0].t;
 		pass->lon = crossings[0].lon;
-		pass->ascending = pos->lat > 0;
+		*ascending = pos->lat > 0;
 	} else if ((fabs(_minus_180_to_180(crossings[1].lon - pos->lon)) <=
 		    lon_tol) &&
 		   (crossings[1].t > t)) {
 		pass->culmination = crossings[1].t;
 		pass->lon = crossings[1].lon;
-		pass->ascending = pos->lat <= 0;
+		*ascending = pos->lat <= 0;
 	}
 
 	while (pass->culmination == 0) {
@@ -676,12 +675,14 @@ static int _pass_get(const struct hubble_sat_orbital_params *orbit, uint64_t t,
 			_zero_to_360(pos->lon + lon_tol - crossings[1].lon);
 
 		if (delta_lon_a < delta_lon_d) {
-			ret = _next_pass_get(orbit, true, delta_lon_a, lon_tol,
-					     pos, crossings, pass, t);
+			*ascending = true;
+			ret = _next_pass_get(orbit, ascending, delta_lon_a,
+					     lon_tol, pos, crossings, pass, t);
 			t = crossings[0].t;
 		} else {
-			ret = _next_pass_get(orbit, false, delta_lon_d, lon_tol,
-					     pos, crossings, pass, t);
+			*ascending = false;
+			ret = _next_pass_get(orbit, ascending, delta_lon_d,
+					     lon_tol, pos, crossings, pass, t);
 			t = crossings[1].t;
 		}
 
@@ -719,7 +720,7 @@ int hubble_sat_satellites_set(
 static int _next_pass_culmination_get(
 	const struct hubble_sat_orbital_params *orbit_params,
 	const struct hubble_sat_device_pos *pos,
-	struct hubble_sat_pass_info *pass)
+	struct hubble_sat_pass_info *pass, bool ascending)
 {
 	float alpha =
 		((float)orbit_params->inclination - 90.0f) * (float)_DEG2RAD(1);
@@ -748,7 +749,7 @@ static int _next_pass_culmination_get(
 	}
 
 	s_omega_cos = (float)_SIGN(omega2 * cos_a);
-	sin_sign = pass->ascending ? -s_omega_cos : s_omega_cos;
+	sin_sign = ascending ? -s_omega_cos : s_omega_cos;
 	s2 = sin_sign * _sqrtf(fmaxf(0.0f, 1.0f - c2 * c2));
 	phi2 = _atan2f(s2, c2);
 
@@ -811,6 +812,7 @@ int hubble_next_pass_get(uint64_t t, const struct hubble_sat_device_pos *pos,
 	double lon_tol, alt = 0.0;
 	uint16_t transmission_period_s;
 	uint8_t sat_id = 0;
+	bool ascending = false;
 
 	/* Basic sanity check */
 	if ((pos == NULL) || (pass == NULL)) {
@@ -831,14 +833,17 @@ int hubble_next_pass_get(uint64_t t, const struct hubble_sat_device_pos *pos,
 	pass->culmination = UINT64_MAX;
 
 	for (size_t i = 0; i < _satellites_count; i++) {
+		bool pass_ascending;
 		double sat_alt = _sat_altitude_get(&_satellites[i], t);
 		lon_tol = _lon_tolerance_get(pos->lat, sat_alt);
-		int ret = _pass_get(&_satellites[i], t, pos, lon_tol, &next_pass);
+		int ret = _pass_get(&_satellites[i], t, pos, lon_tol,
+				    &next_pass, &pass_ascending);
 
 		if (ret == 0) {
 			if (pass->culmination > next_pass.culmination) {
 				*pass = next_pass;
 				alt = sat_alt;
+				ascending = pass_ascending;
 				sat_id = i;
 			}
 		}
@@ -862,7 +867,7 @@ int hubble_next_pass_get(uint64_t t, const struct hubble_sat_device_pos *pos,
 
 	transmission_period_s =
 		hubble_internal_sat_transmission_period_get() / 1000U;
-	_next_pass_culmination_get(&_satellites[sat_id], pos, pass);
+	_next_pass_culmination_get(&_satellites[sat_id], pos, pass, ascending);
 	pass->start = pass->culmination - (transmission_period_s / 2U);
 	pass->duration = transmission_period_s;
 
@@ -873,7 +878,7 @@ int hubble_next_pass_get(uint64_t t, const struct hubble_sat_device_pos *pos,
 			 "ascending=%d max_elevation_angle=%f",
 			 (unsigned long long)pass->start,
 			 (unsigned long long)pass->culmination, pass->lon,
-			 (int)pass->ascending, pass->max_elevation_angle);
+			 (int)ascending, pass->max_elevation_angle);
 
 	return 0;
 }
@@ -889,6 +894,7 @@ int hubble_next_pass_region_get(uint64_t t,
 	struct hubble_sat_device_pos pos;
 	struct hubble_sat_pass_info next_pass;
 	uint16_t transmission_period_s;
+	bool ascending = false;
 
 	/* Basic sanity check */
 	if ((region == NULL) || (pass == NULL)) {
@@ -924,8 +930,10 @@ int hubble_next_pass_region_get(uint64_t t,
 
 	for (size_t i = 0; i < _satellites_count; i++) {
 		int ret;
+		bool next_ascending;
 
-		ret = _pass_get(&_satellites[i], t, &pos, lon_tol, &next_pass);
+		ret = _pass_get(&_satellites[i], t, &pos, lon_tol, &next_pass,
+				&next_ascending);
 		if (ret != 0) {
 			continue;
 		}
@@ -939,7 +947,7 @@ int hubble_next_pass_region_get(uint64_t t,
 		if ((lat_min * lat_max) < 0) {
 			ret = _tll_crossings_get(&_satellites[i], lat_min,
 						 orbit_count, crossings_min);
-			if (next_pass.ascending) {
+			if (next_ascending) {
 				ret |= _tll_crossings_get(
 					&_satellites[i], lat_max,
 					orbit_count + 1, crossings_max);
@@ -968,7 +976,7 @@ int hubble_next_pass_region_get(uint64_t t,
 				continue;
 			}
 
-			if (next_pass.ascending) {
+			if (next_ascending) {
 				next_pass.duration =
 					crossings_max[1].t - crossings_min[1].t;
 			} else {
@@ -989,7 +997,7 @@ int hubble_next_pass_region_get(uint64_t t,
 				continue;
 			}
 
-			if (next_pass.ascending) {
+			if (next_ascending) {
 				next_pass.duration =
 					crossings_max[0].t - crossings_min[0].t;
 			} else {
@@ -1001,6 +1009,7 @@ int hubble_next_pass_region_get(uint64_t t,
 		if (pass->culmination > next_pass.culmination) {
 			*pass = next_pass;
 			alt = _sat_altitude_get(&_satellites[i], t);
+			ascending = next_ascending;
 		}
 	}
 
@@ -1029,8 +1038,8 @@ int hubble_next_pass_region_get(uint64_t t,
 			 "ascending=%d max_elevation_angle=%f",
 			 (unsigned long long)pass->start,
 			 (unsigned long long)pass->culmination, pass->lon,
-			 (unsigned long long)pass->duration,
-			 (int)pass->ascending, pass->max_elevation_angle);
+			 (unsigned long long)pass->duration, (int)ascending,
+			 pass->max_elevation_angle);
 
 	return 0;
 }
