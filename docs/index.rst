@@ -33,6 +33,9 @@ Using Hubble Network SDK
    * - TI SIMPLELINK / SysConfig
      - :ref:`ti_quick_start`
      - TI SimpleLink SDK + SysConfig integration.
+   * - ESP-IDF
+     - :ref:`esp_idf_quick_start`
+     - ESP-IDF support with component-based integration.
 
 Additional Resources
 ********************
