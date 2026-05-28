@@ -93,6 +93,8 @@ struct hubble_sat_device_region {
 struct hubble_sat_pass_info {
 	/** Longitude of the satellite pass (degrees, East positive). */
 	double lon;
+	/** Maximum elevation angle of the satellite above the horizon at culmination (degrees). */
+	double max_elevation_angle;
 	/** Pass start time (Unix time, seconds since epoch). */
 	uint64_t start;
 	/** Time the satellite reaches culmination (Unix time, seconds since epoch). */
