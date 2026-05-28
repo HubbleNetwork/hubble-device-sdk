@@ -558,6 +558,26 @@ static double _lon_tolerance_get(double lat, double sat_altitude)
 			      (earth.radius * _cos(_DEG2RAD(lat)))));
 }
 
+static double _elevation_angle_get(double sat_lon, double dev_lat,
+				   double dev_lon, double sat_altitude)
+{
+	double lat_rad = _DEG2RAD(dev_lat);
+	double dlon_rad = _DEG2RAD(sat_lon - dev_lon);
+	double cos_gamma, sin_gamma;
+
+	cos_gamma = (_sin(lat_rad) * _sin(lat_rad)) +
+		    (_cos(lat_rad) * _cos(lat_rad) * _cos(dlon_rad));
+	sin_gamma = _sqrt(fmax(0.0, 1.0 - (cos_gamma * cos_gamma)));
+
+	if (sin_gamma < 1e-10) {
+		return 90.0;
+	}
+
+	return _RAD2DEG(_atan(
+		(cos_gamma - (earth.radius / (earth.radius + sat_altitude))) /
+		sin_gamma));
+}
+
 /*
  * Helper function to calculate the next pass for ascending or
  * descending crossings
@@ -788,7 +808,7 @@ int hubble_next_pass_get(uint64_t t, const struct hubble_sat_device_pos *pos,
 			 struct hubble_sat_pass_info *pass)
 {
 	struct hubble_sat_pass_info next_pass;
-	double lon_tol;
+	double lon_tol, alt = 0.0;
 	uint16_t transmission_period_s;
 	uint8_t sat_id = 0;
 
@@ -811,13 +831,14 @@ int hubble_next_pass_get(uint64_t t, const struct hubble_sat_device_pos *pos,
 	pass->culmination = UINT64_MAX;
 
 	for (size_t i = 0; i < _satellites_count; i++) {
-		double alt = _sat_altitude_get(&_satellites[i], t);
-		lon_tol = _lon_tolerance_get(pos->lat, alt);
+		double sat_alt = _sat_altitude_get(&_satellites[i], t);
+		lon_tol = _lon_tolerance_get(pos->lat, sat_alt);
 		int ret = _pass_get(&_satellites[i], t, pos, lon_tol, &next_pass);
 
 		if (ret == 0) {
 			if (pass->culmination > next_pass.culmination) {
 				*pass = next_pass;
+				alt = sat_alt;
 				sat_id = i;
 			}
 		}
@@ -845,11 +866,14 @@ int hubble_next_pass_get(uint64_t t, const struct hubble_sat_device_pos *pos,
 	pass->start = pass->culmination - (transmission_period_s / 2U);
 	pass->duration = transmission_period_s;
 
+	pass->max_elevation_angle =
+		_elevation_angle_get(pass->lon, pos->lat, pos->lon, alt);
+
 	HUBBLE_LOG_DEBUG("Next pass found: start=%llu culmination=%llu lon=%f "
-			 "ascending=%d",
+			 "ascending=%d max_elevation_angle=%f",
 			 (unsigned long long)pass->start,
 			 (unsigned long long)pass->culmination, pass->lon,
-			 (int)pass->ascending);
+			 (int)pass->ascending, pass->max_elevation_angle);
 
 	return 0;
 }
@@ -858,7 +882,7 @@ int hubble_next_pass_region_get(uint64_t t,
 				const struct hubble_sat_device_region *region,
 				struct hubble_sat_pass_info *pass)
 {
-	double lon_tol, lat_mid;
+	double lon_tol, lat_mid, alt = 0.0;
 	struct crossing_info crossings_min[2], crossings_max[2];
 	int orbit_count;
 	double lat_min, lat_max;
@@ -976,6 +1000,7 @@ int hubble_next_pass_region_get(uint64_t t,
 
 		if (pass->culmination > next_pass.culmination) {
 			*pass = next_pass;
+			alt = _sat_altitude_get(&_satellites[i], t);
 		}
 	}
 
@@ -985,6 +1010,9 @@ int hubble_next_pass_region_get(uint64_t t,
 				   _satellites_count);
 		return -ENOENT;
 	}
+
+	pass->max_elevation_angle =
+		_elevation_angle_get(pass->lon, pos.lat, pos.lon, alt);
 
 	transmission_period_s =
 		hubble_internal_sat_transmission_period_get() / 1000U;
@@ -998,11 +1026,11 @@ int hubble_next_pass_region_get(uint64_t t,
 
 	HUBBLE_LOG_DEBUG("Next region pass found: start=%llu culmination=%llu "
 			 "lon=%f duration=%llu "
-			 "ascending=%d",
+			 "ascending=%d max_elevation_angle=%f",
 			 (unsigned long long)pass->start,
 			 (unsigned long long)pass->culmination, pass->lon,
 			 (unsigned long long)pass->duration,
-			 (int)pass->ascending);
+			 (int)pass->ascending, pass->max_elevation_angle);
 
 	return 0;
 }
