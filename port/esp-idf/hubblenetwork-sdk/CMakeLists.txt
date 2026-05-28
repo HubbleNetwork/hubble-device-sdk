@@ -17,6 +17,13 @@ else()
     )
 endif()
 
+set(INC_DIRS
+    "${SDK_BASE_DIR}/include"
+    "${SDK_BASE_DIR}/src"
+    "${SDK_BASE_DIR}/port/esp-idf"
+    "${SDK_BASE_DIR}/port/freertos"
+)
+
 if(CONFIG_HUBBLE_BLE_NETWORK)
     list(APPEND SRCS
         "${SDK_BASE_DIR}/src/hubble_ble.c"
@@ -37,20 +44,29 @@ if(CONFIG_HUBBLE_SAT_NETWORK)
             "${SDK_BASE_DIR}/src/hubble_sat_packet.c"
         )
     endif()
+
+    # add board support
+    if(IDF_TARGET STREQUAL "esp32c6")
+        list(APPEND INC_DIRS
+            "${CMAKE_CURRENT_LIST_DIR}/boards/esp32c6"
+        )
+        list(APPEND SRCS
+            "${CMAKE_CURRENT_LIST_DIR}/boards/esp32c6/radio.c"
+        )
+    endif()
 endif()
 
 idf_component_register(
     INCLUDE_DIRS
-        "${SDK_BASE_DIR}/include"
-        "${SDK_BASE_DIR}/src"
-        "${SDK_BASE_DIR}/port/esp-idf"
-        "${SDK_BASE_DIR}/port/freertos"
+        ${INC_DIRS}
     PRIV_INCLUDE_DIRS
     REQUIRES
     PRIV_REQUIRES
         "mbedtls"
         "freertos"
         "log"
+        "esp_phy"
+        "esp_driver_gptimer"
     SRCS
         ${SRCS}
 )
