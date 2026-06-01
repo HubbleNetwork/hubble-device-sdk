@@ -21,6 +21,11 @@ extern "C" {
 #endif
 
 /**
+ * @addtogroup hubble_sat_api
+ * @{
+ */
+
+/**
  * @struct hubble_sat_orbital_params
  * @brief Represents the orbital parameters of a satellite.
  *
@@ -155,6 +160,9 @@ int hubble_next_pass_get(uint64_t t, const struct hubble_sat_device_pos *pos,
 int hubble_next_pass_region_get(uint64_t t,
 				const struct hubble_sat_device_region *region,
 				struct hubble_sat_pass_info *pass);
+
+/** @} */
+
 #ifdef __cplusplus
 }
 #endif
