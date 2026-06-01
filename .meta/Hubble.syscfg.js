@@ -33,6 +33,30 @@ var sdkBleFiles = [
     "src/hubble_ble.c"
 ];
 
+var cc23xxDeviceFiles = [
+    "port/freertos/boards/ti/cc23xx_cc27xx/radio.c",
+    "port/freertos/boards/ti/cc23xx_cc27xx/radio_config/ti_radio_config_cc23.c"
+];
+
+var cc23xxDMMDeviceFiles = [
+    "port/freertos/boards/ti/cc23xx_cc27xx/radio.c",
+    "port/freertos/boards/ti/cc23xx_cc27xx/dmm/dmm_priority_ble_custom.c",
+    "port/freertos/boards/ti/cc23xx_cc27xx/dmm/rcl_override_dmm.c",
+    "port/freertos/boards/ti/cc23xx_cc27xx/radio_config/ti_radio_config_cc23_dmm.c"
+];
+
+var cc27xxDeviceFiles = [
+    "port/freertos/boards/ti/cc23xx_cc27xx/radio.c",
+    "port/freertos/boards/ti/cc23xx_cc27xx/radio_config/ti_radio_config_cc27.c"
+];
+
+var cc27xxDMMDeviceFiles = [
+    "port/freertos/boards/ti/cc23xx_cc27xx/radio.c",
+    "port/freertos/boards/ti/cc23xx_cc27xx/dmm/dmm_priority_ble_custom.c",
+    "port/freertos/boards/ti/cc23xx_cc27xx/dmm/rcl_override_dmm.c",
+    "port/freertos/boards/ti/cc23xx_cc27xx/radio_config/ti_radio_config_cc27_dmm.c"
+];
+
 function getSDKRootDir()
 {
     const product = system.getProducts().find(p => p.name == "Hubble Network SDK");
@@ -118,6 +142,18 @@ function getOpts(mod) {
     result.push(`-I${getSDKRootDir()}/include/`);
     result.push(`-I${getSDKRootDir()}/port/freertos/`);
 
+    if (hubble.useSatellite && hubble.useTerrestrial) {
+        result.push(`-DCC23X0`);
+        if (system.deviceData.deviceId.match(/CC27../)) {
+            result.push(`-DCC27`);
+        }
+        result.push(`-DUSE_DMM_OVRDE`);
+        result.push(`-DUSE_DMM`);
+        result.push(`-DUSE_DMM_DYNAMIC_PRIORITY`);
+        result.push(`-I${getSDKRootDir()}/port/freertos/boards/ti/cc23xx_cc27xx/dmm/`)
+        result.push(`-I${sdkPath}/source/ti/dmm`);
+    }
+
     return result;
 }
 
@@ -130,6 +166,19 @@ function getSDKFiles()
     // Sat
     if (hubble.useSatellite) {
         files.push(...sdkSatFiles);
+        if (system.deviceData.deviceId.match(/CC27../)) {
+            if (hubble.useTerrestrial) {
+                files.push(...cc27xxDMMDeviceFiles);
+            } else {
+                files.push(...cc27xxDeviceFiles);
+            }
+        } else if (system.deviceData.deviceId.match(/CC23../)) {
+            if (hubble.useTerrestrial) {
+                files.push(...cc23xxDMMDeviceFiles);
+            } else {
+                files.push(...cc23xxDeviceFiles);
+            }
+        }
     }
 
     // Terrestrial
