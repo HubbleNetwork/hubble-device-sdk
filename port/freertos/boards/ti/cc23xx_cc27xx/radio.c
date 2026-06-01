@@ -51,7 +51,10 @@
 #define HUBBLE_BASE_FREQUENCY           2482196906UL
 #define HUBBLE_CHANNEL_OFFSET(_channel) ((_channel) * 70)
 
-#if defined(DeviceFamily_CC23X0R5)
+#if defined(DeviceFamily_CC27XXX10)
+#define RCL_SCHEDULER_START_COMMAND_US 140
+#define RCL_SCHEDULER_STOP_DELAY_US    90
+#elif defined(DeviceFamily_CC23X0R5)
 #define RCL_SCHEDULER_START_COMMAND_US 190
 #define RCL_SCHEDULER_STOP_DELAY_US    90
 #else

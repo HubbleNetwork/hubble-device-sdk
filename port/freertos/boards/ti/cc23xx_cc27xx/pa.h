@@ -9,6 +9,8 @@
 
 #if defined(DeviceFamily_CC23X0R5)
 #define TI_PA_DEFAULT_DBM 0U
+#elif defined(DeviceFamily_CC27XXX10)
+#define TI_PA_DEFAULT_DBM 20U
 #else
 #error "Device not supported"
 #endif
