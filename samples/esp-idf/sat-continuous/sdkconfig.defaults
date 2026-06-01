@@ -1,0 +1,15 @@
+# Copyright (c) 2026 Hubble Network, Inc.
+# SPDX-License-Identifier: Apache-2.0
+
+# Bluetooth
+CONFIG_BT_ENABLED=y
+CONFIG_BT_NIMBLE_ENABLED=y
+CONFIG_BT_NIMBLE_50_FEATURE_SUPPORT=n
+
+# Sat dependencies
+CONFIG_HUBBLE_SAT_NETWORK=y
+
+# Disable nonce check since continuous transmit
+# will exceed the daily limit, applicable for
+# testing purpose. This should be turned on for production.
+CONFIG_HUBBLE_NETWORK_SECURITY_ENFORCE_NONCE_CHECK=n

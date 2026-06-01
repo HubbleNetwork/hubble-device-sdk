@@ -1,0 +1,100 @@
+/*
+ * Copyright (c) 2026 Hubble Network, Inc.
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+#include <stdint.h>
+#include <stdlib.h>
+#include <string.h>
+
+#include "freertos/FreeRTOS.h"
+#include "freertos/task.h"
+
+#include "esp_log.h"
+#include "nvs_flash.h"
+#include "esp_system.h"
+
+#include "mbedtls/base64.h"
+
+#include <hubble/hubble.h>
+#include <hubble/sat/packet.h>
+
+#ifdef CONFIG_SAMPLE_SYNC_TIME
+#include "time_sync.h"
+#endif
+
+#define SAT_TX_SLEEP_MS 2000
+
+static const char *APP_TAG = "sat_continuous";
+
+static uint64_t _unix_time_ms = 0xdeadbeef;
+static uint8_t _hubble_key[CONFIG_HUBBLE_KEY_SIZE];
+
+void app_main(void)
+{
+	esp_err_t err = 0;
+	struct hubble_sat_packet pkt;
+
+	/* NVS flash init, dependency of ble stack to store configs */
+	err = nvs_flash_init();
+	if (err == ESP_ERR_NVS_NO_FREE_PAGES ||
+	    err == ESP_ERR_NVS_NEW_VERSION_FOUND) {
+		ESP_ERROR_CHECK(nvs_flash_erase());
+		err = nvs_flash_init();
+	}
+	ESP_ERROR_CHECK(err);
+
+	/* Decode device key */
+	if (strlen(CONFIG_HUBBLE_DEVICE_KEY) != 0) {
+		size_t outlen = 0;
+		int err = mbedtls_base64_decode(
+			_hubble_key, sizeof(_hubble_key), &outlen,
+			(const unsigned char *)CONFIG_HUBBLE_DEVICE_KEY,
+			strlen(CONFIG_HUBBLE_DEVICE_KEY));
+
+		if (err != 0) {
+			ESP_LOGE(APP_TAG, "Invalid key provided!");
+			return;
+		}
+
+		ESP_LOGD(APP_TAG, "Device key decoded (%zu bytes):", outlen);
+		ESP_LOG_BUFFER_HEX_LEVEL(APP_TAG, _hubble_key, outlen,
+					 ESP_LOG_DEBUG);
+	}
+
+#ifdef CONFIG_SAMPLE_SYNC_TIME
+	err = ble_sync_time(&_unix_time_ms);
+	if (err != ESP_OK) {
+		ESP_LOGE(APP_TAG, "Failed to sync time, error: %d", err);
+		return;
+	}
+#endif
+
+	err = hubble_init(_unix_time_ms, _hubble_key);
+	if (err != 0) {
+		ESP_LOGE(APP_TAG,
+			 "Failed to initialize Hubble Sat Network, error: %d",
+			 err);
+		return;
+	}
+
+	ESP_LOGI(APP_TAG, "Starting Sat Transmission");
+
+	for (;;) {
+		err = hubble_sat_packet_get(&pkt, NULL, 0);
+		if (err != 0) {
+			ESP_LOGE(APP_TAG, "Failed to get Hubble Sat Network packet, error: %d",
+				 err);
+			return;
+		}
+
+		err = hubble_sat_packet_send(&pkt, HUBBLE_SAT_RELIABILITY_NORMAL);
+		if (err != 0) {
+			ESP_LOGE(APP_TAG,
+				 "Failed to transmit packet, error: %d", err);
+			return;
+		}
+
+		vTaskDelay(pdMS_TO_TICKS(SAT_TX_SLEEP_MS));
+	}
+}
