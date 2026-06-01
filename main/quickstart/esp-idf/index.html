@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Zephyr Quick Start &mdash; Hubble Network SDK Documentation</title>
+  <title>ESP-IDF Quick Start &mdash; Hubble Network SDK Documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
@@ -16,7 +16,7 @@
 
   
     <link rel="shortcut icon" href="../../_static/hubble.png"/>
-    <link rel="canonical" href="https://HubbleNetwork.github.io/hubble-device-sdk/main/quickstart/zephyr/index.html" />
+    <link rel="canonical" href="https://HubbleNetwork.github.io/hubble-device-sdk/main/quickstart/esp-idf/index.html" />
       <script src="../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
       <script src="../../_static/documentation_options.js?v=2709fde1"></script>
@@ -32,8 +32,8 @@
     <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="FreeRTOS Quick Start" href="../freertos/index.html" />
-    <link rel="prev" title="Quick Start" href="../index.html" />
+    <link rel="next" title="Configuration Reference" href="../../configuration/index.html" />
+    <link rel="prev" title="TI SDK Quick Start (SysConfig)" href="../ti/index.html" />
   <meta name="color-scheme" content="dark light">
   
   <noscript id="dark-mode-toggle-stylesheets">
@@ -81,9 +81,9 @@
 </ul>
 </li>
 <li class="toctree-l1 current"><a class="reference internal" href="../index.html">Quick Start</a><ul class="current">
-<li class="toctree-l2 current"><a class="current reference internal" href="#">Zephyr Quick Start</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#adding-hubble-network-to-zephyr">Adding Hubble Network to Zephyr</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#using-hubble-network-as-the-manifest-repository">Using Hubble Network as the manifest repository</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../zephyr/index.html">Zephyr Quick Start</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../zephyr/index.html#adding-hubble-network-to-zephyr">Adding Hubble Network to Zephyr</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../zephyr/index.html#using-hubble-network-as-the-manifest-repository">Using Hubble Network as the manifest repository</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../freertos/index.html">FreeRTOS Quick Start</a><ul>
@@ -99,10 +99,10 @@
 <li class="toctree-l3"><a class="reference internal" href="../ti/index.html#building-the-application">Building the Application</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="../esp-idf/index.html">ESP-IDF Quick Start</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../esp-idf/index.html#prerequisites">Prerequisites</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../esp-idf/index.html#adding-hubble-network-to-an-esp-idf-project">Adding Hubble Network to an ESP-IDF Project</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../esp-idf/index.html#satellite-network-on-esp32-c6-required-phy-blob">Satellite Network on ESP32-C6: Required PHY Blob</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">ESP-IDF Quick Start</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#prerequisites">Prerequisites</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#adding-hubble-network-to-an-esp-idf-project">Adding Hubble Network to an ESP-IDF Project</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#satellite-network-on-esp32-c6-required-phy-blob">Satellite Network on ESP32-C6: Required PHY Blob</a></li>
 </ul>
 </li>
 </ul>
@@ -220,7 +220,7 @@
   
      <li><a href="../index.html">Quick Start</a> &raquo;</li>
   
-  <li>Zephyr Quick Start</li>
+  <li>ESP-IDF Quick Start</li>
 
 
   <li class="wy-breadcrumbs-aside">
@@ -236,113 +236,98 @@
   
            <div itemprop="articleBody">
              
-  <section id="zephyr-quick-start">
-<span id="id1"></span><h1>Zephyr Quick Start<a class="headerlink" href="#zephyr-quick-start" title="Link to this heading"></a></h1>
-<p>Hubble Network can be added to the manifest of an existing Zephyr project or
-function as the manifest repository. The following sections describe each
-approach.</p>
-<section id="adding-hubble-network-to-zephyr">
-<h2>Adding Hubble Network to Zephyr<a class="headerlink" href="#adding-hubble-network-to-zephyr" title="Link to this heading"></a></h2>
-<p>This procedure explains how to add Hubble Network to an existing Zephyr
-project or to start a new project with Zephyr as the manifest repository. For
-new projects, refer to the <a class="reference external" href="https://docs.zephyrproject.org/4.4.0/getting_started/index.html">Zephyr Getting Started Guide</a> to set up the
-environment.</p>
-<p>After creating or selecting a Zephyr project, integrate Hubble Network by
-pulling the SDK into the Zephyr workspace. Adjust a West sub-manifest (or
-create a new one) by including the snippet below:</p>
-<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">manifest</span><span class="p">:</span>
-<span class="w">  </span><span class="nt">remotes</span><span class="p">:</span>
-<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">hubble</span>
-<span class="w">      </span><span class="nt">url-base</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">https://github.com/HubbleNetwork</span>
-<span class="w">  </span><span class="nt">projects</span><span class="p">:</span>
-<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">hubblenetwork-sdk</span>
-<span class="w">      </span><span class="nt">repo-path</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">hubble-device-sdk</span>
-<span class="w">      </span><span class="nt">revision</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">main</span>
-<span class="w">      </span><span class="nt">path</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">modules/lib/hubblenetwork-sdk</span>
-<span class="w">      </span><span class="nt">remote</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">hubble</span>
-<span class="w">      </span><span class="nt">groups</span><span class="p">:</span>
-<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">optional</span>
+  <section id="esp-idf-quick-start">
+<span id="id1"></span><h1>ESP-IDF Quick Start<a class="headerlink" href="#esp-idf-quick-start" title="Link to this heading"></a></h1>
+<p>This guide explains how to integrate the Hubble Network SDK into an
+<a class="reference external" href="https://docs.espressif.com/projects/esp-idf/en/latest/esp32/get-started/index.html">ESP-IDF</a>
+project. The SDK ships as an ESP-IDF component that can be pulled into any
+ESP-IDF application via <code class="docutils literal notranslate"><span class="pre">EXTRA_COMPONENT_DIRS</span></code>.</p>
+<section id="prerequisites">
+<h2>Prerequisites<a class="headerlink" href="#prerequisites" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p><a class="reference external" href="https://docs.espressif.com/projects/esp-idf/en/latest/esp32/get-started/index.html">ESP-IDF</a>
+installed and exported in the current shell (e.g. <code class="docutils literal notranslate"><span class="pre">source</span> <span class="pre">~/esp/esp-idf/export.sh</span></code>).</p></li>
+<li><p>A supported ESP32 target. The BLE Network module works on any ESP32 chip
+with a Bluetooth® Low Energy controller supported by ESP-IDF. The Satellite
+Network module currently targets the <strong>ESP32-C6</strong>.</p></li>
+<li><p>The Hubble Network SDK cloned or added to your project as a Git submodule.</p></li>
+</ul>
+</section>
+<section id="adding-hubble-network-to-an-esp-idf-project">
+<h2>Adding Hubble Network to an ESP-IDF Project<a class="headerlink" href="#adding-hubble-network-to-an-esp-idf-project" title="Link to this heading"></a></h2>
+<ol class="arabic">
+<li><p>Add the Hubble Network SDK to your application, for example as a submodule:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>git<span class="w"> </span>submodule<span class="w"> </span>add<span class="w"> </span>https://github.com/HubbleNetwork/hubble-device-sdk
 </pre></div>
 </div>
-<p>Then run:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>west<span class="w"> </span>update<span class="w"> </span>hubblenetwork-sdk
+</li>
+<li><p>Point your top-level <code class="docutils literal notranslate"><span class="pre">CMakeLists.txt</span></code> at the SDK’s ESP-IDF component
+directory using <code class="docutils literal notranslate"><span class="pre">EXTRA_COMPONENT_DIRS</span></code>, and add <code class="docutils literal notranslate"><span class="pre">hubblenetwork-sdk</span></code> to
+the component list:</p>
+<div class="highlight-cmake notranslate"><div class="highlight"><pre><span></span><span class="nb">cmake_minimum_required</span><span class="p">(</span><span class="s">VERSION</span><span class="w"> </span><span class="s">3.13.1</span><span class="p">)</span>
+
+<span class="nb">set</span><span class="p">(</span><span class="s">EXTRA_COMPONENT_DIRS</span><span class="w"> </span><span class="s">path/to/hubble-device-sdk/port/esp-idf/</span><span class="p">)</span>
+
+<span class="nb">set</span><span class="p">(</span><span class="s">COMPONENTS</span>
+<span class="w">        </span><span class="s2">&quot;main&quot;</span>
+<span class="w">        </span><span class="s2">&quot;bt&quot;</span>
+<span class="w">        </span><span class="s2">&quot;hubblenetwork-sdk&quot;</span>
+<span class="p">)</span>
+
+<span class="nb">include</span><span class="p">(</span><span class="o">$ENV{</span><span class="nv">IDF_PATH</span><span class="o">}</span><span class="s">/tools/cmake/project.cmake</span><span class="p">)</span>
+
+<span class="nb">project</span><span class="p">(</span><span class="s">my-app</span><span class="w"> </span><span class="s">LANGUAGES</span><span class="w"> </span><span class="s">C</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>To enable the required modules, add the corresponding lines to the project’s
-<code class="docutils literal notranslate"><span class="pre">prj.conf</span></code> file:</p>
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>CONFIG_HUBBLE_BLE_NETWORK=y
+</li>
+<li><p>Enable the desired Hubble modules. Either run <code class="docutils literal notranslate"><span class="pre">idf.py</span> <span class="pre">menuconfig</span></code> and
+toggle them under <em>Component config</em> → <em>Hubble</em>, or set them in your
+project’s <code class="docutils literal notranslate"><span class="pre">sdkconfig.defaults</span></code>:</p>
+<div class="highlight-kconfig notranslate"><div class="highlight"><pre><span></span><span class="c1"># Terrestrial (BLE) Network</span>
+CONFIG_HUBBLE_BLE_NETWORK=y
+
+<span class="c1"># Satellite Network</span>
 CONFIG_HUBBLE_SAT_NETWORK=y
 </pre></div>
 </div>
-<p>Use <code class="docutils literal notranslate"><span class="pre">CONFIG_HUBBLE_BLE_NETWORK=y</span></code> to enable the Bluetooth® Low Energy (BLE) Network module or
-<code class="docutils literal notranslate"><span class="pre">CONFIG_HUBBLE_SAT_NETWORK=y</span></code> for the Satellite Network module.</p>
-</section>
-<section id="using-hubble-network-as-the-manifest-repository">
-<h2>Using Hubble Network as the manifest repository<a class="headerlink" href="#using-hubble-network-as-the-manifest-repository" title="Link to this heading"></a></h2>
-<p>Hubble Network can also serve as the manifest repository. In this case,
-install West and all required <a class="reference external" href="https://docs.zephyrproject.org/4.4.0/develop/getting_started/index.html#install-dependencies">Zephyr dependencies</a> as described in the <a class="reference external" href="https://docs.zephyrproject.org/4.4.0/develop/toolchains/zephyr_sdk.html#zephyr-sdk-installation">Zephyr documentation</a>. The
-following steps outline the process of creating a Zephyr workspace that uses the Hubble Network SDK as the manifest repository:</p>
-<blockquote>
-<div><ol class="arabic">
-<li><p>Create a Python virtual environment:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python3<span class="w"> </span>-m<span class="w"> </span>venv<span class="w"> </span>~/hubblenetwork-workspace/.venv
+<p>When enabling the BLE Network module on ESP32 chips, you will also want the
+standard BLE controller bits:</p>
+<div class="highlight-kconfig notranslate"><div class="highlight"><pre><span></span>CONFIG_BT_ENABLED=y
+CONFIG_BT_BLE_50_FEATURES_SUPPORTED=n
+CONFIG_BT_BLE_42_FEATURES_SUPPORTED=y
 </pre></div>
 </div>
-</li>
-<li><p>Activate the virtual environment:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">source</span><span class="w"> </span>~/hubblenetwork-workspace/.venv/bin/activate
-</pre></div>
-</div>
-<p>Once activated your shell will be prefixed with <code class="docutils literal notranslate"><span class="pre">(.venv)</span></code>.
-Deactivate at any time by running <code class="docutils literal notranslate"><span class="pre">deactivate</span></code>. Re-activation is
-necessary whenever returning to work in this environment.</p>
-</li>
-<li><p>Install west:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>west
-</pre></div>
-</div>
-</li>
-<li><p>Obtain the Zephyr source code:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>west<span class="w"> </span>init<span class="w"> </span>-m<span class="w"> </span>git@github.com:HubbleNetwork/hubble-device-sdk.git<span class="w"> </span>~/hubblenetwork-workspace
-<span class="nb">cd</span><span class="w"> </span>~/hubblenetwork-workspace/modules/lib/hubblenetwork-sdk
-west<span class="w"> </span>update
-</pre></div>
-</div>
-</li>
-<li><p>Export a Zephyr:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>west<span class="w"> </span>zephyr-export
-</pre></div>
-</div>
-<p>Exports a Zephyr CMake package, allowing CMake to automatically load
-the boilerplate code needed for building Zephyr applications.</p>
-</li>
-<li><p>Install Python dependencies:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>west<span class="w"> </span>packages<span class="w"> </span>pip<span class="w"> </span>--install
-pip<span class="w"> </span>install<span class="w"> </span>-r<span class="w"> </span>~/hubblenetwork-workspace/zephyr/scripts/requirements.txt
+<p>When enabling the Satellite Network module on ESP32-C6, you will also need to
+include the PHY lib:</p>
+<div class="highlight-kconfig notranslate"><div class="highlight"><pre><span></span>CONFIG_ESP_PHY_ENABLE_CERT_TEST=y
 </pre></div>
 </div>
 </li>
 </ol>
-</div></blockquote>
-<section id="building-and-running-your-first-application">
-<h3>Building and running your first application<a class="headerlink" href="#building-and-running-your-first-application" title="Link to this heading"></a></h3>
-<p>Building and Running the First Application Once the steps in the previous
-section are complete, the system is ready to use Hubble Network. The following
-commands demonstrate how to build and flash a BLE Network application.</p>
-<section id="build-the-application">
-<h4>Build the application<a class="headerlink" href="#build-the-application" title="Link to this heading"></a></h4>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span><span class="w"> </span>~/hubblenetwork-workspace/
-west<span class="w"> </span>build<span class="w"> </span>-p<span class="w"> </span>-b<span class="w"> </span>nrf52840dk/nrf52840<span class="w"> </span>modules/lib/hubblenetwork-sdk/samples/zephyr/ble-network
+</section>
+<section id="satellite-network-on-esp32-c6-required-phy-blob">
+<h2>Satellite Network on ESP32-C6: Required PHY Blob<a class="headerlink" href="#satellite-network-on-esp32-c6-required-phy-blob" title="Link to this heading"></a></h2>
+<div class="admonition important">
+<p class="admonition-title">Important</p>
+<p>The Satellite Network module requires a PHY library blob from Espressif
+that is currently in Early Access (EA). The <code class="docutils literal notranslate"><span class="pre">libphy</span></code> shipped with ESP-IDF
+does <strong>not</strong> include this API yet, so the blob must be swapped in manually
+before building any Satellite Network application on the ESP32-C6.</p>
+</div>
+<ol class="arabic">
+<li><p>Download the Espressif PHY blob:</p>
+<p><a class="reference external" href="https://dl.espressif.com/AE/libphy_C6_20260317_c83212e%20(2).zip">libphy_C6_20260317_c83212e.zip</a></p>
+</li>
+<li><p>Unzip the archive and copy the extracted <code class="docutils literal notranslate"><span class="pre">*.a</span></code> files over the matching
+files in your ESP-IDF installation:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>unzip<span class="w"> </span><span class="s2">&quot;libphy_C6_20260317_c83212e.zip&quot;</span>
+cp<span class="w"> </span>*.a<span class="w"> </span><span class="nv">$IDF_PATH</span>/components/esp_phy/lib/esp32c6/
 </pre></div>
 </div>
-</section>
-<section id="flash-the-application">
-<h4>Flash the application<a class="headerlink" href="#flash-the-application" title="Link to this heading"></a></h4>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>west<span class="w"> </span>flash
-</pre></div>
-</div>
-</section>
-</section>
+</li>
+</ol>
+<p>This step is temporary. Once Espressif ships the API upstream, the SDK
+will consume it directly and the blob swap will no longer be needed.</p>
 </section>
 </section>
 
@@ -351,8 +336,8 @@ west<span class="w"> </span>build<span class="w"> </span>-p<span class="w"> </sp
           </div>
 
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="../index.html" class="btn btn-neutral float-left" title="Quick Start" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="../freertos/index.html" class="btn btn-neutral float-right" title="FreeRTOS Quick Start" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="../ti/index.html" class="btn btn-neutral float-left" title="TI SDK Quick Start (SysConfig)" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../../configuration/index.html" class="btn btn-neutral float-right" title="Configuration Reference" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>
