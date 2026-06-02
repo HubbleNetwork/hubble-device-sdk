@@ -252,7 +252,7 @@ int hubble_sat_packet_get(struct hubble_sat_packet *packet, const void *payload,
 	uint8_t ecc, payload_len;
 	uint8_t auth_tag[HUBBLE_AUTH_TAG_SIZE / HUBBLE_BITS_PER_BYTE];
 	uint8_t out[HUBBLE_PAYLOAD_MAX_SIZE] = {0};
-	uint16_t seq_no = hubble_sequence_counter_get();
+	uint16_t seq_no;
 	uint32_t time_counter = hubble_internal_time_counter_get();
 	uint32_t eid;
 
@@ -261,9 +261,10 @@ int hubble_sat_packet_get(struct hubble_sat_packet *packet, const void *payload,
 		return -EINVAL;
 	}
 
-	if (!hubble_internal_nonce_values_check(time_counter, seq_no)) {
+	ret = hubble_internal_sequence_acquire(time_counter, &seq_no);
+	if (ret != 0) {
 		HUBBLE_LOG_WARNING("Re-using same nonce is insecure !");
-		return -EPERM;
+		return ret;
 	}
 
 #define _CHECK_RET(_ret)                                                       \

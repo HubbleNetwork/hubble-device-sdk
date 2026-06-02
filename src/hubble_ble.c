@@ -74,11 +74,10 @@ int hubble_ble_advertise_get(const uint8_t *input, size_t input_len,
 		return -EINVAL;
 	}
 
-	seq_no = hubble_sequence_counter_get();
-
-	if (!hubble_internal_nonce_values_check(time_counter, seq_no)) {
+	err = hubble_internal_sequence_acquire(time_counter, &seq_no);
+	if (err != 0) {
 		HUBBLE_LOG_WARNING("Re-using same nonce is insecure !");
-		return -EPERM;
+		return err;
 	}
 
 	// Set the constant data

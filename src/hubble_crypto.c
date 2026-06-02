@@ -128,6 +128,26 @@ bool hubble_internal_nonce_values_check(uint32_t time_counter, uint16_t seq_no)
 	return true;
 }
 
+int hubble_internal_sequence_acquire(uint32_t time_counter, uint16_t *seq_no)
+{
+	int ret = 0;
+
+	/* Allocate the sequence number and validate the nonce as a single
+	 * critical section. Doing both under the lock prevents two concurrent
+	 * callers from being handed the same sequence number.
+	 */
+	hubble_lock();
+
+	*seq_no = hubble_sequence_counter_get();
+	if (!hubble_internal_nonce_values_check(time_counter, *seq_no)) {
+		ret = -EPERM;
+	}
+
+	hubble_unlock();
+
+	return ret;
+}
+
 static int _kbkdf_counter(const uint8_t *key, const char *label,
 			  size_t label_len, const uint8_t *context,
 			  size_t context_len, uint8_t *output, size_t olen)

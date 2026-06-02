@@ -60,6 +60,22 @@ uint32_t hubble_internal_time_counter_get(void);
 bool hubble_internal_nonce_values_check(uint32_t time_counter, uint16_t seq_no);
 
 /**
+ * @brief Atomically allocate a sequence number and validate the nonce.
+ *
+ * Acquires the SDK lock and, as a single critical section, fetches the next
+ * sequence number via hubble_sequence_counter_get() and validates that the
+ * resulting (time_counter, seq_no) nonce has not been used. Doing these steps
+ * under the lock prevents concurrent callers from being handed the same
+ * sequence number, which would reuse the AES-CTR keystream.
+ *
+ * @param time_counter Current time-based counter value.
+ * @param seq_no       The allocated sequence number.
+ *
+ * @return 0 on success, -EPERM if using the nonce would result in reuse.
+ */
+int hubble_internal_sequence_acquire(uint32_t time_counter, uint16_t *seq_no);
+
+/**
  * @brief Get a derived device ID based on the time counter.
  *
  * This function generates a device identifier by deriving it from an
