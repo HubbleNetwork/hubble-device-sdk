@@ -34,7 +34,7 @@ if(CONFIG_HUBBLE_SAT_NETWORK)
     list(APPEND SRCS
         "${SDK_BASE_DIR}/port/freertos/hubble_sat_freertos.c"
         "${SDK_BASE_DIR}/src/hubble_sat.c"
-        "${SDK_BASE_DIR}/src/hubble_sat_ephemeris.c"
+        "${SDK_BASE_DIR}/src/hubble_sat_pass_prediction.c"
         "${SDK_BASE_DIR}/src/utils/bitarray.c"
         "${SDK_BASE_DIR}/src/reed_solomon_encoder.c"
     )

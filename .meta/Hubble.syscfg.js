@@ -24,7 +24,7 @@ var sdkSatFiles = [
     "port/freertos/hubble_sat_freertos.c",
     "src/hubble_sat.c",
     "src/hubble_sat_packet.c",
-    "src/hubble_sat_ephemeris.c",
+    "src/hubble_sat_pass_prediction.c",
     "src/reed_solomon_encoder.c",
     "src/utils/bitarray.c"
 ];

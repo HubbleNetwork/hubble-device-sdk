@@ -15,7 +15,7 @@ endif()
 
 if(CONFIG_HUBBLE_SAT_NETWORK)
 	zephyr_library_sources(../../src/utils/bitarray.c)
-	zephyr_library_sources(../../src/hubble_sat_ephemeris.c)
+	zephyr_library_sources(../../src/hubble_sat_pass_prediction.c)
 	zephyr_library_sources(../../src/hubble_sat.c)
 	zephyr_library_sources_ifdef(CONFIG_HUBBLE_SAT_NETWORK_PROTOCOL_V1 ../../src/hubble_sat_packet.c)
 	zephyr_library_sources(../../src/reed_solomon_encoder.c)

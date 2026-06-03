@@ -5,12 +5,12 @@
  */
 
 /**
- * @file ephemeris.h
- * @brief Hubble Network Satellite Ephemeris APIs
+ * @file pass_prediction.h
+ * @brief Hubble Network Satellite Pass Prediction APIs
  **/
 
-#ifndef INCLUDE_HUBBLE_SAT_EPHEMERIS_H
-#define INCLUDE_HUBBLE_SAT_EPHEMERIS_H
+#ifndef INCLUDE_HUBBLE_SAT_PASS_PREDICTION_H
+#define INCLUDE_HUBBLE_SAT_PASS_PREDICTION_H
 
 #include <stdbool.h>
 #include <stddef.h>
@@ -167,4 +167,4 @@ int hubble_sat_next_pass_region_get(
 }
 #endif
 
-#endif /* INCLUDE_HUBBLE_SAT_EPHEMERIS_H */
+#endif /* INCLUDE_HUBBLE_SAT_PASS_PREDICTION_H */

@@ -1,4 +1,4 @@
-#include <hubble/sat/ephemeris.h>
+#include <hubble/sat/pass_prediction.h>
 #include <hubble/port/sys.h>
 
 #include <math.h>
@@ -14,7 +14,7 @@
 #define M_PI 3.14159265358979323846
 #endif
 
-#define HUBBLE_EARTH_RADIUS              6378136.999954619 /* Earth radius at equator */
+#define HUBBLE_EARTH_RADIUS 6378136.999954619 /* Earth radius at equator */
 #define HUBBLE_EARTH_ROTATION_RATE       7.292115855377074e-05 /* rad / s */
 #define HUBBLE_TEME_REF_DATETIME_2027    1798761600
 #define HUBBLE_TEME_ANGLE_2027           1.7526971469712507
