@@ -10,63 +10,13 @@ architecture. This approach enables straightforward extensions or adaptations
 for various environments, including different real-time operating systems
 (RTOSes).
 
-The diagram below illustrates the role of the Hubble Network SDK within an
-embedded application:
+Where to go next
+****************
 
-.. figure:: images/sdk-architecture.svg
-   :alt: Hubble Network SDK
-   :align: center
-
-   Hubble Network SDK Architecture
-
-.. _hubble_architecture:
-
-Architecture
-************
-
-The SDK architecture is built on modularity and extensibility, accommodating
-a broad range of implementation requirements. The following sections
-summarize its primary components:
-
-Service Modules
-===============
-
-The Services Layer contains the core functionality of the SDK, including the
-satellite and BLE network modules. Applications interface with the SDK
-through these components, leveraging a high-level API that streamlines satellite
-and BLE communication.
-
-Satellite Module
-----------------
-
-.. warning::
-
-   The satellite module is currently in **pre-production** and is not yet ready
-   for production deployments.
-
-Provides APIs to transmit data to the Hubble Network. Because satellite
-communication relies on Hubble Network, this module assumes ownership of the
-target radio and possibly other devices when in use.
-
-BLE Network Module
-------------------
-
-Offers APIs to generate Bluetooth® advertisement packets, enabling connections
-to the Hubble Bluetooth Low Energy (BLE) Network. This module uses the standard Bluetooth protocol
-and does not assume ownership of any hardware. The application is responsible
-for managing the Bluetooth stack.
-
-.. note::
-   Hubble Network Inc. is a Bluetooth Member Company.
-
-   The Hubble Network SDK has completed the Bluetooth Qualification Process:
-
-   - Hubble Design Number: Q369913
-   - Qualified Product Details: https://qualification.bluetooth.com/ListingDetails/307489
-
-Port Layer
-==========
-
-The Port Layer acts as an abstraction between the Service Modules and
-RTOS-specific implementations. It defines an API that simplifies porting the
-SDK to various RTOS environments beyond those natively supported.
+* :ref:`hubble_architecture` — how the SDK is structured, its service modules,
+  the port layer, and the source-tree code organization.
+* :ref:`zephyr_quick_start`, :ref:`freertos_quick_start`,
+  :ref:`ti_quick_start` and :ref:`esp_idf_quick_start` — build and run a
+  sample application on a supported platform.
+* :ref:`hubble_configuration` — the full set of tunable ``CONFIG_HUBBLE_*``
+  options.
