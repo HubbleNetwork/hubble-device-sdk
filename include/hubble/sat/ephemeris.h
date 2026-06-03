@@ -52,7 +52,7 @@ struct hubble_sat_orbital_params {
 	/** Eccentricity (unitless, 0=circular) */
 	double eccentricity;
 	/** NORAD ID of the satellite */
-	uint32_t sat_id;
+	uint32_t satellite_id;
 };
 
 /**
