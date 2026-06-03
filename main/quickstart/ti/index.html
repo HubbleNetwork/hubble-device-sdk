@@ -95,6 +95,7 @@
 <li class="toctree-l3"><a class="reference internal" href="#prerequisites">Prerequisites</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#adding-the-hubble-network-sdk-sysconfig-product">Adding the Hubble Network SDK SysConfig Product</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#configuring-the-hubble-module-in-a-syscfg-script">Configuring the Hubble Module in a <code class="docutils literal notranslate"><span class="pre">.syscfg</span></code> Script</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#configuring-the-radio-for-satellite">Configuring the Radio for Satellite</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#using-code-composer-studio-ccs">Using Code Composer Studio (CCS)</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#building-the-application">Building the Application</a></li>
 </ul>
@@ -319,6 +320,63 @@ sources and include paths with the SysConfig framework so the generated
 <span class="nx">FreeRTOS</span><span class="p">.</span><span class="nx">heapSize</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mh">0x00004D50</span><span class="p">;</span>
 </pre></div>
 </div>
+<p>The <code class="docutils literal notranslate"><span class="pre">/Hubble</span></code> module exposes the network it should build for through two
+options:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">useTerrestrial</span></code> — enable the Hubble Terrestrial (BLE) Network.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">useSatellite</span></code> — enable the Hubble Satellite Network.</p></li>
+</ul>
+<p>Based on these options and the selected device (CC23xx or CC27xx), the module
+automatically registers the correct radio sources and build flags, so the same
+script works for terrestrial-only, satellite-only, and dual-stack
+applications.</p>
+</section>
+<section id="configuring-the-radio-for-satellite">
+<h2>Configuring the Radio for Satellite<a class="headerlink" href="#configuring-the-radio-for-satellite" title="Link to this heading"></a></h2>
+<p>Satellite transmission uses a custom RF configuration. The SDK provides a
+<code class="docutils literal notranslate"><span class="pre">hubble_radio.js</span></code> helper that sets up the <code class="docutils literal notranslate"><span class="pre">radioconfig</span></code> (and, for
+dual-stack, the DMM) modules and excludes the stock <code class="docutils literal notranslate"><span class="pre">ti_radio_config.c</span></code> in
+favor of the SDK-provided one. Load it with <code class="docutils literal notranslate"><span class="pre">system.getScript</span></code> and call the
+function that matches your use case.</p>
+<p>For a <strong>satellite-only</strong> application, enable satellite, disable terrestrial,
+and call <code class="docutils literal notranslate"><span class="pre">config()</span></code>:</p>
+<div class="highlight-javascript notranslate"><div class="highlight"><pre><span></span><span class="kd">var</span><span class="w"> </span><span class="nx">Hubble</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">scripting</span><span class="p">.</span><span class="nx">addModule</span><span class="p">(</span><span class="s2">&quot;/Hubble&quot;</span><span class="p">);</span>
+<span class="nx">Hubble</span><span class="p">.</span><span class="nx">useSatellite</span><span class="w">   </span><span class="o">=</span><span class="w"> </span><span class="kc">true</span><span class="p">;</span>
+<span class="nx">Hubble</span><span class="p">.</span><span class="nx">useTerrestrial</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">false</span><span class="p">;</span>
+
+<span class="kd">var</span><span class="w"> </span><span class="nx">hubble_radio</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">system</span><span class="p">.</span><span class="nx">getScript</span><span class="p">(</span><span class="s2">&quot;/hubble_radio.js&quot;</span><span class="p">);</span>
+<span class="nx">hubble_radio</span><span class="p">.</span><span class="nx">config</span><span class="p">();</span>
+</pre></div>
+</div>
+<p>For a <strong>dual-stack</strong> application (satellite + terrestrial running
+concurrently), enable both networks and call <code class="docutils literal notranslate"><span class="pre">config_dual_stack(role)</span></code>,
+passing the BLE stack role (for example <code class="docutils literal notranslate"><span class="pre">&quot;ble&quot;</span></code>). This sets up the Dynamic
+Multi-protocol Manager (DMM) so the BLE and satellite stacks can share the
+radio:</p>
+<div class="highlight-javascript notranslate"><div class="highlight"><pre><span></span><span class="kd">var</span><span class="w"> </span><span class="nx">Hubble</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">scripting</span><span class="p">.</span><span class="nx">addModule</span><span class="p">(</span><span class="s2">&quot;/Hubble&quot;</span><span class="p">);</span>
+<span class="nx">Hubble</span><span class="p">.</span><span class="nx">useSatellite</span><span class="w">   </span><span class="o">=</span><span class="w"> </span><span class="kc">true</span><span class="p">;</span>
+<span class="nx">Hubble</span><span class="p">.</span><span class="nx">useTerrestrial</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">true</span><span class="p">;</span>
+
+<span class="kd">var</span><span class="w"> </span><span class="nx">hubble_radio</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">system</span><span class="p">.</span><span class="nx">getScript</span><span class="p">(</span><span class="s2">&quot;/hubble_radio.js&quot;</span><span class="p">);</span>
+<span class="nx">hubble_radio</span><span class="p">.</span><span class="nx">config_dual_stack</span><span class="p">(</span><span class="s2">&quot;ble&quot;</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>When both networks are enabled, the module additionally pulls in the DMM
+sources and include paths and defines <code class="docutils literal notranslate"><span class="pre">-DCC23X0</span></code> (plus <code class="docutils literal notranslate"><span class="pre">-DCC27</span></code> on CC27xx)
+and the <code class="docutils literal notranslate"><span class="pre">-DUSE_DMM*</span></code> flags.</p>
+<div class="admonition important">
+<p class="admonition-title">Important</p>
+<p>In a dual-stack application, <code class="xref c c-func docutils literal notranslate"><span class="pre">hubble_init()</span></code> must be called <strong>before</strong>
+the BLE stack is started. <code class="docutils literal notranslate"><span class="pre">hubble_init</span></code> sets up both the BLE (BT) and the
+custom RF stacks for satellite use.</p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Make sure the RCL command symbol in the custom RF settings is generated
+automatically (set <strong>Symbol Name Generation Method</strong> to <strong>Automatic</strong>) so
+the SDK can reference it. See the <code class="docutils literal notranslate"><span class="pre">samples/freertos/ti/sat-continuous</span></code>
+sample for complete satellite-only and dual-stack <code class="docutils literal notranslate"><span class="pre">.syscfg</span></code> scripts.</p>
+</div>
 </section>
 <section id="using-code-composer-studio-ccs">
 <h2>Using Code Composer Studio (CCS)<a class="headerlink" href="#using-code-composer-studio-ccs" title="Link to this heading"></a></h2>
@@ -338,7 +396,13 @@ Network SDK checkout.</p>
 </li>
 <li><p>Click <strong>Apply and Close</strong>. CCS will pass this flag to the SysConfig CLI
 during the build, making the <code class="docutils literal notranslate"><span class="pre">/Hubble</span></code> module available in your
-<code class="docutils literal notranslate"><span class="pre">.syscfg</span></code> script just as described in the section above.</p></li>
+<code class="docutils literal notranslate"><span class="pre">.syscfg</span></code> script just as described in the section above. If Satellite Network
+is enabled the additional step must be added to you <code class="docutils literal notranslate"><span class="pre">.syscfg</span></code> script:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>var hubble_radio = system.getScript(&quot;/hubble_radio.js&quot;);
+hubble_radio.config_dual_stack(&quot;ble&quot;); // or hubble_radio.config()
+</pre></div>
+</div>
+</li>
 </ol>
 </section>
 <section id="building-the-application">

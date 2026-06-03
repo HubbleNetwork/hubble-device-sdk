@@ -98,6 +98,71 @@ A minimal ``.syscfg`` script for a BLE application on CC23xx looks like:
    const FreeRTOS = scripting.addModule("/freertos/FreeRTOS");
    FreeRTOS.heapSize = 0x00004D50;
 
+The ``/Hubble`` module exposes the network it should build for through two
+options:
+
+- ``useTerrestrial`` — enable the Hubble Terrestrial (BLE) Network.
+- ``useSatellite`` — enable the Hubble Satellite Network.
+
+Based on these options and the selected device (CC23xx or CC27xx), the module
+automatically registers the correct radio sources and build flags, so the same
+script works for terrestrial-only, satellite-only, and dual-stack
+applications.
+
+
+Configuring the Radio for Satellite
+***********************************
+
+Satellite transmission uses a custom RF configuration. The SDK provides a
+``hubble_radio.js`` helper that sets up the ``radioconfig`` (and, for
+dual-stack, the DMM) modules and excludes the stock ``ti_radio_config.c`` in
+favor of the SDK-provided one. Load it with ``system.getScript`` and call the
+function that matches your use case.
+
+For a **satellite-only** application, enable satellite, disable terrestrial,
+and call ``config()``:
+
+.. code-block:: javascript
+
+   var Hubble = scripting.addModule("/Hubble");
+   Hubble.useSatellite   = true;
+   Hubble.useTerrestrial = false;
+
+   var hubble_radio = system.getScript("/hubble_radio.js");
+   hubble_radio.config();
+
+For a **dual-stack** application (satellite + terrestrial running
+concurrently), enable both networks and call ``config_dual_stack(role)``,
+passing the BLE stack role (for example ``"ble"``). This sets up the Dynamic
+Multi-protocol Manager (DMM) so the BLE and satellite stacks can share the
+radio:
+
+.. code-block:: javascript
+
+   var Hubble = scripting.addModule("/Hubble");
+   Hubble.useSatellite   = true;
+   Hubble.useTerrestrial = true;
+
+   var hubble_radio = system.getScript("/hubble_radio.js");
+   hubble_radio.config_dual_stack("ble");
+
+When both networks are enabled, the module additionally pulls in the DMM
+sources and include paths and defines ``-DCC23X0`` (plus ``-DCC27`` on CC27xx)
+and the ``-DUSE_DMM*`` flags.
+
+.. important::
+
+   In a dual-stack application, :c:func:`hubble_init` must be called **before**
+   the BLE stack is started. ``hubble_init`` sets up both the BLE (BT) and the
+   custom RF stacks for satellite use.
+
+.. note::
+
+   Make sure the RCL command symbol in the custom RF settings is generated
+   automatically (set **Symbol Name Generation Method** to **Automatic**) so
+   the SDK can reference it. See the ``samples/freertos/ti/sat-continuous``
+   sample for complete satellite-only and dual-stack ``.syscfg`` scripts.
+
 
 Using Code Composer Studio (CCS)
 *********************************
@@ -120,8 +185,13 @@ SysConfig product directly from the IDE:
 
 4. Click **Apply and Close**. CCS will pass this flag to the SysConfig CLI
    during the build, making the ``/Hubble`` module available in your
-   ``.syscfg`` script just as described in the section above.
+   ``.syscfg`` script just as described in the section above. If Satellite Network
+   is enabled the additional step must be added to you ``.syscfg`` script:
 
+   .. code-block:: none
+
+      var hubble_radio = system.getScript("/hubble_radio.js");
+      hubble_radio.config_dual_stack("ble"); // or hubble_radio.config()
 
 Building the Application
 ************************
