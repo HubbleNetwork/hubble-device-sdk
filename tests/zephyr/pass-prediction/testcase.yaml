@@ -4,15 +4,15 @@ common:
     - qemu_cortex_m3
   min_flash: 34
   tags:
-    - ephemeris
+    - pass_prediction
     - satellite
   integration_platforms:
     - native_sim
 
 tests:
-  satellite.ephemeris:
+  satellite.pass_prediction:
     extra_configs:
       - CONFIG_HUBBLE_SAT_NETWORK_SMALL=n
-  satellie.ephemeris.small:
+  satellite.pass_prediction.small:
     extra_configs:
       - CONFIG_HUBBLE_SAT_NETWORK_SMALL=y

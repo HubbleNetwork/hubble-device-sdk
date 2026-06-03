@@ -8,7 +8,7 @@
 #include <zephyr/types.h>
 #include <zephyr/ztest.h>
 
-#define EPHEMERIS_DELTA                   (3)
+#define PASS_PREDICTION_DELTA             (3)
 
 /* The transmission period is the product of the number of retries +
  * the interval between them.
@@ -117,7 +117,7 @@ static const struct hubble_sat_orbital_params orbit = {
 	.satellite_id = 60471,
 };
 
-ZTEST(satellite_ephemeris_test, test_satellite_ephemeris_calculation)
+ZTEST(satellite_pass_prediction_test, test_satellite_pass_prediction_calculation)
 {
 	int ret;
 	struct hubble_sat_pass_info next_pass;
@@ -131,11 +131,12 @@ ZTEST(satellite_ephemeris_test, test_satellite_ephemeris_calculation)
 
 		zassert_equal(ret, 0, NULL);
 		zassert_within(next_pass.culmination,
-			       results[count].culmination_time, EPHEMERIS_DELTA);
+			       results[count].culmination_time,
+			       PASS_PREDICTION_DELTA);
 	}
 }
 
-ZTEST(satellite_ephemeris_test, test_satellite_ephemeris_invalid)
+ZTEST(satellite_pass_prediction_test, test_satellite_pass_prediction_invalid)
 {
 	struct hubble_sat_pass_info next_pass;
 	int ret;
@@ -190,7 +191,8 @@ static const struct test_region_result region_results[] = {
 	{{45.0, 30.0, -45.0, 50.0}, 1711334475, 1711337171, 484},
 };
 
-ZTEST(satellite_ephemeris_test, test_satellite_ephemeris_region_calculation)
+ZTEST(satellite_pass_prediction_test,
+      test_satellite_pass_prediction_region_calculation)
 {
 	int ret;
 	struct hubble_sat_pass_info next_pass;
@@ -206,12 +208,12 @@ ZTEST(satellite_ephemeris_test, test_satellite_ephemeris_region_calculation)
 		zassert_equal(ret, 0, NULL);
 		zassert_within(next_pass.culmination,
 			       region_results[count].culmination_time,
-			       EPHEMERIS_DELTA);
+			       PASS_PREDICTION_DELTA);
 		zassert_within(next_pass.duration,
 			       region_results[count].duration +
 				       TRANSMISSION_PERIOD_SINGLE_PACKET,
-			       EPHEMERIS_DELTA);
+			       PASS_PREDICTION_DELTA);
 	}
 }
 
-ZTEST_SUITE(satellite_ephemeris_test, NULL, NULL, NULL, NULL, NULL);
+ZTEST_SUITE(satellite_pass_prediction_test, NULL, NULL, NULL, NULL, NULL);
