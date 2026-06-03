@@ -224,7 +224,26 @@ git clang-format
 - **Pointers**: Pointers should hug the variable: `char *ptr` not `char* ptr`
 - **Braces**: Use consistent brace style (as configured in `.clang-format`)
 
-### Platform-Specific Code
+### Code organization
+
+Use this placement guide when adding functionality.
+
+| If you are adding... | Put it in... |
+| --- | --- |
+| An application-facing declaration | `include/hubble` |
+| Protocol, state, encoding, or algorithm logic | `src` |
+| A private declaration shared by several common files | `src/hubble_priv.h` (only when more than one common file needs it) |
+| A new platform service the common code depends on | a contract in `include/hubble/port`, implemented by each port |
+| An RTOS service implementation | `port/<rtos>` |
+| Board or SOC-specific radio details | `port/<rtos>/boards` |
+| A sample application | `samples/<rtos>` |
+| A test | `tests`, near the platform or behavior being verified |
+
+The single rule behind every row is the same: keep dependencies flowing
+downward. Public APIs call common code, common code calls port contracts, and
+port contracts call RTOS and hardware implementations.
+
+#### Platform-Specific Code
 
 When adding platform-specific code:
 
@@ -236,7 +255,7 @@ When adding platform-specific code:
 - Test changes on at least one platform before submitting
 - Document any platform-specific limitations or requirements
 
-### Header Files
+#### Header Files
 
 - Use `#ifndef` guards
 - Include system headers with `<>` and local headers with `""`
