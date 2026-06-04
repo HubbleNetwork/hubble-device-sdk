@@ -1,0 +1,19 @@
+# Copyright (c) 2026 Hubble Network, Inc.
+# SPDX-License-Identifier: Apache-2.0
+
+menu "Hubble Network Satellite Sample options"
+
+config SAMPLE_PROVIDE_SAT_BOARD_SUPPORT
+    bool "Provide satellite board support for test purpose"
+    default n
+    help
+        Targets that support satellite must provide the board support, otherwise
+        board APIs will be mocked in the sample.
+
+endmenu
+
+source "Kconfig.zephyr"
+
+module = APP
+module-str = APP
+source "subsys/logging/Kconfig.template.log_config"

@@ -1,0 +1,16 @@
+# Copyright (c) 2026 Hubble Network, Inc.
+# SPDX-License-Identifier: Apache-2.0
+
+sample:
+  description: Hubble Network Satellite DTM example
+  name: hubble-sat-dtm
+common:
+  build_only: true
+  platform_allow:
+    - native_sim
+  tags:
+    - satellite
+tests:
+  app.sat.dtm.default:
+    extra_configs:
+      - CONFIG_SAMPLE_PROVIDE_SAT_BOARD_SUPPORT=y
