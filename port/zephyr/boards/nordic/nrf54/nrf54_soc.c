@@ -243,3 +243,118 @@ int hubble_sat_soc_packet_send(const struct hubble_sat_packet_frames *packet)
 
 	return 0;
 }
+
+#ifdef CONFIG_HUBBLE_SAT_NETWORK_DTM_MODE
+
+int hubble_sat_soc_power_set(int8_t power)
+{
+	switch (power) {
+	case 8:
+		_sat_power = NRF_RADIO_TXPOWER_POS8DBM;
+		break;
+	case 7:
+		_sat_power = NRF_RADIO_TXPOWER_POS7DBM;
+		break;
+	case 6:
+		_sat_power = NRF_RADIO_TXPOWER_POS6DBM;
+		break;
+	case 5:
+		_sat_power = NRF_RADIO_TXPOWER_POS5DBM;
+		break;
+	case 4:
+		_sat_power = NRF_RADIO_TXPOWER_POS4DBM;
+		break;
+	case 3:
+		_sat_power = NRF_RADIO_TXPOWER_POS3DBM;
+		break;
+	case 2:
+		_sat_power = NRF_RADIO_TXPOWER_POS2DBM;
+		break;
+	case 1:
+		_sat_power = NRF_RADIO_TXPOWER_POS1DBM;
+		break;
+	case 0:
+		_sat_power = NRF_RADIO_TXPOWER_0DBM;
+		break;
+	case -1:
+		_sat_power = NRF_RADIO_TXPOWER_NEG1DBM;
+		break;
+	case -2:
+		_sat_power = NRF_RADIO_TXPOWER_NEG2DBM;
+		break;
+	case -3:
+		_sat_power = NRF_RADIO_TXPOWER_NEG3DBM;
+		break;
+	case -4:
+		_sat_power = NRF_RADIO_TXPOWER_NEG4DBM;
+		break;
+	case -5:
+		_sat_power = NRF_RADIO_TXPOWER_NEG5DBM;
+		break;
+	case -6:
+		_sat_power = NRF_RADIO_TXPOWER_NEG6DBM;
+		break;
+	case -7:
+		_sat_power = NRF_RADIO_TXPOWER_NEG7DBM;
+		break;
+	case -8:
+		_sat_power = NRF_RADIO_TXPOWER_NEG8DBM;
+		break;
+	case -9:
+		_sat_power = NRF_RADIO_TXPOWER_NEG9DBM;
+		break;
+	case -10:
+		_sat_power = NRF_RADIO_TXPOWER_NEG10DBM;
+		break;
+	case -12:
+		_sat_power = NRF_RADIO_TXPOWER_NEG12DBM;
+		break;
+	case -14:
+		_sat_power = NRF_RADIO_TXPOWER_NEG14DBM;
+		break;
+	case -16:
+		_sat_power = NRF_RADIO_TXPOWER_NEG16DBM;
+		break;
+	case -20:
+		_sat_power = NRF_RADIO_TXPOWER_NEG20DBM;
+		break;
+	case -40:
+		_sat_power = NRF_RADIO_TXPOWER_NEG40DBM;
+		break;
+	default:
+		return -EINVAL;
+	}
+
+	nrf_radio_txpower_set(NRF_RADIO, _sat_power);
+	return 0;
+}
+
+int hubble_sat_soc_cw_start(uint8_t channel)
+{
+	int ret = hubble_nrf_lib_frequency_set(channel, 32);
+
+	if (ret != 0) {
+		return ret;
+	}
+
+	nrf_radio_task_trigger(NRF_RADIO, NRF_RADIO_TASK_TXEN);
+	while (!nrf_radio_event_check(NRF_RADIO, NRF_RADIO_EVENT_TXREADY)) {
+		/* Do nothing */
+	}
+
+	return 0;
+}
+
+int hubble_sat_soc_cw_stop(void)
+{
+	nrf_radio_task_trigger(NRF_RADIO, NRF_RADIO_TASK_DISABLE);
+
+	while (!nrf_radio_event_check(NRF_RADIO, NRF_RADIO_EVENT_DISABLED)) {
+		/* Do nothing */
+	}
+	nrf_radio_event_clear(NRF_RADIO, NRF_RADIO_EVENT_DISABLED);
+
+	return 0;
+}
+
+#endif /* CONFIG_HUBBLE_SAT_NETWORK_DTM_MODE */

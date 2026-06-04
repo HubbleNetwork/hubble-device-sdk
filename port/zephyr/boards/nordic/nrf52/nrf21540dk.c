@@ -40,3 +40,24 @@ int hubble_sat_board_packet_send(const struct hubble_sat_packet_frames *packet)
 
 	return 0;
 }
+
+#ifdef CONFIG_HUBBLE_SAT_NETWORK_DTM_MODE
+
+int hubble_sat_board_power_set(int8_t power)
+{
+	return hubble_sat_soc_power_set(power);
+}
+
+int hubble_sat_board_cw_start(uint8_t channel)
+{
+	hubble_board_fem_enable();
+	return hubble_sat_soc_cw_start(channel);
+}
+
+int hubble_sat_board_cw_stop(void)
+{
+	hubble_board_fem_sleep();
+	return hubble_sat_soc_cw_stop();
+}
+
+#endif /* CONFIG_HUBBLE_SAT_NETWORK_DTM_MODE */
