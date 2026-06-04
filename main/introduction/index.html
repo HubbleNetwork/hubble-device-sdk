@@ -32,7 +32,7 @@
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="Quick Start" href="../quickstart/index.html" />
+    <link rel="next" title="Architecture" href="../architecture/index.html" />
     <link rel="prev" title="Hubble Network SDK documentation" href="../index.html" />
   <meta name="color-scheme" content="dark light">
   
@@ -73,9 +73,17 @@
     
               <ul class="current">
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Introduction</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#architecture">Architecture</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#service-modules">Service Modules</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#port-layer">Port Layer</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#where-to-go-next">Where to go next</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../architecture/index.html">Architecture</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../architecture/index.html#service-modules">Service Modules</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../architecture/index.html#satellite-module">Satellite Module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../architecture/index.html#ble-network-module">BLE Network Module</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../architecture/index.html#port-layer">Port Layer</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../architecture/project-organization.html">Project Organization</a></li>
 </ul>
 </li>
 </ul>
@@ -243,59 +251,17 @@ Communication and BLE Network Communication—both built around a modular
 architecture. This approach enables straightforward extensions or adaptations
 for various environments, including different real-time operating systems
 (RTOSes).</p>
-<p>The diagram below illustrates the role of the Hubble Network SDK within an
-embedded application:</p>
-<figure class="align-center" id="id1">
-<img alt="Hubble Network SDK" src="../_images/sdk-architecture.svg" />
-<figcaption>
-<p><span class="caption-text">Hubble Network SDK Architecture</span><a class="headerlink" href="#id1" title="Link to this image"></a></p>
-</figcaption>
-</figure>
-<section id="architecture">
-<span id="hubble-architecture"></span><h2>Architecture<a class="headerlink" href="#architecture" title="Link to this heading"></a></h2>
-<p>The SDK architecture is built on modularity and extensibility, accommodating
-a broad range of implementation requirements. The following sections
-summarize its primary components:</p>
-<section id="service-modules">
-<h3>Service Modules<a class="headerlink" href="#service-modules" title="Link to this heading"></a></h3>
-<p>The Services Layer contains the core functionality of the SDK, including the
-satellite and BLE network modules. Applications interface with the SDK
-through these components, leveraging a high-level API that streamlines satellite
-and BLE communication.</p>
-<section id="satellite-module">
-<h4>Satellite Module<a class="headerlink" href="#satellite-module" title="Link to this heading"></a></h4>
-<div class="admonition warning">
-<p class="admonition-title">Warning</p>
-<p>The satellite module is currently in <strong>pre-production</strong> and is not yet ready
-for production deployments.</p>
-</div>
-<p>Provides APIs to transmit data to the Hubble Network. Because satellite
-communication relies on Hubble Network, this module assumes ownership of the
-target radio and possibly other devices when in use.</p>
-</section>
-<section id="ble-network-module">
-<h4>BLE Network Module<a class="headerlink" href="#ble-network-module" title="Link to this heading"></a></h4>
-<p>Offers APIs to generate Bluetooth® advertisement packets, enabling connections
-to the Hubble Bluetooth Low Energy (BLE) Network. This module uses the standard Bluetooth protocol
-and does not assume ownership of any hardware. The application is responsible
-for managing the Bluetooth stack.</p>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>Hubble Network Inc. is a Bluetooth Member Company.</p>
-<p>The Hubble Network SDK has completed the Bluetooth Qualification Process:</p>
+<section id="where-to-go-next">
+<h2>Where to go next<a class="headerlink" href="#where-to-go-next" title="Link to this heading"></a></h2>
 <ul class="simple">
-<li><p>Hubble Design Number: Q369913</p></li>
-<li><p>Qualified Product Details: <a class="reference external" href="https://qualification.bluetooth.com/ListingDetails/307489">https://qualification.bluetooth.com/ListingDetails/307489</a></p></li>
+<li><p><a class="reference internal" href="../architecture/index.html#hubble-architecture"><span class="std std-ref">Architecture</span></a> — how the SDK is structured, its service modules,
+the port layer, and the source-tree code organization.</p></li>
+<li><p><a class="reference internal" href="../quickstart/zephyr/index.html#zephyr-quick-start"><span class="std std-ref">Zephyr Quick Start</span></a>, <a class="reference internal" href="../quickstart/freertos/index.html#freertos-quick-start"><span class="std std-ref">FreeRTOS Quick Start</span></a>,
+<a class="reference internal" href="../quickstart/ti/index.html#ti-quick-start"><span class="std std-ref">TI SDK Quick Start (SysConfig)</span></a> and <a class="reference internal" href="../quickstart/esp-idf/index.html#esp-idf-quick-start"><span class="std std-ref">ESP-IDF Quick Start</span></a> — build and run a
+sample application on a supported platform.</p></li>
+<li><p><a class="reference internal" href="../configuration/index.html#hubble-configuration"><span class="std std-ref">Configuration Reference</span></a> — the full set of tunable <code class="docutils literal notranslate"><span class="pre">CONFIG_HUBBLE_*</span></code>
+options.</p></li>
 </ul>
-</div>
-</section>
-</section>
-<section id="port-layer">
-<h3>Port Layer<a class="headerlink" href="#port-layer" title="Link to this heading"></a></h3>
-<p>The Port Layer acts as an abstraction between the Service Modules and
-RTOS-specific implementations. It defines an API that simplifies porting the
-SDK to various RTOS environments beyond those natively supported.</p>
-</section>
 </section>
 </section>
 
@@ -305,7 +271,7 @@ SDK to various RTOS environments beyond those natively supported.</p>
 
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="../index.html" class="btn btn-neutral float-left" title="Hubble Network SDK documentation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="../quickstart/index.html" class="btn btn-neutral float-right" title="Quick Start" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="../architecture/index.html" class="btn btn-neutral float-right" title="Architecture" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

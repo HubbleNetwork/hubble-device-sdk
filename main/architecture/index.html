@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Best Practices for Time Management &mdash; Hubble Network SDK Documentation</title>
+  <title>Architecture &mdash; Hubble Network SDK Documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=4ae1632d" />
@@ -16,7 +16,7 @@
 
   
     <link rel="shortcut icon" href="../_static/hubble.png"/>
-    <link rel="canonical" href="https://HubbleNetwork.github.io/hubble-device-sdk/main/ble/timing.html" />
+    <link rel="canonical" href="https://HubbleNetwork.github.io/hubble-device-sdk/main/architecture/index.html" />
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
       <script src="../_static/documentation_options.js?v=2709fde1"></script>
@@ -32,8 +32,8 @@
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="BLE Network API Reference" href="api.html" />
-    <link rel="prev" title="BLE Security Overview" href="security.html" />
+    <link rel="next" title="Project Organization" href="project-organization.html" />
+    <link rel="prev" title="Introduction" href="../introduction/index.html" />
   <meta name="color-scheme" content="dark light">
   
   <noscript id="dark-mode-toggle-stylesheets">
@@ -76,14 +76,14 @@
 <li class="toctree-l2"><a class="reference internal" href="../introduction/index.html#where-to-go-next">Where to go next</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../architecture/index.html">Architecture</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../architecture/index.html#service-modules">Service Modules</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../architecture/index.html#satellite-module">Satellite Module</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../architecture/index.html#ble-network-module">BLE Network Module</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Architecture</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#service-modules">Service Modules</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#satellite-module">Satellite Module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ble-network-module">BLE Network Module</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="../architecture/index.html#port-layer">Port Layer</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../architecture/project-organization.html">Project Organization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#port-layer">Port Layer</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="project-organization.html">Project Organization</a></li>
 </ul>
 </li>
 </ul>
@@ -117,30 +117,30 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../configuration/index.html">Configuration Reference</a></li>
-<li class="toctree-l1 current"><a class="reference internal" href="index.html">BLE Network Overview</a><ul class="current">
-<li class="toctree-l2"><a class="reference internal" href="index.html#introduction">Introduction</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="index.html#key-features">Key Features</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ble/index.html">BLE Network Overview</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../ble/index.html#introduction">Introduction</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../ble/index.html#key-features">Key Features</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="index.html#api-overview">API Overview</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="index.html#initialization">Initialization</a></li>
-<li class="toctree-l3"><a class="reference internal" href="index.html#time-management">Time Management</a></li>
-<li class="toctree-l3"><a class="reference internal" href="index.html#encryption-key-management">Encryption Key Management</a></li>
-<li class="toctree-l3"><a class="reference internal" href="index.html#advertisement-retrieval">Advertisement Retrieval</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../ble/index.html#api-overview">API Overview</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../ble/index.html#initialization">Initialization</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../ble/index.html#time-management">Time Management</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../ble/index.html#encryption-key-management">Encryption Key Management</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../ble/index.html#advertisement-retrieval">Advertisement Retrieval</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="index.html#security-details">Security Details</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="security.html">BLE  Security Overview</a></li>
-<li class="toctree-l3"><a class="reference internal" href="security.html#encryption-steps">Encryption steps</a></li>
-<li class="toctree-l3"><a class="reference internal" href="security.html#additional-references">Additional references</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../ble/index.html#security-details">Security Details</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../ble/security.html">BLE  Security Overview</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../ble/security.html#encryption-steps">Encryption steps</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../ble/security.html#additional-references">Additional references</a></li>
 </ul>
 </li>
-<li class="toctree-l2 current"><a class="reference internal" href="index.html#timing-management">Timing management</a><ul class="current">
-<li class="toctree-l3 current"><a class="current reference internal" href="#">Best Practices for Time Management</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../ble/index.html#timing-management">Timing management</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../ble/timing.html">Best Practices for Time Management</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="index.html#api-reference">API Reference</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="api.html">BLE Network API Reference</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../ble/index.html#api-reference">API Reference</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../ble/api.html">BLE Network API Reference</a></li>
 </ul>
 </li>
 </ul>
@@ -227,9 +227,7 @@
 
   <li><a href="../index.html">Docs</a> &raquo;</li>
   
-     <li><a href="index.html">BLE Network Overview</a> &raquo;</li>
-  
-  <li>Best Practices for Time Management</li>
+  <li>Architecture</li>
 
 
   <li class="wy-breadcrumbs-aside">
@@ -245,168 +243,65 @@
   
            <div itemprop="articleBody">
              
-  <section id="best-practices-for-time-management">
-<span id="hubble-timing"></span><h1>Best Practices for Time Management<a class="headerlink" href="#best-practices-for-time-management" title="Link to this heading"></a></h1>
-<p>Proper time management is critical for ensuring accurate encryption
-and secure operations in the SDK. Below are the best practices for
-provisioning Unix time and accounting for drifts.</p>
-<section id="provisioning-unix-time">
-<h2>Provisioning Unix Time<a class="headerlink" href="#provisioning-unix-time" title="Link to this heading"></a></h2>
-<p>To ensure the SDK operates with accurate time, follow these steps to provision Unix time:</p>
-<ol class="arabic simple">
-<li><p><strong>Obtain Accurate Time Source</strong></p>
-<ul class="simple">
-<li><p>Use a reliable time source such as an NTP (Network Time Protocol) server or GPS.</p></li>
-<li><p>Ensure the time source is synchronized and trusted to avoid tampering.</p></li>
-</ul>
-</li>
-<li><p><strong>Set System Time</strong></p>
-<ul class="simple">
-<li><p>Use the Hubble APIs (<code class="xref c c-func docutils literal notranslate"><span class="pre">hubble_init()</span></code> and
-<code class="xref c c-func docutils literal notranslate"><span class="pre">hubble_time_set()</span></code>) to set the obtained Unix time.</p></li>
-</ul>
-</li>
-<li><p><strong>Validate Time Synchronization</strong></p>
-<ul class="simple">
-<li><p>Periodically validate the system time against the trusted time source.</p></li>
-<li><p>Log any discrepancies for debugging and auditing purposes.</p></li>
-</ul>
-</li>
-</ol>
+  <section id="architecture">
+<span id="hubble-architecture"></span><h1>Architecture<a class="headerlink" href="#architecture" title="Link to this heading"></a></h1>
+<p>The SDK architecture is built on modularity and extensibility, accommodating
+a broad range of implementation requirements. The diagram below illustrates the
+role of the Hubble Network SDK within an embedded application:</p>
+<figure class="align-center" id="id1">
+<img alt="Hubble Network SDK" src="../_images/sdk-architecture.svg" />
+<figcaption>
+<p><span class="caption-text">Hubble Network SDK Architecture</span><a class="headerlink" href="#id1" title="Link to this image"></a></p>
+</figcaption>
+</figure>
+<p>The following sections summarize its primary components.</p>
+<section id="service-modules">
+<h2>Service Modules<a class="headerlink" href="#service-modules" title="Link to this heading"></a></h2>
+<p>The Services Layer contains the core functionality of the SDK, including the
+satellite and BLE network modules. Applications interface with the SDK
+through these components, leveraging a high-level API that streamlines satellite
+and BLE communication.</p>
+<section id="satellite-module">
+<h3>Satellite Module<a class="headerlink" href="#satellite-module" title="Link to this heading"></a></h3>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>The satellite module is currently in <strong>pre-production</strong> and is not yet ready
+for production deployments.</p>
+</div>
+<p>Provides APIs to transmit data to the Hubble Network. Because satellite
+communication relies on Hubble Network, this module assumes ownership of the
+target radio and possibly other devices when in use.</p>
 </section>
-<section id="accounting-for-time-drifts">
-<h2>Accounting for Time Drifts<a class="headerlink" href="#accounting-for-time-drifts" title="Link to this heading"></a></h2>
-<p>Time drifts can occur due to hardware clock inaccuracies. To mitigate this, follow these practices:</p>
-<ol class="arabic simple">
-<li><p><strong>Periodic Time Synchronization</strong></p>
+<section id="ble-network-module">
+<h3>BLE Network Module<a class="headerlink" href="#ble-network-module" title="Link to this heading"></a></h3>
+<p>Offers APIs to generate Bluetooth® advertisement packets, enabling connections
+to the Hubble Bluetooth Low Energy (BLE) Network. This module uses the standard Bluetooth protocol
+and does not assume ownership of any hardware. The application is responsible
+for managing the Bluetooth stack.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Hubble Network Inc. is a Bluetooth Member Company.</p>
+<p>The Hubble Network SDK has completed the Bluetooth Qualification Process:</p>
 <ul class="simple">
-<li><p>Regularly synchronize the system clock with the trusted time source.</p></li>
-<li><p>Use a configurable interval based on the expected drift rate of the hardware clock.</p></li>
+<li><p>Hubble Design Number: Q369913</p></li>
+<li><p>Qualified Product Details: <a class="reference external" href="https://qualification.bluetooth.com/ListingDetails/307489">https://qualification.bluetooth.com/ListingDetails/307489</a></p></li>
 </ul>
-</li>
-<li><p><strong>Monitor Drift</strong></p>
-<ul class="simple">
-<li><p>Measure the drift rate of the hardware clock during testing.</p></li>
-<li><p>Use this information to adjust the synchronization interval.</p></li>
-</ul>
-</li>
-<li><p><strong>Apply Drift Compensation</strong></p>
-<ul class="simple">
-<li><p>Implement drift compensation logic to adjust the system clock between synchronizations.</p></li>
-</ul>
-</li>
-</ol>
+</div>
 </section>
-<section id="tips-for-handling-time-persistence-across-power-cycles">
-<h2>Tips for Handling Time Persistence Across Power Cycles<a class="headerlink" href="#tips-for-handling-time-persistence-across-power-cycles" title="Link to this heading"></a></h2>
-<p>To accommodate a certain amount of drift and ensure time persistence across power cycles, you can use alternative methods such as storing the time in flash memory or other persistent storage. Below are recommendations, risks, and a workflow for managing time in such scenarios.</p>
-<section id="alternatives-for-time-persistence-across-reboots">
-<h3>Alternatives for Time Persistence Across Reboots<a class="headerlink" href="#alternatives-for-time-persistence-across-reboots" title="Link to this heading"></a></h3>
-<ol class="arabic simple">
-<li><p><strong>Store Time in Flash Memory</strong></p>
-<ul class="simple">
-<li><p>Write the current Unix time to flash memory before a power cycle or periodically during operation.</p></li>
-<li><p>Risks:</p>
+</section>
+<section id="port-layer">
+<h2>Port Layer<a class="headerlink" href="#port-layer" title="Link to this heading"></a></h2>
+<p>The Port Layer acts as an abstraction between the Service Modules and
+RTOS-specific implementations. It defines an API that simplifies porting the
+SDK to various RTOS environments beyond those natively supported.</p>
+<p>The <a class="reference internal" href="project-organization.html#project-organization"><span class="std std-ref">Project Organization</span></a> page describes how these layers map onto the
+source tree, the naming conventions used throughout, and where new code should
+go.</p>
+<div class="toctree-wrapper compound">
 <ul>
-<li><p><em>Flash Wear</em>: Flash memory has a limited number of write cycles. Frequent writes can lead to premature wear.</p></li>
-<li><p><em>Tearing</em>: If a power failure occurs during a write operation, the data may become corrupted.</p></li>
-<li><p><em>No Time Gap Information</em>: Flash storage does not provide information about how long the device was powered off.</p></li>
+<li class="toctree-l1"><a class="reference internal" href="project-organization.html">Project Organization</a></li>
 </ul>
-</li>
-</ul>
-</li>
-<li><p><strong>Store Time in Non-Volatile RAM (NVRAM)</strong></p>
-<ul class="simple">
-<li><p>Use NVRAM or battery-backed RAM to store the current Unix time.</p></li>
-<li><p>This method avoids flash wear and allows faster read/write operations.</p></li>
-<li><p>Risks:</p>
-<ul>
-<li><p><em>Hardware Dependency</em>: Requires specific hardware support for NVRAM.</p></li>
-<li><p><em>Battery Depletion</em>: If the battery backing the RAM depletes, the stored time will be lost.</p></li>
-</ul>
-</li>
-</ul>
-</li>
-<li><p><strong>Use an RTC Device</strong></p>
-<ul class="simple">
-<li><p>If the hardware includes an RTC, initialize it with the current Unix time and use it as a persistent time source.</p></li>
-<li><p>This is the most reliable method for time persistence across reboots.</p></li>
-<li><p>Risks:</p>
-<ul>
-<li><p><em>RTC Drift</em>: The RTC may drift over time and require periodic synchronization.</p></li>
-</ul>
-</li>
-</ul>
-</li>
-<li><p><strong>Hybrid Approach</strong></p>
-<ul class="simple">
-<li><p>Combine flash storage and RTC. Use the RTC for short-term persistence and flash storage as a backup in case of RTC failure or battery depletion.</p></li>
-<li><p>Risks:</p>
-<ul>
-<li><p><em>Complexity</em>: Increases system complexity and requires careful coordination between the two methods.</p></li>
-</ul>
-</li>
-</ul>
-</li>
-</ol>
-</section>
-<section id="recommended-workflow-for-time-management">
-<h3>Recommended Workflow for Time Management<a class="headerlink" href="#recommended-workflow-for-time-management" title="Link to this heading"></a></h3>
-<p>Below is a recommended workflow for managing time in the SDK:</p>
-<ol class="arabic simple">
-<li><p><strong>Device Boots</strong></p>
-<ul class="simple">
-<li><p>Retrieve the last known time from persistent storage (e.g., flash, NVRAM, or RTC).</p></li>
-<li><p>If no valid time is available, initialize the system to a default value (e.g., epoch time).</p></li>
-</ul>
-</li>
-<li><p><strong>Wait to Sync Time</strong></p>
-<ul class="simple">
-<li><p>Attempt to synchronize the system clock with a trusted time source (e.g., NTP server or GPS).</p></li>
-<li><p>Block critical operations that depend on accurate time until synchronization is complete.</p></li>
-</ul>
-</li>
-<li><p><strong>Start Tracking Time</strong></p>
-<ul class="simple">
-<li><p>Once synchronized, start tracking time using the system clock.</p></li>
-<li><p>Periodically log the current time for debugging and auditing purposes.</p></li>
-</ul>
-</li>
-<li><p><strong>Monitor Drift</strong></p>
-<ul class="simple">
-<li><p>Continuously monitor the drift of the system clock.</p></li>
-<li><p>If the drift exceeds a predefined threshold, trigger a resynchronization with the trusted time source.</p></li>
-</ul>
-</li>
-<li><p><strong>Handle Resynchronization</strong></p>
-<ul class="simple">
-<li><p>During resynchronization, adjust the system clock to the correct Unix time.</p></li>
-<li><p>Log the adjustment to maintain an audit trail.</p></li>
-</ul>
-</li>
-</ol>
-</section>
-</section>
-<section id="encryption-and-time-dependency">
-<h2>Encryption and Time Dependency<a class="headerlink" href="#encryption-and-time-dependency" title="Link to this heading"></a></h2>
-<p>Encryption often relies on accurate time for operations such as
-generating time-based keys or validating timestamps. Follow these
-guidelines:</p>
-<ul class="simple">
-<li><p>Ensure the system clock is synchronized before performing encryption-related tasks.</p></li>
-<li><p>Log the Unix time used for encryption to facilitate debugging and auditing.</p></li>
-</ul>
-<section id="additional-notes">
-<h3>Additional Notes<a class="headerlink" href="#additional-notes" title="Link to this heading"></a></h3>
-<ul class="simple">
-<li><p>Use the log functionality to record time synchronization events and drift adjustments.</p></li>
-<li><p>Test the SDK on hardware with varying clock drift rates to ensure robustness.</p></li>
-<li><p>Consider implementing fallback mechanisms if the primary time source becomes unavailable.</p></li>
-</ul>
-<p>By following these best practices, you can ensure accurate time
-management in the SDK, which is essential for secure and reliable
-encryption.</p>
-</section>
+</div>
 </section>
 </section>
 
@@ -415,8 +310,8 @@ encryption.</p>
           </div>
 
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="security.html" class="btn btn-neutral float-left" title="BLE Security Overview" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="api.html" class="btn btn-neutral float-right" title="BLE Network API Reference" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="../introduction/index.html" class="btn btn-neutral float-left" title="Introduction" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="project-organization.html" class="btn btn-neutral float-right" title="Project Organization" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

@@ -48,7 +48,7 @@ Additional Resources
                <span class="grid-icon fa fa-info"></span>
 	       <h2>About Hubble Network SDK</h2>
 	   </a>
-	   <p>Architecture, features &amp; how-to-use</p>
+	   <p>Overview, features &amp; where to start</p>
        </li>
        <li class="grid-item">
 	   <a href="configuration/index.html">
@@ -56,6 +56,13 @@ Additional Resources
 	       <h2>Configuration Reference</h2>
 	   </a>
 	   <p>Kconfig options for BLE, satellite, crypto &amp; more</p>
+       </li>
+       <li class="grid-item">
+	   <a href="architecture/index.html">
+               <span class="grid-icon fa fa-sitemap"></span>
+	       <h2>Architecture</h2>
+	   </a>
+	   <p>Service modules, port layer, code organization &amp; conventions</p>
        </li>
        <li class="grid-item">
 	   <a href="ble/index.html">
@@ -78,10 +85,10 @@ Additional Resources
    :hidden:
 
    introduction/index
+   architecture/index
    quickstart/index
    configuration/index
    ble/index
    satellite/index
    security/index
    releases/index
-
