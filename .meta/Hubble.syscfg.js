@@ -231,7 +231,8 @@ increasing reliability but also power consumption.
 Default of 10 PPM is suitable for typical crystal
 oscillators.
 `,
-                default: 10
+                default: 10,
+                hidden: true
 
             },
             {
@@ -374,6 +375,7 @@ needed to verify time-dependent behavior.
  */
 function onUseSatelliteChange(inst, ui)
 {
+    ui.deviceTDR.hidden = !inst.useSatellite;
     ui.dtmMode.hidden = !inst.useSatellite;
 
     // reset so a stale "true" can't leak when sat is disabled
