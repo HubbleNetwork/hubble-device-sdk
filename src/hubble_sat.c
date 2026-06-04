@@ -180,7 +180,7 @@ int hubble_sat_dtm_packet_send(enum hubble_sat_dtm_packet_type type,
 		return -EINVAL;
 	}
 
-	hubble_rand_get(buffer, len);
+	hubble_rand_get((uint8_t *)buffer, len);
 
 	ret = hubble_sat_packet_get(&packet, buffer, len);
 	if (ret < 0) {
