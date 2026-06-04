@@ -92,6 +92,10 @@ function getOpts(mod) {
     if (hubble.useSatellite) {
         result.push(`-DCONFIG_HUBBLE_SAT_NETWORK`);
         result.push(`-DCONFIG_HUBBLE_SAT_NETWORK_DEVICE_TDR=${hubble.deviceTDR}`);
+
+        if (hubble.dtmMode) {
+            result.push(`-DCONFIG_HUBBLE_SAT_NETWORK_DTM_MODE`);
+        }
     }
 
     if (hubble.useTerrestrial) {
@@ -202,8 +206,8 @@ let base = {
                 description: `Enable or disable Hubble Satellite Network`,
                 longDescription: `
 When set to false, Hubble Satellite Network is disabled and not available.`,
-                default: false
-
+                default: false,
+                onChange: onUseSatelliteChange
             },
             {
                 name: "useTerrestrial",
@@ -230,6 +234,17 @@ oscillators.
                 default: 10
 
             },
+            {
+            name: "dtmMode",
+            displayName: "Enable DTM Mode",
+            description: `Enable Direct Test Mode`,
+            longDescription: `
+Enable DTM (Direct Test Mode) in the SDK, this is intended
+to test the operation of the radio
+`,
+            default: false,
+            hidden: true
+        },
             {
                 name: "eidRotationPeriod",
                 displayName: "EID rotation period",
@@ -350,6 +365,21 @@ needed to verify time-dependent behavior.
         }
     },
     getSDKFiles: getSDKFiles,
+}
+
+/*
+ * Show or hide satellite sub-options
+ * @param inst  - Module instance containing the config that changed
+ * @param ui    - The User Interface object
+ */
+function onUseSatelliteChange(inst, ui)
+{
+    ui.dtmMode.hidden = !inst.useSatellite;
+
+    // reset so a stale "true" can't leak when sat is disabled
+    if (!inst.useSatellite) {
+        inst.dtmMode = false;
+    }
 }
 
 /* export the module */
