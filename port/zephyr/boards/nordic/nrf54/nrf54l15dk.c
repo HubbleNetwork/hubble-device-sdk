@@ -8,36 +8,25 @@
 #include <stddef.h>
 
 #include <zephyr/kernel.h>
-#include <hal/nrf_radio.h>
 
 #include <hubble/sat.h>
 #include <hubble/sat/packet.h>
 #include <sat_soc.h>
 
-
-static nrf_radio_txpower_t _power = RADIO_TXPOWER_TXPOWER_0dBm;
-
 int hubble_sat_board_init(void)
 {
-	_power = nrf_radio_txpower_get(NRF_RADIO);
-
 	return 0;
 }
 
 int hubble_sat_board_enable(void)
 {
-	nrf_radio_txpower_set(NRF_RADIO, RADIO_TXPOWER_TXPOWER_0dBm);
-
 	/* Set power, enable pa ... */
 	return hubble_sat_soc_enable();
 }
 
 int hubble_sat_board_disable(void)
 {
-	hubble_sat_soc_disable();
-	nrf_radio_txpower_set(NRF_RADIO, _power);
-
-	return 0;
+	return hubble_sat_soc_disable();
 }
 
 int hubble_sat_board_packet_send(const struct hubble_sat_packet_frames *packet)

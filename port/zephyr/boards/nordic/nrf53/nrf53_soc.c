@@ -39,6 +39,10 @@ static const struct device *const clock0 = DEVICE_DT_GET_ONE(nordic_nrf_clock);
 
 static nrfx_timer_t _timer0 = NRFX_TIMER_INSTANCE(NRF_TIMER_INST_GET(0));
 
+/* Keep track of power before and in sat tx mode */
+static nrf_radio_txpower_t _normal_power = RADIO_TXPOWER_TXPOWER_0dBm;
+static nrf_radio_txpower_t _sat_power = RADIO_TXPOWER_TXPOWER_0dBm;
+
 /**
  * Signature for APIs provided by the binary library.
  */
@@ -158,6 +162,8 @@ int hubble_sat_soc_disable(void)
 
 	(void)hubble_nrf_lib_disable();
 
+	nrf_radio_txpower_set(NRF_RADIO, _normal_power);
+
 	return 0;
 }
 
@@ -197,6 +203,9 @@ int hubble_sat_soc_enable(void)
 #endif /* CONFIG_DYNAMIC_INTERRUPTS */
 
 	irq_enable(DT_IRQN(RADIO_NODE));
+
+	_normal_power = nrf_radio_txpower_get(NRF_RADIO);
+	nrf_radio_txpower_set(NRF_RADIO, _sat_power);
 
 	return 0;
 }
