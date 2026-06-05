@@ -46,10 +46,19 @@ jobs:
           command: |
             set -euxo pipefail
             pip install idf-build-apps
-            idf-build-apps build -p samples/esp-idf --recursive --target ${{ matrix.espidf_target }}
+            idf-build-apps build \
+              -p samples/esp-idf \
+              --recursive \
+              --target ${{ matrix.espidf_target }} \
+              --manifest-file tools/ci/esp-idf-build-manifest.yaml
             for app in samples/esp-idf/*/; do
               app_name=$(basename "$app")
               target=${{ matrix.espidf_target }}
+              # Check and skip samples not enabled for this target by the manifest
+              if [ ! -d "$app/build" ]; then
+                echo "Skipping $app_name for $target (not enabled in manifest)"
+                continue
+              fi
               (cd "$app" && \
                  idf.py size-components --format json2 \
                    --output-file "size-components-${app_name}-${target}.json" && \

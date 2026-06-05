@@ -1,0 +1,9 @@
+samples/esp-idf/ble-beacon:
+  enable:
+    - if: IDF_TARGET in ["esp32", "esp32s3", "esp32c6", "esp32h2"]
+      reason: selected targets that support BLE
+
+samples/esp-idf/sat-continuous:
+  enable:
+    - if: IDF_TARGET == "esp32c6"
+      reason: sat functionality only supported on esp32c6
