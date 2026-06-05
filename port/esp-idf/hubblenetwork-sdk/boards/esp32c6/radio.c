@@ -24,7 +24,7 @@
 
 #define ESP_RADIO_OFF_DELAY_US          450U
 #define ESP_RADIO_ON_DELAY_US           70U
-#define DEFAULT_TX_POWER_DBM            20U
+#define MAX_TX_POWER_DBM                20U
 #define ESP_STEP_SCALE(_step)           ((_step) * 4)
 
 /* The center frequency for channel 0 is 2482208625
@@ -58,6 +58,9 @@ static gptimer_config_t _timer_config = {
 	.direction = GPTIMER_COUNT_UP,      /* Counting direction is up */
 	.resolution_hz = 1 * 1000 * 1000,   /* 1 Mhz -> 1 tick = 1 us */
 };
+
+/* Current sat power */
+uint8_t _sat_power_dbm = MAX_TX_POWER_DBM;
 
 /* Espressif PHY API */
 extern void phy_set_step_01k(bool step_01k);
@@ -187,18 +190,18 @@ static int _radio_cw_start(uint16_t step, uint32_t delay, uint32_t duration_us)
 
 	/* Symbol on time */
 	phy_set_freq(HUBBLE_BASE_FREQUENCY, step);
-	phy_tx_tone(true, true, DEFAULT_TX_POWER_DBM);
+	phy_tx_tone(true, true, _sat_power_dbm);
 
 	ret = _timer_start(duration_us);
 	if (ret != 0) {
-		phy_tx_tone(false, true, DEFAULT_TX_POWER_DBM);
+		phy_tx_tone(false, true, _sat_power_dbm);
 		return ret;
 	}
 
 	xSemaphoreTake(_symbol_sem, portMAX_DELAY);
 
 	/* Symbol off time */
-	phy_tx_tone(false, true, DEFAULT_TX_POWER_DBM);
+	phy_tx_tone(false, true, _sat_power_dbm);
 
 	ret = _timer_start(delay);
 	if (ret != 0) {
@@ -304,3 +307,31 @@ int hubble_sat_board_packet_send(const struct hubble_sat_packet_frames *packet)
 	xSemaphoreGive(_transmit_sem);
 	return ret;
 }
+
+#ifdef CONFIG_HUBBLE_SAT_NETWORK_DTM_MODE
+
+int hubble_sat_board_power_set(int8_t power)
+{
+	if (power < 0 || power > MAX_TX_POWER_DBM) {
+		return -EINVAL;
+	}
+
+	_sat_power_dbm = power;
+	return 0;
+}
+
+int hubble_sat_board_cw_start(uint8_t channel)
+{
+	uint16_t step = ESP_STEP_SCALE(32 + HUBBLE_CHANNEL_OFFSET(channel));
+	phy_set_freq(HUBBLE_BASE_FREQUENCY, step);
+	phy_tx_tone(true, true, _sat_power_dbm);
+	return 0;
+}
+
+int hubble_sat_board_cw_stop(void)
+{
+	phy_tx_tone(false, true, _sat_power_dbm);
+	return 0;
+}
+
+#endif /* CONFIG_HUBBLE_SAT_NETWORK_DTM_MODE */
