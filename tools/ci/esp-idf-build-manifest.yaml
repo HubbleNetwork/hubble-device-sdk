@@ -7,3 +7,8 @@ samples/esp-idf/sat-continuous:
   enable:
     - if: IDF_TARGET == "esp32c6"
       reason: sat functionality only supported on esp32c6
+
+samples/esp-idf/sat-dtm:
+  enable:
+    - if: IDF_TARGET == "esp32c6"
+      reason: sat functionality only supported on esp32c6
