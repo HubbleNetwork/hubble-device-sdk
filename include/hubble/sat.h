@@ -49,6 +49,9 @@ enum hubble_sat_transmission_mode {
  * This function sends a packet over the satellite communication channel.
  * The packet must be properly formatted and adhere to the Hubble protocol.
  *
+ * @note This function is blocking: it does not return until the transmission
+ *       period has completed.
+ *
  * @param packet A pointer to the @ref hubble_sat_packet structure containing
  *               the data to be transmitted.
  * @param mode   Desired reliability for the transmission.
