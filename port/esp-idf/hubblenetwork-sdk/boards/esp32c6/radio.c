@@ -37,6 +37,9 @@
 #define HUBBLE_BASE_FREQUENCY           2482U
 #define HUBBLE_CHANNEL_OFFSET(_channel) (((_channel) * 64) + 489)
 
+#define _TIME_US_TO_TICK(_time_us) ((_time_us / 1000U) / portTICK_PERIOD_MS)
+#define _TIME_S_TO_TICK(_time_s)   ((_time_s * 1000U) / portTICK_PERIOD_MS)
+
 /**
  * This semaphore is used to protect a packet transmission and avoid
  * race conditions.
@@ -195,17 +198,25 @@ static int _radio_cw_start(uint16_t step, uint32_t delay, uint32_t duration_us)
 		return ret;
 	}
 
-	xSemaphoreTake(_symbol_sem, portMAX_DELAY);
+	ret = !(xSemaphoreTake(_symbol_sem, _TIME_US_TO_TICK(2 * duration_us)) ==
+		pdTRUE);
 
 	/* Symbol off time */
 	phy_tx_tone(false, true, DEFAULT_TX_POWER_DBM);
+
+	if (ret != 0) {
+		return -ETIMEDOUT;
+	}
 
 	ret = _timer_start(delay);
 	if (ret != 0) {
 		return ret;
 	}
 
-	xSemaphoreTake(_symbol_sem, portMAX_DELAY);
+	if (xSemaphoreTake(_symbol_sem, _TIME_US_TO_TICK(2 * delay)) != pdTRUE) {
+		return -ETIMEDOUT;
+	}
+
 	return 0;
 }
 
@@ -273,7 +284,12 @@ int hubble_sat_board_packet_send(const struct hubble_sat_packet_frames *packet)
 	int ret = 0;
 	int8_t frame = -1;
 
-	xSemaphoreTake(_transmit_sem, portMAX_DELAY);
+	if (xSemaphoreTake(_transmit_sem,
+			   _TIME_S_TO_TICK(HUBBLE_SAT_TRANSMISSION_TIMEOUT_S)) !=
+	    pdTRUE) {
+		return -ETIMEDOUT;
+	}
+
 	xSemaphoreTake(_symbol_sem, 0); /* Reset semaphore */
 
 	for (uint8_t i = 0; i < packet->total_number_of_symbols; i++) {
