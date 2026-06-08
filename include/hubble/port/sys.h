@@ -132,7 +132,7 @@ void hubble_unlock(void);
  * need to be a cryptographically secure random number generator (CSPRNG).
  *
  * @note This function is only required when the satellite module is enabled
- *       (@ref CONFIG_HUBBLE_SAT_NETWORK). It is not used by the BLE-only
+ *       (`CONFIG_HUBBLE_SAT_NETWORK`). It is not used by the BLE-only
  *       path and does not need to be implemented if only BLE functionality
  *       is needed.
  *
