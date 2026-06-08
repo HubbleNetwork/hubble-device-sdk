@@ -194,6 +194,7 @@ config HUBBLE_NETWORK_CRYPTO_PSA
 	select PSA_WANT_KEY_TYPE_AES
 	select PSA_WANT_ALG_CMAC
 	select PSA_WANT_ALG_CTR
+	select PSA_WANT_ALG_ECB_NO_PADDING
 	help
 	  Use the PSA Crypto API for AES-CTR and CMAC. This is
 	  the recommended backend for Zephyr and nRF platforms.
