@@ -43,7 +43,7 @@ config HUBBLE_SAT_NETWORK_SMALL
 
 config HUBBLE_SAT_NETWORK_DEVICE_TDR
 	   int "Device time drift retry rate in PPM"
-	   default 500
+	   default 10
 	   help
 		Adds additional retries proportional to time since
 		last time the device had time synced. It is

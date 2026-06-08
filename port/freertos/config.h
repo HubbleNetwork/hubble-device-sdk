@@ -78,7 +78,7 @@
  * last time the device had time synced.
  */
 #ifndef CONFIG_HUBBLE_SAT_NETWORK_DEVICE_TDR
-#define CONFIG_HUBBLE_SAT_NETWORK_DEVICE_TDR 500
+#define CONFIG_HUBBLE_SAT_NETWORK_DEVICE_TDR 10
 #endif
 
 /* Protocol version

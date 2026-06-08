@@ -224,10 +224,10 @@ time sync. Value is in parts per million (PPM).
 
 Higher values add more retries for the same drift,
 increasing reliability but also power consumption.
-Default of 500 PPM is suitable for typical crystal
+Default of 10 PPM is suitable for typical crystal
 oscillators.
 `,
-                default: 500
+                default: 10
 
             },
             {

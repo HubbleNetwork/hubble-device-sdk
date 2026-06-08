@@ -71,7 +71,7 @@ config HUBBLE_SAT_NETWORK_SMALL
 
 config HUBBLE_SAT_NETWORK_DEVICE_TDR
 	int "Device time drift retry rate in PPM"
-	default 500
+	default 10
 	help
 	  Compensates for clock drift by adding retransmission
 	  retries proportional to time elapsed since the last
@@ -79,7 +79,7 @@ config HUBBLE_SAT_NETWORK_DEVICE_TDR
 
 	  Higher values add more retries for the same drift,
 	  increasing reliability but also power consumption.
-	  Default of 500 PPM is suitable for typical crystal
+	  Default of 10 PPM is suitable for typical crystal
 	  oscillators.
 
 config HUBBLE_SAT_NETWORK_DTM_MODE
