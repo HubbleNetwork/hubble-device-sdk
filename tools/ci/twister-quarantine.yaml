@@ -1,6 +1,7 @@
 - scenarios:
     - app.beacon.mbedtls
     - app.beacon.mbedtls_128key
+    - app.beacon_mfg_data.mbedtls
     - app.ble_network.mbedtls
     - app.ble_network.mbedtls_128key
     - app.sat.continuous.mbedtls

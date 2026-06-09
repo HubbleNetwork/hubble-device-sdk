@@ -1,0 +1,20 @@
+# This file is provided so that the application can be compiled using Twister,
+# the Zephyr testing tool.
+
+sample:
+  description: Hubble Network BLE Beacon + Manufacturer Data example
+  name: hubble-ble-beacon-mfg-data
+common:
+  build_only: true
+  depends_on:
+    - ble
+  integration_platforms:
+    - nrf52840dk/nrf52840
+tests:
+  app.beacon_mfg_data.default: {}
+  app.beacon_mfg_data.128key:
+    extra_configs:
+      - CONFIG_HUBBLE_NETWORK_KEY_128=y
+  app.beacon_mfg_data.mbedtls:
+    extra_configs:
+      - CONFIG_HUBBLE_NETWORK_CRYPTO_MBEDTLS=y

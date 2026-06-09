@@ -1,0 +1,18 @@
+/*
+ * Auto-generated from the -DHUBBLE_KEY base64 value at build time.
+ * Do not edit -- changes are overwritten on every build (see CMakeLists.txt).
+ */
+
+#include <stdint.h>
+#include <zephyr/sys/util.h>
+
+const uint8_t master_key[] = {@KEY_BYTES@};
+
+/*
+ * Catch a key whose decoded length does not match the configured key size
+ * (e.g. a 128-bit key with CONFIG_HUBBLE_NETWORK_KEY_256). Fails the build with
+ * a clear message instead of misbehaving at runtime.
+ */
+BUILD_ASSERT(sizeof(master_key) == CONFIG_HUBBLE_KEY_SIZE,
+	     "Decoded master key length does not match CONFIG_HUBBLE_KEY_SIZE; "
+	     "check -DHUBBLE_KEY and the configured key size.");

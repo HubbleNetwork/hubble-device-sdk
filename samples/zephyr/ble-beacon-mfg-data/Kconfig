@@ -1,0 +1,21 @@
+# Copyright (c) 2026 Hubble Network, Inc.
+# SPDX-License-Identifier: Apache-2.0
+#
+# Application Kconfig entry point for the BLE beacon + manufacturer data sample.
+
+menu "Hubble Network Beacon + Manufacturer Data Sample options"
+
+config HUBBLE_MFG_DATA_SAMPLE_UPDATE_PERIOD
+    int "Period to refresh the advertisement and increment the counter"
+    default 300
+    help
+        Period (in seconds) at which a new Hubble advertisement is generated
+        and the manufacturer-data counter is incremented. Defaults to 5 minutes.
+
+endmenu
+
+source "Kconfig.zephyr"
+
+module = APP
+module-str = APP
+source "subsys/logging/Kconfig.template.log_config"
