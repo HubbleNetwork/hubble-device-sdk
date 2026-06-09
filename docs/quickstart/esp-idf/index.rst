@@ -70,13 +70,6 @@ Adding Hubble Network to an ESP-IDF Project
       CONFIG_BT_BLE_50_FEATURES_SUPPORTED=n
       CONFIG_BT_BLE_42_FEATURES_SUPPORTED=y
 
-   When enabling the Satellite Network module on ESP32-C6, you will also need to
-   include the PHY lib:
-
-   .. code-block:: kconfig
-
-      CONFIG_ESP_PHY_ENABLE_CERT_TEST=y
-
 
 Satellite Network on ESP32-C6: Required PHY Blob
 ************************************************

@@ -28,6 +28,7 @@ endchoice
 
 menuconfig HUBBLE_SAT_NETWORK
 	   bool "Hubble Satellite Network Library [PRE-PRODUCTION]"
+	   select ESP_PHY_ENABLE_CERT_TEST
 	   help
 		Enable library for communication with Hubble network.
 		This feature is in pre-production and is not yet ready
