@@ -50,15 +50,9 @@
 #define HUBBLE_BASE_FREQUENCY           2482196906UL
 #define HUBBLE_CHANNEL_OFFSET(_channel) ((_channel) * 70)
 
-#if defined(DeviceFamily_CC27XXX10)
-#define RCL_SCHEDULER_START_COMMAND_US 140
-#define RCL_SCHEDULER_STOP_DELAY_US    90
-#elif defined(DeviceFamily_CC23X0R5)
-#define RCL_SCHEDULER_START_COMMAND_US 190
-#define RCL_SCHEDULER_STOP_DELAY_US    90
-#else
-#error "Device not supported"
-#endif
+#define HUBBLE_SYMBOL_PERIOD                                                   \
+	RCL_SCHEDULER_SYSTIM_US(                                               \
+		HUBBLE_WAIT_SYMBOL_US + HUBBLE_WAIT_SYMBOL_OFF_US)
 
 /**
  * This semaphore is used to protect a packet transmission and avoid
@@ -85,20 +79,19 @@ extern RCL_CmdGenericTxTest rclPacketTxCmdGenericTxTest_ble_gen_0;
 static RCL_Client rcl_client;
 static RCL_Handle rcl_handle;
 
-static void _radio_cw_start(int16_t step, uint32_t delay, uint32_t duration_us)
+static void _radio_cw_start(int16_t step, uint32_t abs_start, uint32_t duration_us)
 {
 	/* On time */
 	rclPacketTxCmdGenericTxTest_ble_custom.txPower.dBm = _sat_power;
 	rclPacketTxCmdGenericTxTest_ble_custom.rfFrequency =
 		(uint32_t)(HUBBLE_BASE_FREQUENCY + step * TI_STEP_SIZE_HZ);
 	rclPacketTxCmdGenericTxTest_ble_custom.common.timing.relHardStopTime =
-		RCL_SCHEDULER_SYSTIM_US(
-			duration_us + RCL_SCHEDULER_STOP_DELAY_US);
+		RCL_SCHEDULER_SYSTIM_US(duration_us);
+	rclPacketTxCmdGenericTxTest_ble_custom.common.allowDelay = false;
 
 	/* Submit command & pend on completion */
 	rclPacketTxCmdGenericTxTest_ble_custom.common.timing.absStartTime =
-		RCL_Scheduler_getCurrentTime() +
-		RCL_SCHEDULER_SYSTIM_US(delay - RCL_SCHEDULER_START_COMMAND_US);
+		abs_start;
 #if defined(USE_DMM_OVRDE)
 	DMMSch_RCL_Command_submit(rcl_handle,
 				  &rclPacketTxCmdGenericTxTest_ble_custom);
@@ -232,9 +225,13 @@ int hubble_sat_board_disable(void)
 
 int hubble_sat_board_packet_send(const struct hubble_sat_packet_frames *packet)
 {
+	uint32_t symbol_start;
 	int8_t frame = -1;
 
 	xSemaphoreTake(_transmit_sem, portMAX_DELAY);
+
+	symbol_start = RCL_Scheduler_getCurrentTime() +
+		       RCL_SCHEDULER_SYSTIM_US(HUBBLE_WAIT_SYMBOL_OFF_US);
 
 	for (uint8_t i = 0; i < packet->total_number_of_symbols; i++) {
 		int16_t step;
@@ -246,8 +243,9 @@ int hubble_sat_board_packet_send(const struct hubble_sat_packet_frames *packet)
 
 		step = packet->frame[frame].data[data_pos] +
 		       HUBBLE_CHANNEL_OFFSET(packet->frame[frame].channel);
-		_radio_cw_start(step, HUBBLE_WAIT_SYMBOL_OFF_US,
-				HUBBLE_WAIT_SYMBOL_US);
+
+		_radio_cw_start(step, symbol_start, HUBBLE_WAIT_SYMBOL_US);
+		symbol_start += HUBBLE_SYMBOL_PERIOD;
 	}
 
 	xSemaphoreGive(_transmit_sem);
