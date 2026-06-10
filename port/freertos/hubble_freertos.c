@@ -15,6 +15,8 @@
 #endif
 
 #include <errno.h>
+#include <stdbool.h>
+#include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -72,8 +74,18 @@ uint64_t hubble_uptime_get(void)
 
 HUBBLE_WEAK int hubble_rand_get(uint8_t *buffer, size_t len)
 {
+	static bool seeded;
 	int random;
 	size_t to_copy;
+
+	/**
+	 * Best-effort one-time seed so the sequence is not identical across
+	 * boots.
+	 **/
+	if (!seeded) {
+		srand((unsigned int)(xTaskGetTickCount() ^ (uintptr_t)&buffer));
+		seeded = true;
+	}
 
 	while (len > 0) {
 		random = rand();
