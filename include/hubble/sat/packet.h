@@ -93,12 +93,18 @@ struct hubble_sat_packet_frames {
  *
  * @param  packet  Pointer to the packet structure to be populated.
  * @param  payload Pointer to the payload data to be included in the packet.
- * @param  length  Length of the payload data in bytes. Must be one of the
- *                 supported sizes: 0, 4, 9, or 13 bytes.
+ * @param  length  Length of the payload data in bytes, from 0 to
+ *                 HUBBLE_SAT_PAYLOAD_MAX (13). The wire format only supports a
+ *                 fixed set of payload sizes (0, 4, 9, 13 bytes), so any other
+ *                 length is rounded up to the next supported size and the
+ *                 remainder is zero-padded. Callers therefore need not size
+ *                 their data exactly, but note that the transmitted payload
+ *                 (and what the backend receives) is the rounded-up, padded
+ *                 length, not necessarily the requested one.
  *
  * @retval 0       On success.
  * @retval -EINVAL If any of the input parameters are invalid.
- * @retval -ENOMEM If the payload length exceeds the maximum allowed size.
+ * @retval -ENOMEM If the payload length exceeds HUBBLE_SAT_PAYLOAD_MAX.
  */
 int hubble_sat_packet_get(struct hubble_sat_packet *packet, const void *payload,
 			  size_t length);

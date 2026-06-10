@@ -136,16 +136,23 @@ ZTEST(sat_test, test_packet)
 	err = hubble_sat_packet_get(&pkt, NULL, 0);
 	zassert_ok(err);
 
+	/* Wire sizes are 0, 4, 9 and 13 (HUBBLE_SAT_PAYLOAD_MAX); any other
+	 * length is rounded up to the next supported size and zero-padded, so
+	 * an in-between length is valid.
+	 */
 	err = hubble_sat_packet_get(&pkt, buffer, 1);
+	zassert_ok(err);
 
-	/* Available sizes are: 0, 4, 9 and 13 (HUBBLE_SAT_PAYLOAD_MAX) */
-	zassert_not_ok(err);
-
-	/* Additional check to confirm it. */
 	err = hubble_sat_packet_get(&pkt, buffer, 4);
 	zassert_ok(err);
 
+	err = hubble_sat_packet_get(&pkt, buffer, 7);
+	zassert_ok(err);
+
 	err = hubble_sat_packet_get(&pkt, buffer, 9);
+	zassert_ok(err);
+
+	err = hubble_sat_packet_get(&pkt, buffer, 11);
 	zassert_ok(err);
 
 	err = hubble_sat_packet_get(&pkt, buffer, HUBBLE_SAT_PAYLOAD_MAX);

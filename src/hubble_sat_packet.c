@@ -131,54 +131,35 @@ static int _encode(const struct hubble_bitarray *bit_array, int *symbols,
 	return index;
 }
 
-static int _packet_payload_ecc_get(size_t len)
-{
-	int ecc;
+/* Supported satellite payload wire sizes and their derived symbol counts.
+ *
+ * The wire format only encodes this fixed set of payload sizes, each with a
+ * fixed encoded-symbol count and a fixed number of Reed-Solomon ECC symbols.
+ * Rows are ordered by ascending payload size so _wire_size_round_up() can pick
+ * the first one that fits; a caller payload is rounded up to that size and
+ * zero-padded. Adding or changing a supported size is a single-row edit.
+ */
+static const struct hubble_wire_size {
+	uint8_t payload; /* payload bytes */
+	uint8_t symbols; /* encoded payload symbols */
+	uint8_t ecc;     /* Reed-Solomon ECC symbols */
+} _wire_sizes[] = {
+	{0, 13, 10},
+	{4, 18, 12},
+	{9, 25, 14},
+	{13, 30, 16},
+};
 
-	switch (len) {
-	case 0:
-		ecc = 10;
-		break;
-	case 4:
-		ecc = 12;
-		break;
-	case 9:
-		ecc = 14;
-		break;
-	case 13:
-		ecc = 16;
-		break;
-	default:
-		ecc = -1;
-		break;
+/* Smallest wire size that fits len bytes, or NULL if len exceeds the max. */
+static const struct hubble_wire_size *_wire_size_round_up(size_t len)
+{
+	for (size_t i = 0; i < HUBBLE_ARRAY_SIZE(_wire_sizes); i++) {
+		if (len <= _wire_sizes[i].payload) {
+			return &_wire_sizes[i];
+		}
 	}
 
-	return ecc;
-}
-
-static int8_t _packet_payload_size_get(size_t len)
-{
-	int8_t ret;
-
-	switch (len) {
-	case 0:
-		ret = 13;
-		break;
-	case 4:
-		ret = 18;
-		break;
-	case 9:
-		ret = 25;
-		break;
-	case 13:
-		ret = 30;
-		break;
-	default:
-		ret = -EINVAL;
-		break;
-	}
-
-	return ret;
+	return NULL;
 }
 
 static int _packet_phy_size_get(size_t pdu_len)
@@ -252,6 +233,9 @@ int hubble_sat_packet_get(struct hubble_sat_packet *packet, const void *payload,
 	uint8_t ecc, payload_len;
 	uint8_t auth_tag[HUBBLE_AUTH_TAG_SIZE / HUBBLE_BITS_PER_BYTE];
 	uint8_t out[HUBBLE_PAYLOAD_MAX_SIZE] = {0};
+	uint8_t padded[HUBBLE_PAYLOAD_MAX_SIZE] = {0};
+	const struct hubble_wire_size *wire;
+	size_t padded_length;
 	uint16_t seq_no;
 	uint32_t time_counter = hubble_internal_time_counter_get();
 	uint32_t eid;
@@ -259,6 +243,27 @@ int hubble_sat_packet_get(struct hubble_sat_packet *packet, const void *payload,
 	if (hubble_internal_key_get() == NULL) {
 		HUBBLE_LOG_WARNING("Key not set");
 		return -EINVAL;
+	}
+
+	if (length > 0 && payload == NULL) {
+		return -EINVAL;
+	}
+
+	/* Round the caller's length up to the next supported wire size and
+	 * zero-pad the payload to match. Done before acquiring a sequence
+	 * number so an oversized payload doesn't burn a nonce. The padded
+	 * length is what gets encrypted and transmitted.
+	 */
+	wire = _wire_size_round_up(length);
+	if (wire == NULL) {
+		HUBBLE_LOG_WARNING("Payload length %u exceeds max %u",
+				   (unsigned int)length, HUBBLE_SAT_PAYLOAD_MAX);
+		return -ENOMEM;
+	}
+	padded_length = wire->payload;
+
+	if (length > 0) {
+		memcpy(padded, payload, length);
 	}
 
 	ret = hubble_internal_sequence_acquire(time_counter, &seq_no);
@@ -272,17 +277,15 @@ int hubble_sat_packet_get(struct hubble_sat_packet *packet, const void *payload,
 		return _ret;                                                   \
 	}
 
-	ret = _packet_payload_size_get(length);
-	_CHECK_RET(ret);
-
-	payload_len = ret;
+	payload_len = wire->symbols;
 	/* Packet payload now. */
 	ret = hubble_internal_device_id_get((uint8_t *)&eid, sizeof(eid),
 					    time_counter);
 	_CHECK_RET(ret);
 
-	ret = hubble_internal_data_encrypt(time_counter, seq_no, payload, length,
-					   out, auth_tag, sizeof(auth_tag));
+	ret = hubble_internal_data_encrypt(time_counter, seq_no, padded,
+					   padded_length, out, auth_tag,
+					   sizeof(auth_tag));
 	_CHECK_RET(ret);
 
 	hubble_bitarray_init(&bit_array);
@@ -311,7 +314,7 @@ int hubble_sat_packet_get(struct hubble_sat_packet *packet, const void *payload,
 
 	/* Payload */
 	ret = hubble_bitarray_append_big(&bit_array, (uint8_t *)out,
-					 length * HUBBLE_BITS_PER_BYTE);
+					 padded_length * HUBBLE_BITS_PER_BYTE);
 	_CHECK_RET(ret);
 
 	/* This returns the number of symbols */
@@ -320,7 +323,7 @@ int hubble_sat_packet_get(struct hubble_sat_packet *packet, const void *payload,
 
 	/* generate error control symbols */
 	rse_gf_generate();
-	ecc = _packet_payload_ecc_get(length);
+	ecc = wire->ecc;
 	rse_poly_generate(ecc / 2);
 	rs_symbols = rse_rs_encode(symbols, ret, ecc / 2);
 
