@@ -106,7 +106,12 @@ static int _encode(const struct hubble_bitarray *bit_array, int *symbols,
 	int symbol_bit_index = 0;
 	int index = 0;
 
-	if ((bit_array->index / HUBBLE_SYMBOL_SIZE) > symbols_size) {
+	/**
+	 * Account for the trailing padding symbol written when the bit count is
+	 * not a multiple of HUBBLE_SYMBOL_SIZE.
+	 */
+	if (((bit_array->index + HUBBLE_SYMBOL_SIZE - 1) / HUBBLE_SYMBOL_SIZE) >
+	    symbols_size) {
 		return -EINVAL;
 	}
 
