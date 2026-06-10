@@ -3,7 +3,11 @@ zephyr_include_directories(
 	../../../
 )
 
-zephyr_library_sources(nrf54_soc.c)
+if(CONFIG_BT_LL_SOFTDEVICE)
+	zephyr_library_sources(nrf54_soc_softdevice.c)
+else()
+	zephyr_library_sources(nrf54_soc.c)
+endif()
 
 add_library(libhubble_sat_nrf54 STATIC IMPORTED GLOBAL)
 set_target_properties(libhubble_sat_nrf54 PROPERTIES
