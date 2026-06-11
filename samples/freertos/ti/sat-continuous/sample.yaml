@@ -1,0 +1,8 @@
+sample:
+  name: sat-continuous
+
+builds:
+  - id: sat-continuous-cc2340r5
+    makefile: cc2340r5.mk
+  - id: sat-continuous-cc2755p10
+    makefile: cc2755p10.mk

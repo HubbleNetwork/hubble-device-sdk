@@ -25,12 +25,16 @@ icall_userCfg_t user0Cfg = BLE_USER_CFG;
 
 #include <hubble/hubble.h>
 
+#if defined(HUBBLE_KEY_TIME_SET)
 #include "key.c"
 #include "time.c"
+#else
 
-#if !defined(HUBBLE_KEY_SET) || !defined(HUBBLE_UNIX_TIME_SET)
-#error "Key and Unix time must be set. Run ./embed_key_time.py first !"
-#endif
+#warning "Using dummy key and unix time. Run ./embed_key_time.py to set key and time!"
+static uint8_t master_key[CONFIG_HUBBLE_KEY_SIZE];
+static uint64_t unix_time = 0xdeadbeef;
+
+#endif /* HUBBLE_KEY_TIME_SET */
 
 BLEAppUtil_GeneralParams_t appMainParams = {
 	.taskPriority = 1,
