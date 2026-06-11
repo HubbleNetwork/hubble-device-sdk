@@ -46,7 +46,7 @@ enum hubble_sat_dtm_packet_type {
  * Transmits a single DTM packet of the given type on the specified channel.
  *
  * @note channel equals -1 means regular transmission as it is done with
- * @ref hubble_sat_packet_send
+ * @ref hubble_sat_broadcast
  *
  * @param type    Packet payload pattern to use.
  * @param channel RF channel to transmit on. -1 to hop between channels.

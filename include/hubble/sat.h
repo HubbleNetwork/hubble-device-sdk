@@ -66,13 +66,16 @@ enum hubble_sat_transmission_mode {
 };
 
 /**
- * @brief Transmit a packet using the Hubble satellite communication system.
+ * @brief Broadcast a packet using the Hubble satellite communication system.
  *
- * This function sends a packet over the satellite communication channel.
- * The packet must be properly formatted and adhere to the Hubble protocol.
+ * This function broadcasts a packet over the satellite communication channel.
+ * Depending on @p mode, the packet is transmitted multiple times (see
+ * @ref hubble_sat_transmission_mode) to increase the likelihood of reception
+ * by a satellite. The packet must be properly formatted and adhere to the
+ * Hubble protocol.
  *
- * @note This function is blocking: it does not return until the transmission
- *       period has completed.
+ * @note This function is blocking: it does not return until the entire
+ *       transmission period, including all retransmissions, has completed.
  *
  * @param packet A pointer to the @ref hubble_sat_packet structure containing
  *               the data to be transmitted.
@@ -84,8 +87,8 @@ enum hubble_sat_transmission_mode {
  *          any validation on the packet structure. It is the caller's
  *          responsibility to ensure the packet is correctly formatted.
  */
-int hubble_sat_packet_send(const struct hubble_sat_packet *packet,
-			   enum hubble_sat_transmission_mode mode);
+int hubble_sat_broadcast(const struct hubble_sat_packet *packet,
+			 enum hubble_sat_transmission_mode mode);
 
 /**
  * @}

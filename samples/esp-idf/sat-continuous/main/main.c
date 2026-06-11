@@ -88,7 +88,7 @@ void app_main(void)
 			return;
 		}
 
-		err = hubble_sat_packet_send(&pkt, HUBBLE_SAT_RELIABILITY_NORMAL);
+		err = hubble_sat_broadcast(&pkt, HUBBLE_SAT_RELIABILITY_NORMAL);
 		if (err != 0) {
 			ESP_LOGE(APP_TAG,
 				 "Failed to transmit packet, error: %d", err);
