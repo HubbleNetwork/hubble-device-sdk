@@ -9,7 +9,12 @@ docs/_doxygen/
 # Build artifacts
 **/twister-out*/
 **/build/**
+tests/riglink/build-*/
 .cache/
+
+# Python
+**/__pycache__/
+*.pyc
 
 # generated files
 **/key.c

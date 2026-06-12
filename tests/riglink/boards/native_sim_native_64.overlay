@@ -1,0 +1,20 @@
+/*
+ * Copyright (c) 2025 Hubble Network
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ *
+ * riglink's shell backend binds to zephyr,shell-uart; put it on uart1 (its own
+ * pseudotty) and leave zephyr,console on the default native uart (uart0), so
+ * console output stays off the riglink wire. Matches the native_sim/native/64
+ * board qualifier used by the test harness.
+ */
+
+/ {
+	chosen {
+		zephyr,shell-uart = &uart1;
+	};
+};
+
+&uart1 {
+	status = "okay";
+};
