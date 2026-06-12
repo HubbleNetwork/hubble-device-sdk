@@ -140,6 +140,66 @@ static void _timer_setup(void)
 	nrfx_timer_init(&_timer0, &timer_cfg, NULL);
 }
 
+/**
+ * Tear down any radio/timer wiring left behind by the BLE controller.
+ *
+ * The BLE controller drives the radio entirely through DPPI: it leaves the
+ * RADIO connected to DPPIC channels via its SUBSCRIBE and PUBLISH registers,
+ * keeps those DPPIC channels enabled, may leave the radio in a non-DISABLED
+ * state, and leaves stale shorts/config behind.
+ */
+static void _radio_reset(void)
+{
+	const nrf_radio_task_t tasks[] = {
+		NRF_RADIO_TASK_TXEN,    NRF_RADIO_TASK_RXEN,
+		NRF_RADIO_TASK_START,   NRF_RADIO_TASK_STOP,
+		NRF_RADIO_TASK_DISABLE,
+	};
+	const nrf_radio_event_t events[] = {
+		NRF_RADIO_EVENT_READY,    NRF_RADIO_EVENT_ADDRESS,
+		NRF_RADIO_EVENT_PAYLOAD,  NRF_RADIO_EVENT_END,
+		NRF_RADIO_EVENT_DISABLED, NRF_RADIO_EVENT_TXREADY,
+	};
+
+	/* Stop interrupts and automatic state transitions first. */
+	nrf_radio_int_disable(NRF_RADIO, ~0U);
+	nrf_radio_shorts_set(NRF_RADIO, 0);
+
+	/* Force the radio to DISABLED (required before SOFTRESET and before we
+	 * reconfigure it).
+	 */
+	if (nrf_radio_state_get(NRF_RADIO) != NRF_RADIO_STATE_DISABLED) {
+		nrf_radio_event_clear(NRF_RADIO, NRF_RADIO_EVENT_DISABLED);
+		nrf_radio_task_trigger(NRF_RADIO, NRF_RADIO_TASK_DISABLE);
+		while (!nrf_radio_event_check(NRF_RADIO,
+					      NRF_RADIO_EVENT_DISABLED)) {
+		}
+		nrf_radio_event_clear(NRF_RADIO, NRF_RADIO_EVENT_DISABLED);
+	}
+
+	/* Detach the radio from every DPPI channel it might still be wired to. */
+	for (size_t i = 0; i < ARRAY_SIZE(tasks); i++) {
+		nrf_radio_subscribe_clear(NRF_RADIO, tasks[i]);
+	}
+	for (size_t i = 0; i < ARRAY_SIZE(events); i++) {
+		nrf_radio_publish_clear(NRF_RADIO, events[i]);
+	}
+
+#if defined(RADIO_TASKS_SOFTRESET_TASKS_SOFTRESET_Msk)
+	/* Clear leftover public config (PCNF/MODECNF/frequency/...). */
+	nrf_radio_task_trigger(NRF_RADIO, NRF_RADIO_TASK_SOFTRESET);
+#endif
+
+	/* Stop and detach our timer, dropping any compare events the previous
+	 * owner published onto DPPI.
+	 */
+	nrf_timer_task_trigger(_timer0.p_reg, NRF_TIMER_TASK_STOP);
+	nrf_timer_int_disable(_timer0.p_reg, ~0U);
+	nrf_timer_shorts_set(_timer0.p_reg, 0);
+	nrf_timer_publish_clear(_timer0.p_reg, NRF_TIMER_EVENT_COMPARE0);
+	nrf_timer_publish_clear(_timer0.p_reg, NRF_TIMER_EVENT_COMPARE1);
+}
+
 static void _radio_isr(const void *arg)
 {
 	if (nrf_radio_event_check(NRF_RADIO, NRF_RADIO_EVENT_DISABLED)) {
@@ -182,9 +242,10 @@ int hubble_sat_soc_enable(void)
 		return ret;
 	}
 
-	(void)hubble_nrf_lib_enable();
+	/* Wipe out any radio/timer/DPPI state left behind by the BLE controller */
+	_radio_reset();
 
-	NRF_RADIO->SUBSCRIBE_RXEN = 0;
+	(void)hubble_nrf_lib_enable();
 
 	nrf_radio_fast_ramp_up_enable_set(NRF_RADIO, true);
 	nrf_radio_mode_set(NRF_RADIO, NRF_RADIO_MODE_BLE_1MBIT);
