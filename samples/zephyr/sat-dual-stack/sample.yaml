@@ -1,0 +1,32 @@
+# Copyright (c) 2026 Hubble Network, Inc.
+# SPDX-License-Identifier: Apache-2.0
+
+sample:
+  description: Hubble Network dual-stack (BLE beacon + satellite) example
+  name: hubble-sat-dual-stack
+common:
+  build_only: true
+  depends_on:
+    - ble
+  tags:
+    - bluetooth
+    - satellite
+  platform_allow:
+    - native_sim
+tests:
+  app.sat.dual_stack.default:
+      extra_configs:
+      - CONFIG_HUBBLE_SAMPLE_DEBUG=n
+  app.sat.dual_stack.debug:
+    extra_configs:
+      - CONFIG_HUBBLE_SAMPLE_DEBUG=y
+  app.sat.dual_stack.128key:
+    extra_configs:
+      - CONFIG_HUBBLE_NETWORK_KEY_128=y
+  app.sat.dual_stack.mbedtls:
+    extra_configs:
+      - CONFIG_HUBBLE_NETWORK_CRYPTO_MBEDTLS=y
+  app.sat.dual_stack.mbedtls_128key:
+    extra_configs:
+      - CONFIG_HUBBLE_NETWORK_CRYPTO_MBEDTLS=y
+      - CONFIG_HUBBLE_NETWORK_KEY_128=y
