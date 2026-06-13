@@ -40,7 +40,6 @@
 #include "pa.h"
 #include "sat_board.h"
 
-#define DEFAULT_TX_POWER_DBM            TI_PA_DEFAULT_DBM
 #define TI_STEP_SIZE_HZ                 366.2119
 
 /* The center frequency for channel 0 is 2482208625
@@ -67,6 +66,9 @@
  */
 static SemaphoreHandle_t _transmit_sem;
 
+/* Current sat power */
+static int8_t _sat_power = TI_PA_DEFAULT_DBM;
+
 /* RCL */
 #if defined(USE_DMM_OVRDE)
 /* BLE RCL Client Object */
@@ -86,6 +88,7 @@ static RCL_Handle rcl_handle;
 static void _radio_cw_start(int16_t step, uint32_t delay, uint32_t duration_us)
 {
 	/* On time */
+	rclPacketTxCmdGenericTxTest_ble_custom.txPower.dBm = _sat_power;
 	rclPacketTxCmdGenericTxTest_ble_custom.rfFrequency =
 		(uint32_t)(HUBBLE_BASE_FREQUENCY + step * TI_STEP_SIZE_HZ);
 	rclPacketTxCmdGenericTxTest_ble_custom.common.timing.relHardStopTime =
@@ -180,7 +183,7 @@ int hubble_sat_board_init(void)
 	/* Set RF frequency */
 	rclPacketTxCmdGenericTxTest_ble_custom.rfFrequency =
 		HUBBLE_BASE_FREQUENCY;
-	rclPacketTxCmdGenericTxTest_ble_custom.txPower.dBm = DEFAULT_TX_POWER_DBM;
+	rclPacketTxCmdGenericTxTest_ble_custom.txPower.dBm = _sat_power;
 
 	/* Start command as soon as possible */
 	rclPacketTxCmdGenericTxTest_ble_custom.common.scheduling =
@@ -250,3 +253,45 @@ int hubble_sat_board_packet_send(const struct hubble_sat_packet_frames *packet)
 	xSemaphoreGive(_transmit_sem);
 	return 0;
 }
+
+#ifdef CONFIG_HUBBLE_SAT_NETWORK_DTM_MODE
+
+int hubble_sat_board_power_set(int8_t power)
+{
+	_sat_power = power;
+	return 0;
+}
+
+int hubble_sat_board_cw_start(uint8_t channel)
+{
+	int16_t step = 32 + HUBBLE_CHANNEL_OFFSET(channel);
+	rclPacketTxCmdGenericTxTest_ble_custom.rfFrequency =
+		(uint32_t)(HUBBLE_BASE_FREQUENCY + step * TI_STEP_SIZE_HZ);
+
+	/* Because TI is a bit special, let's have the cw run for 10s */
+	rclPacketTxCmdGenericTxTest_ble_custom.common.timing.relHardStopTime =
+		RCL_SCHEDULER_SYSTIM_US(10000000);
+
+	rclPacketTxCmdGenericTxTest_ble_custom.txPower.dBm = _sat_power;
+
+	/* We don't need abs time here */
+	rclPacketTxCmdGenericTxTest_ble_custom.common.scheduling =
+		RCL_Schedule_Now;
+
+	/* Submit command & pend on completion */
+	RCL_Command_submit(rcl_handle, &rclPacketTxCmdGenericTxTest_ble_custom);
+	RCL_Command_pend(&rclPacketTxCmdGenericTxTest_ble_custom);
+
+	/* Reset back to abs time in case the next ops is packet tx */
+	rclPacketTxCmdGenericTxTest_ble_custom.common.scheduling =
+		RCL_Schedule_AbsTime;
+
+	return 0;
+}
+
+int hubble_sat_board_cw_stop(void)
+{
+	return -ENOTSUP;
+}
+
+#endif /* CONFIG_HUBBLE_SAT_NETWORK_DTM_MODE */

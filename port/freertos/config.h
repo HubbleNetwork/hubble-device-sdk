@@ -90,6 +90,13 @@
 #define CONFIG_HUBBLE_SAT_NETWORK_PROTOCOL_V1 1
 #endif
 
+/*
+ * DTM Mode
+ * Enable DTM (Direct Test Mode) in the SDK, this is intended
+ * to test the operation of the radio.
+ */
+/* #define CONFIG_HUBBLE_SAT_NETWORK_DTM_MODE 1 */
+
 #endif /* CONFIG_HUBBLE_SAT_NETWORK */
 
 #endif /* INCLUDE_PORT_FREERTOS_CONFIG_H */
