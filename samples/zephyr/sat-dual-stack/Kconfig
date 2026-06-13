@@ -1,0 +1,32 @@
+# Copyright (c) 2026 Hubble Network, Inc.
+# SPDX-License-Identifier: Apache-2.0
+
+menu "Hubble Network Dual Stack Sample options"
+
+config HUBBLE_DEVICE_KEY
+    string "Cryptography key in base64"
+    default ""
+    help
+	Hubble device's cryptographic key
+
+config HUBBLE_SAMPLE_DEBUG
+    bool "Enable debug mode"
+    default n
+    help
+	Enable debug mode for the Hubble sample application.
+	This will set the sat timer for 2 minutes instead
+	of until a satellite pass is overhead.
+
+config SAMPLE_PROVIDE_SAT_BOARD_SUPPORT
+    bool "Provide satellite board suport for test purpose"
+    default y
+    help
+	Targets that don't support satellite must select it.
+
+endmenu
+
+source "Kconfig.zephyr"
+
+module = APP
+module-str = APP
+source "subsys/logging/Kconfig.template.log_config"
