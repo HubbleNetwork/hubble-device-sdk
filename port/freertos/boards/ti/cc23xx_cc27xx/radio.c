@@ -24,6 +24,7 @@
 /* Hubble */
 #include <hubble/port/sat_radio.h>
 #include <hubble/sat/packet.h>
+#include <hubble/port/sat_radio.h>
 
 /* DMM */
 #if defined(USE_DMM_OVRDE)
@@ -60,6 +61,8 @@
 #else
 #error "Device not supported"
 #endif
+
+#define _TIME_S_TO_TICK(_time_s) ((_time_s * 1000U) / portTICK_PERIOD_MS)
 
 /**
  * This semaphore is used to protect a packet transmission and avoid
@@ -231,7 +234,11 @@ int hubble_sat_board_packet_send(const struct hubble_sat_packet_frames *packet)
 {
 	int8_t frame = -1;
 
-	xSemaphoreTake(_transmit_sem, portMAX_DELAY);
+	if (xSemaphoreTake(_transmit_sem,
+			   _TIME_S_TO_TICK(HUBBLE_SAT_TRANSMISSION_TIMEOUT_S)) !=
+	    pdTRUE) {
+		return -ETIMEDOUT;
+	}
 
 	for (uint8_t i = 0; i < packet->total_number_of_symbols; i++) {
 		int16_t step;

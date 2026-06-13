@@ -42,14 +42,17 @@
 
 #endif /* CONFIG_HUBBLE_SAT_NETWORK_DTM_MODE */
 
-#define RADIO_NODE                 DT_NODELABEL(radio)
+#define RADIO_NODE             DT_NODELABEL(radio)
 
 /**
  * Time between TXEN task and READY event with fast ramp-up enabled is
  * 40us. nRF5340_PS_v1.6 - 7.26.16.8
  */
-#define WAIT_SYMBOL_OFF_US         (HUBBLE_WAIT_SYMBOL_OFF_US - 40)
-#define WAIT_SYMBOL_US             (HUBBLE_WAIT_SYMBOL_US + 40)
+#define WAIT_SYMBOL_OFF_US     (HUBBLE_WAIT_SYMBOL_OFF_US - 40)
+#define WAIT_SYMBOL_US         (HUBBLE_WAIT_SYMBOL_US + 40)
+
+/* Max time for semaphore symbol to wait before failing. */
+#define WAIT_SYMBOL_TIMEOUT_US K_USEC(2 * (WAIT_SYMBOL_OFF_US + WAIT_SYMBOL_US))
 
 #define RADIO_ENABLE_TX_ON_CC0_PPI 9U
 #define RADIO_DISABLE_ON_CC1_PPI   12U
@@ -231,9 +234,15 @@ int hubble_sat_soc_enable(void)
 
 int hubble_sat_soc_packet_send(const struct hubble_sat_packet_frames *packet)
 {
+	int ret;
 	int8_t frame = -1;
 
-	k_sem_take(&_transmit_sem, K_FOREVER);
+	ret = k_sem_take(&_transmit_sem,
+			 K_SECONDS(HUBBLE_SAT_TRANSMISSION_TIMEOUT_S));
+	if (ret != 0) {
+		return ret;
+	}
+
 	k_sem_reset(&_symbol_sem);
 
 	_dppi_enable();
@@ -248,7 +257,10 @@ int hubble_sat_soc_packet_send(const struct hubble_sat_packet_frames *packet)
 
 		hubble_nrf_lib_frequency_set(packet->frame[frame].channel,
 					     packet->frame[frame].data[data_pos]);
-		k_sem_take(&_symbol_sem, K_FOREVER);
+		ret = k_sem_take(&_symbol_sem, WAIT_SYMBOL_TIMEOUT_US);
+		if (ret != 0) {
+			break;
+		}
 	}
 
 	_dppi_disable();
@@ -256,7 +268,7 @@ int hubble_sat_soc_packet_send(const struct hubble_sat_packet_frames *packet)
 
 	k_sem_give(&_transmit_sem);
 
-	return 0;
+	return ret;
 }
 
 #ifdef CONFIG_HUBBLE_SAT_NETWORK_DTM_MODE

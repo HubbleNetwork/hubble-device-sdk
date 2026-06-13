@@ -64,6 +64,17 @@ extern "C" {
 #define HUBBLE_SAT_PREAMBLE_SEQUENCE                                           \
 	(const int8_t[]){63, 0, 63, 0, 63, 0, 63, 63}
 
+
+/**
+ * @brief Timeout, in seconds, to wait to start a transmission.
+ *
+ * Transmissions are serialized so that only one transmission runs at
+ * a time. This value bounds how long a caller waits to acquire that
+ * start a transmission before giving up, preventing a stuck or
+ * long-running transmission from blocking other callers indefinitely.
+ */
+#define HUBBLE_SAT_TRANSMISSION_TIMEOUT_S 2U
+
 /**
  * @brief Initialize the satellite radio port.
  *

@@ -18,11 +18,14 @@
 #include <stdint.h>
 #include <errno.h>
 
-#define RADIO_NODE         DT_NODELABEL(radio)
+#define RADIO_NODE             DT_NODELABEL(radio)
 
 /* From NRF52840_PS_v1.2 6.20.15.8 Time between TXEN -> READ is 140us */
-#define WAIT_SYMBOL_OFF_US (HUBBLE_WAIT_SYMBOL_OFF_US - 140)
-#define WAIT_SYMBOL_US     (HUBBLE_WAIT_SYMBOL_US + 140)
+#define WAIT_SYMBOL_OFF_US     (HUBBLE_WAIT_SYMBOL_OFF_US - 140)
+#define WAIT_SYMBOL_US         (HUBBLE_WAIT_SYMBOL_US + 140)
+
+/* Max time for semaphore symbol to wait before failing. */
+#define WAIT_SYMBOL_TIMEOUT_US K_USEC(2 * (WAIT_SYMBOL_OFF_US + WAIT_SYMBOL_US))
 
 static uint32_t _radio_shorts;
 
@@ -168,9 +171,14 @@ int hubble_sat_soc_disable(void)
 
 int hubble_sat_soc_packet_send(const struct hubble_sat_packet_frames *packet)
 {
+	int ret;
 	int8_t frame = -1;
 
-	k_sem_take(&_transmit_sem, K_FOREVER);
+	ret = k_sem_take(&_transmit_sem,
+			 K_SECONDS(HUBBLE_SAT_TRANSMISSION_TIMEOUT_S));
+	if (ret != 0) {
+		return ret;
+	}
 
 	k_sem_reset(&_symbol_sem);
 
@@ -186,7 +194,10 @@ int hubble_sat_soc_packet_send(const struct hubble_sat_packet_frames *packet)
 
 		hubble_nrf_lib_frequency_set(packet->frame[frame].channel,
 					     packet->frame[frame].data[data_pos]);
-		k_sem_take(&_symbol_sem, K_FOREVER);
+		ret = k_sem_take(&_symbol_sem, WAIT_SYMBOL_TIMEOUT_US);
+		if (ret != 0) {
+			break;
+		}
 	}
 
 	_ppi_disable();
@@ -194,7 +205,7 @@ int hubble_sat_soc_packet_send(const struct hubble_sat_packet_frames *packet)
 
 	k_sem_give(&_transmit_sem);
 
-	return 0;
+	return ret;
 }
 
 #ifdef CONFIG_HUBBLE_SAT_NETWORK_DTM_MODE

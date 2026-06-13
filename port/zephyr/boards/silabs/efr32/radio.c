@@ -104,6 +104,7 @@ static void _timer_cb(sl_rail_handle_t rail_handle)
 static int _radio_cw_start(uint8_t channel, uint16_t step, uint32_t delay,
 			   uint32_t duration_us)
 {
+	int ret;
 	sl_rail_status_t status;
 	sl_rail_time_t anchor;
 
@@ -126,11 +127,15 @@ static int _radio_cw_start(uint8_t channel, uint16_t step, uint32_t delay,
 		return _sl_status_to_errno(status);
 	}
 
-	k_sem_take(&_symbol_sem, K_FOREVER);
+	ret = k_sem_take(&_symbol_sem, (2 * duration_us));
 
 	status = sl_rail_stop_tx_stream(_rail_handle);
 	if (status != SL_RAIL_STATUS_NO_ERROR) {
 		return _sl_status_to_errno(status);
+	}
+
+	if (ret != 0) {
+		return ret;
 	}
 
 	status = sl_rail_set_timer(_rail_handle, anchor + duration_us + delay,
@@ -139,8 +144,7 @@ static int _radio_cw_start(uint8_t channel, uint16_t step, uint32_t delay,
 		return _sl_status_to_errno(status);
 	}
 
-	k_sem_take(&_symbol_sem, K_FOREVER);
-	return 0;
+	return k_sem_take(&_symbol_sem, (2 * delay));
 }
 
 static int _radio_channel_set(uint8_t channel)
@@ -255,10 +259,15 @@ int hubble_sat_board_disable(void)
 
 int hubble_sat_board_packet_send(const struct hubble_sat_packet_frames *packet)
 {
-	int ret = 0;
+	int ret;
 	int8_t frame = -1;
 
-	k_sem_take(&_transmit_sem, K_FOREVER);
+	ret = k_sem_take(&_transmit_sem,
+			 K_SECONDS(HUBBLE_SAT_TRANSMISSION_TIMEOUT_S));
+	if (ret != 0) {
+		return ret;
+	}
+
 	k_sem_reset(&_symbol_sem);
 
 	for (uint8_t i = 0; i < packet->total_number_of_symbols; i++) {
