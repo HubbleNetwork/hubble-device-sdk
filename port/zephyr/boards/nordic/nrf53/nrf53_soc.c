@@ -23,25 +23,6 @@
 
 #include <errno.h>
 
-#ifdef CONFIG_HUBBLE_SAT_NETWORK_DTM_MODE
-
-/* Needs this for increasing the SoC power above 0 */
-#include <hal/nrf_vreqctrl.h>
-
-#ifndef RADIO_TXPOWER_TXPOWER_Pos3dBm
-#define RADIO_TXPOWER_TXPOWER_Pos3dBm (0x03UL)
-#endif /* RADIO_TXPOWER_TXPOWER_Pos3dBm */
-
-#ifndef RADIO_TXPOWER_TXPOWER_Pos2dBm
-#define RADIO_TXPOWER_TXPOWER_Pos2dBm (0x02UL)
-#endif /* RADIO_TXPOWER_TXPOWER_Pos2dBm */
-
-#ifndef RADIO_TXPOWER_TXPOWER_Pos1dBm
-#define RADIO_TXPOWER_TXPOWER_Pos1dBm (0x01UL)
-#endif /* RADIO_TXPOWER_TXPOWER_Pos1dBm */
-
-#endif /* CONFIG_HUBBLE_SAT_NETWORK_DTM_MODE */
-
 #define RADIO_NODE                 DT_NODELABEL(radio)
 
 /**
@@ -60,7 +41,7 @@ static nrfx_timer_t _timer0 = NRFX_TIMER_INSTANCE(NRF_TIMER_INST_GET(0));
 
 /* Keep track of power before and in sat tx mode */
 static nrf_radio_txpower_t _normal_power = RADIO_TXPOWER_TXPOWER_0dBm;
-static nrf_radio_txpower_t _sat_power = RADIO_TXPOWER_TXPOWER_0dBm;
+nrf_radio_txpower_t _sat_power = RADIO_TXPOWER_TXPOWER_0dBm;
 
 /**
  * Signature for APIs provided by the binary library.
@@ -258,104 +239,3 @@ int hubble_sat_soc_packet_send(const struct hubble_sat_packet_frames *packet)
 
 	return 0;
 }
-
-#ifdef CONFIG_HUBBLE_SAT_NETWORK_DTM_MODE
-
-int hubble_sat_soc_power_set(int8_t power)
-{
-	switch (power) {
-	case 3:
-		_sat_power = NRF_RADIO_TXPOWER_POS3DBM;
-		break;
-	case 2:
-		_sat_power = NRF_RADIO_TXPOWER_POS2DBM;
-		break;
-	case 1:
-		_sat_power = NRF_RADIO_TXPOWER_POS1DBM;
-		break;
-	case 0:
-		_sat_power = NRF_RADIO_TXPOWER_0DBM;
-		break;
-	case -1:
-		_sat_power = NRF_RADIO_TXPOWER_NEG1DBM;
-		break;
-	case -2:
-		_sat_power = NRF_RADIO_TXPOWER_NEG2DBM;
-		break;
-	case -3:
-		_sat_power = NRF_RADIO_TXPOWER_NEG3DBM;
-		break;
-	case -4:
-		_sat_power = NRF_RADIO_TXPOWER_NEG4DBM;
-		break;
-	case -5:
-		_sat_power = NRF_RADIO_TXPOWER_NEG5DBM;
-		break;
-	case -6:
-		_sat_power = NRF_RADIO_TXPOWER_NEG6DBM;
-		break;
-	case -7:
-		_sat_power = NRF_RADIO_TXPOWER_NEG7DBM;
-		break;
-	case -8:
-		_sat_power = NRF_RADIO_TXPOWER_NEG8DBM;
-		break;
-	case -12:
-		_sat_power = NRF_RADIO_TXPOWER_NEG12DBM;
-		break;
-	case -16:
-		_sat_power = NRF_RADIO_TXPOWER_NEG16DBM;
-		break;
-	case -20:
-		_sat_power = NRF_RADIO_TXPOWER_NEG20DBM;
-		break;
-	case -40:
-		_sat_power = NRF_RADIO_TXPOWER_NEG40DBM;
-		break;
-	default:
-		return -EINVAL;
-	}
-
-	if (_sat_power > 0) {
-		/* High voltage increase the output power by 3 dB */
-		_sat_power -= 3;
-		nrf_vreqctrl_radio_high_voltage_set(NRF_VREQCTRL, true);
-	} else {
-		nrf_vreqctrl_radio_high_voltage_set(NRF_VREQCTRL, false);
-	}
-
-	nrf_radio_txpower_set(NRF_RADIO, _sat_power);
-	return 0;
-}
-
-int hubble_sat_soc_cw_start(uint8_t channel)
-{
-	int ret = hubble_nrf_lib_frequency_set(channel, 32);
-
-	if (ret != 0) {
-		return ret;
-	}
-
-	nrf_radio_task_trigger(NRF_RADIO, NRF_RADIO_TASK_TXEN);
-#if defined(RADIO_INTENSET_TXREADY_Msk) || defined(RADIO_INTENSET00_TXREADY_Msk)
-	while (!nrf_radio_event_check(NRF_RADIO, NRF_RADIO_EVENT_TXREADY)) {
-		/* Do nothing */
-	}
-#endif
-
-	return 0;
-}
-
-int hubble_sat_soc_cw_stop(void)
-{
-	nrf_radio_task_trigger(NRF_RADIO, NRF_RADIO_TASK_DISABLE);
-
-	while (!nrf_radio_event_check(NRF_RADIO, NRF_RADIO_EVENT_DISABLED)) {
-		/* Do nothing */
-	}
-	nrf_radio_event_clear(NRF_RADIO, NRF_RADIO_EVENT_DISABLED);
-
-	return 0;
-}
-
-#endif /* CONFIG_HUBBLE_SAT_NETWORK_DTM_MODE */

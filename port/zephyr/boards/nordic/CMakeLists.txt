@@ -1,3 +1,7 @@
 add_subdirectory_ifdef(CONFIG_SOC_SERIES_NRF52 nrf52)
 add_subdirectory_ifdef(CONFIG_SOC_COMPATIBLE_NRF54L15 nrf54)
 add_subdirectory_ifdef(CONFIG_SOC_COMPATIBLE_NRF5340_CPUNET nrf53)
+
+if(CONFIG_HUBBLE_SAT_NETWORK_DTM_MODE)
+	zephyr_library_sources(sat_dtm.c)
+endif()
