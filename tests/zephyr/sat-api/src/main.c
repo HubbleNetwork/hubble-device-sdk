@@ -166,31 +166,31 @@ ZTEST(sat_test, test_profile)
 	zassert_ok(err);
 
 	/* Sanity check. Invalid packet */
-	err = hubble_sat_packet_send(NULL, HUBBLE_SAT_RELIABILITY_NORMAL);
+	err = hubble_sat_broadcast(NULL, HUBBLE_SAT_RELIABILITY_NORMAL);
 	zassert_not_ok(err);
 
 	/* Sanity check. Invalid reliability */
 	_transmission_count = 16U;
-	err = hubble_sat_packet_send(&pkt, 255);
+	err = hubble_sat_broadcast(&pkt, 255);
 	zassert_not_ok(err);
 	/* Checking no transmissions happened. */
 	zassert_equal(16U, _transmission_count);
 
 	/* Test no reliability. One time transmission */
 	_transmission_count = 1U;
-	err = hubble_sat_packet_send(&pkt, HUBBLE_SAT_RELIABILITY_NONE);
+	err = hubble_sat_broadcast(&pkt, HUBBLE_SAT_RELIABILITY_NONE);
 	zassert_ok(err);
 	zassert_equal(0, _transmission_count);
 
 	/* Test normal reliability  - 8u */
 	_transmission_count = 8U;
-	err = hubble_sat_packet_send(&pkt, HUBBLE_SAT_RELIABILITY_NORMAL);
+	err = hubble_sat_broadcast(&pkt, HUBBLE_SAT_RELIABILITY_NORMAL);
 	zassert_ok(err);
 	zassert_equal(0, _transmission_count);
 
 	/* Test high reliability  - 16u */
 	_transmission_count = 16U;
-	err = hubble_sat_packet_send(&pkt, HUBBLE_SAT_RELIABILITY_HIGH);
+	err = hubble_sat_broadcast(&pkt, HUBBLE_SAT_RELIABILITY_HIGH);
 	zassert_ok(err);
 	zassert_equal(0, _transmission_count);
 }
@@ -207,10 +207,10 @@ ZTEST(sat_test, test_channel_hopping)
 	err = hubble_sat_packet_get(&pkt, NULL, 0);
 	zassert_ok(err);
 
-	err = hubble_sat_packet_send(&pkt, HUBBLE_SAT_RELIABILITY_NONE);
+	err = hubble_sat_broadcast(&pkt, HUBBLE_SAT_RELIABILITY_NONE);
 	zassert_ok(err);
 
-	err = hubble_sat_packet_send(&pkt, HUBBLE_SAT_RELIABILITY_NONE);
+	err = hubble_sat_broadcast(&pkt, HUBBLE_SAT_RELIABILITY_NONE);
 	zassert_ok(err);
 
 	_test_hopping = false;

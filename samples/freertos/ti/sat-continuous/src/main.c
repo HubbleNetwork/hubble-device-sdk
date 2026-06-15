@@ -44,8 +44,8 @@ void *mainThread(void *arg0)
 			return NULL;
 		}
 
-		ret = hubble_sat_packet_send(&packet,
-					     HUBBLE_SAT_RELIABILITY_NORMAL);
+		ret = hubble_sat_broadcast(&packet,
+					   HUBBLE_SAT_RELIABILITY_NORMAL);
 		if (ret != 0) {
 			/* TODO: Call Error Handler */
 			return NULL;

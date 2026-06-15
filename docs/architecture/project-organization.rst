@@ -178,7 +178,7 @@ Use this namespace for stable application APIs and SDK-wide constants. Examples:
   ``hubble_key_set()`` from ``hubble.h``;
 * ``hubble_ble_advertise_get()`` and
   ``hubble_ble_advertise_expiration_get()`` from ``ble.h``;
-* ``hubble_sat_packet_send()`` from ``sat.h``;
+* ``hubble_sat_broadcast()`` from ``sat.h``;
 * satellite packet, pass prediction, and DTM helpers under ``include/hubble/sat``.
 
 When adding a public API, place its declaration in ``include/hubble``, add
@@ -203,7 +203,7 @@ Symbols with ``_port_`` in the name are implemented by a port or board
 layer and called by common SDK code — for example
 ``hubble_sat_port_init()`` and ``hubble_sat_port_packet_send()``. The
 ``_port_`` suffix implies there is an equivalent common function that
-shares code across all ports, for example ``hubble_sat_packet_send()``.
+shares code across all ports, for example ``hubble_sat_broadcast()``.
 
 Not every port contract carries ``_port_`` in its
 name. ``hubble_uptime_get()``, ``hubble_log()``, and

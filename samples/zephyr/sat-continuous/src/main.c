@@ -65,7 +65,7 @@ int main(void)
 			goto end;
 		}
 
-		err = hubble_sat_packet_send(&pkt, HUBBLE_SAT_RELIABILITY_NORMAL);
+		err = hubble_sat_broadcast(&pkt, HUBBLE_SAT_RELIABILITY_NORMAL);
 		if (err != 0) {
 			LOG_ERR("Failed to transmit packet");
 			goto end;

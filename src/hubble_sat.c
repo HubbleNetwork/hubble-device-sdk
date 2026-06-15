@@ -114,8 +114,8 @@ int hubble_internal_sat_init(void)
 	return 0;
 }
 
-int hubble_sat_packet_send(const struct hubble_sat_packet *packet,
-			   enum hubble_sat_transmission_mode mode)
+int hubble_sat_broadcast(const struct hubble_sat_packet *packet,
+			 enum hubble_sat_transmission_mode mode)
 {
 	int ret;
 	uint8_t interval_s, retries;
