@@ -10,6 +10,23 @@ config SAMPLE_PROVIDE_SAT_BOARD_SUPPORT
 	Targets that support satellite must select it, otherwise
 	board APIs will be mocked in the sample.
 
+config SAMPLE_SAT_TX_INTERVAL_SECONDS
+    int "Inter-transmission sleep in seconds"
+    default 10
+    help
+	Time the sample sleeps between consecutive satellite packet
+	transmissions, in seconds.
+
+config SAMPLE_HUBBLE_KEY
+    string "Base64-encoded Hubble master key"
+    default ""
+    help
+	Base64-encoded master key provisioned at build time. Pass it with
+	west build ... -- -DCONFIG_SAMPLE_HUBBLE_KEY=\"<base64 key>\".
+	If left empty, an all-zero placeholder is used: the sample still
+	builds but will not produce valid advertisements until a real key
+	is supplied.
+
 endmenu
 
 source "Kconfig.zephyr"
