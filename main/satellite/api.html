@@ -385,6 +385,25 @@ The drift is estimated from the device’s Time Drift Rate (TDR), configured thr
 </dl>
 </dd></dl>
 
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv434hubble_sat_min_elevation_angle_set7uint8_t">
+<span id="_CPPv334hubble_sat_min_elevation_angle_set7uint8_t"></span><span id="_CPPv234hubble_sat_min_elevation_angle_set7uint8_t"></span><span id="hubble_sat_min_elevation_angle_set__uint8_t"></span><span class="target" id="group__hubble__sat__api_1gadedb28419736732be803344d36582467"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">hubble_sat_min_elevation_angle_set</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">uint8_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">angle</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv434hubble_sat_min_elevation_angle_set7uint8_t" title="Link to this definition"></a><br /></dt>
+<dd><p>Set the minimum elevation angle for a satellite pass. </p>
+<p>This function configures the minimum elevation angle above the horizon that a satellite must reach at culmination for a pass to be reported by <a class="reference internal" href="#group__hubble__sat__api_1ga2db2929eecaa85e6e775dd9dbcde6687"><span class="std std-ref">hubble_sat_next_pass_get()</span></a> and <a class="reference internal" href="#group__hubble__sat__api_1gaf516cb7d90a2a3ce5e1d389de057c28c"><span class="std std-ref">hubble_sat_next_pass_region_get()</span></a>. Passes whose maximum elevation angle is below this threshold are ignored.</p>
+<p>Raising the angle restricts results to higher, closer passes (typically better link quality) at the cost of fewer reported passes. The default minimum elevation angle is 45 degrees.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>angle</strong> – Minimum elevation angle in degrees. Must be in the range [30, 90]. </p>
+</dd>
+<dt class="field-even">Return values<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>-EINVAL</strong> – if <code class="docutils literal notranslate"><span class="pre">angle</span></code> is outside the range [30, 90]. </p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>0 on success. </p>
+</dd>
+</dl>
+</dd></dl>
+
 </div>
 <dl class="cpp struct">
 <dt class="sig sig-object cpp" id="_CPPv425hubble_sat_orbital_params">
