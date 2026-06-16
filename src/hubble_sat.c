@@ -27,6 +27,8 @@
 #define _SAT_RETRANSMISSION_RETRIES_NORMAL    8U
 #define _SAT_RETRANSMISSION_RETRIES_HIGH      16U
 
+/* The expected drift should not exceed 90 min */
+#define _SAT_MAX_TIME_DRIFT_MSEC              (90U * 60U * 1000U)
 
 static int _transmission_params_get(enum hubble_sat_transmission_mode mode,
 				    uint8_t *retries, uint8_t *interval_s)
@@ -64,7 +66,7 @@ uint32_t hubble_internal_time_drift_get(void)
 	drift_ms =
 		(elapsed_ms * CONFIG_HUBBLE_SAT_NETWORK_DEVICE_TDR) / 1000000ULL;
 
-	return (uint32_t)HUBBLE_MIN(UINT32_MAX, drift_ms);
+	return (uint32_t)HUBBLE_MIN(_SAT_MAX_TIME_DRIFT_MSEC, drift_ms);
 }
 
 static uint8_t _additional_retries_count(uint8_t interval_s)
