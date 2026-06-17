@@ -101,19 +101,17 @@ static void _timer_cb(sl_rail_handle_t rail_handle)
 	k_sem_give(&_symbol_sem);
 }
 
-static int _radio_cw_start(uint8_t channel, uint16_t step, uint32_t delay,
-			   uint32_t duration_us)
+static int _radio_cw_start(uint8_t channel, uint16_t step, uint32_t abs_start,
+			   uint32_t delay, uint32_t duration_us)
 {
 	sl_rail_status_t status;
-	sl_rail_time_t anchor;
 
 	status = sl_rail_set_freq_offset(_rail_handle, EFR32_STEP_SCALE(step));
 	if (status != SL_RAIL_STATUS_NO_ERROR) {
 		return _sl_status_to_errno(status);
 	}
 
-	anchor = sl_rail_get_time(_rail_handle);
-	status = sl_rail_set_timer(_rail_handle, anchor + duration_us,
+	status = sl_rail_set_timer(_rail_handle, abs_start + duration_us,
 				   SL_RAIL_TIME_ABSOLUTE, &_timer_cb);
 	if (status != SL_RAIL_STATUS_NO_ERROR) {
 		return _sl_status_to_errno(status);
@@ -133,7 +131,7 @@ static int _radio_cw_start(uint8_t channel, uint16_t step, uint32_t delay,
 		return _sl_status_to_errno(status);
 	}
 
-	status = sl_rail_set_timer(_rail_handle, anchor + duration_us + delay,
+	status = sl_rail_set_timer(_rail_handle, abs_start + duration_us + delay,
 				   SL_RAIL_TIME_ABSOLUTE, &_timer_cb);
 	if (status != SL_RAIL_STATUS_NO_ERROR) {
 		return _sl_status_to_errno(status);
@@ -257,9 +255,12 @@ int hubble_sat_board_packet_send(const struct hubble_sat_packet_frames *packet)
 {
 	int ret = 0;
 	int8_t frame = -1;
+	sl_rail_time_t symbol_start;
 
 	k_sem_take(&_transmit_sem, K_FOREVER);
 	k_sem_reset(&_symbol_sem);
+
+	symbol_start = sl_rail_get_time(_rail_handle);
 
 	for (uint8_t i = 0; i < packet->total_number_of_symbols; i++) {
 		uint8_t data_pos = i % HUBBLE_PACKET_FRAME_PAYLOAD_MAX_SIZE;
@@ -274,11 +275,13 @@ int hubble_sat_board_packet_send(const struct hubble_sat_packet_frames *packet)
 
 		ret = _radio_cw_start(packet->frame[frame].channel,
 				      packet->frame[frame].data[data_pos],
-				      HUBBLE_WAIT_SYMBOL_OFF_US,
+				      symbol_start, HUBBLE_WAIT_SYMBOL_OFF_US,
 				      HUBBLE_WAIT_SYMBOL_US);
 		if (ret != 0) {
 			goto end;
 		}
+
+		symbol_start += HUBBLE_WAIT_SYMBOL_US + HUBBLE_WAIT_SYMBOL_OFF_US;
 	}
 
 end:
