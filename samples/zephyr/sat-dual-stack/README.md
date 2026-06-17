@@ -39,6 +39,19 @@ west build -b <board> samples/zephyr/sat-dual-stack \
 west flash
 ```
 
+> [!NOTE]
+> When building with nRF Connect SDK (NCS) and the SoftDevice
+> Bluetooth controller, add the SoftDevice-specific overlay for the nRF54L15 DK:
+>
+> ```sh
+> west build -b nrf54l15dk/nrf54l15/cpuapp samples/zephyr/sat-dual-stack \
+>     -- -DEXTRA_CONF_FILE=boards/nrf54l15dk_nrf54l15_cpuapp-softdevice.conf \
+>        -DCONFIG_HUBBLE_DEVICE_KEY=\"<your-base64-key>\"
+> ```
+>
+> This overlay enables MPSL with a timeslot session so the satellite radio can
+> coexist with the SoftDevice Bluetooth controller.
+
 ## Provisioning
 
 On boot the device starts a connectable advertisement named **"Hubble-Zephyr"**
