@@ -9,6 +9,7 @@
 #include <errno.h>
 
 #include "hubble_priv.h"
+#include "utils/macros.h"
 
 #ifndef M_PI
 #define M_PI 3.14159265358979323846
@@ -805,6 +806,16 @@ static int _next_pass_culmination_get(
 	return 0;
 }
 
+/* Scale the pass times from the seconds used by the orbital math to the
+ * milliseconds exposed by the public API.
+ */
+static void _pass_times_to_ms(struct hubble_sat_pass_info *pass)
+{
+	pass->start *= HUBBLE_MSEC_PER_SEC;
+	pass->culmination *= HUBBLE_MSEC_PER_SEC;
+	pass->duration *= HUBBLE_MSEC_PER_SEC;
+}
+
 int hubble_sat_next_pass_get(uint64_t t, const struct hubble_sat_device_pos *pos,
 			     struct hubble_sat_pass_info *pass)
 {
@@ -826,6 +837,9 @@ int hubble_sat_next_pass_get(uint64_t t, const struct hubble_sat_device_pos *pos
 				   "satellites configured");
 		return -ENOENT;
 	}
+
+	/* The orbital math operates in seconds. */
+	t /= HUBBLE_MSEC_PER_SEC;
 
 	HUBBLE_LOG_DEBUG("Searching next pass from t=%llu lat=%f lon=%f",
 			 (unsigned long long)t, pos->lat, pos->lon);
@@ -874,6 +888,9 @@ int hubble_sat_next_pass_get(uint64_t t, const struct hubble_sat_device_pos *pos
 	pass->max_elevation_angle =
 		_elevation_angle_get(pass->lon, pos->lat, pos->lon, alt);
 
+	/* Report times in milliseconds, matching the rest of the SDK. */
+	_pass_times_to_ms(pass);
+
 	HUBBLE_LOG_DEBUG("Next pass found: start=%llu culmination=%llu lon=%f "
 			 "ascending=%d max_elevation_angle=%f",
 			 (unsigned long long)pass->start,
@@ -908,6 +925,9 @@ int hubble_sat_next_pass_region_get(
 				   "satellites configured");
 		return -ENOENT;
 	}
+
+	/* The orbital math operates in seconds. */
+	t /= HUBBLE_MSEC_PER_SEC;
 
 	HUBBLE_LOG_DEBUG("Searching next pass for region t=%llu lat_mid=%f "
 			 "lon_mid=%f lat_range=%f lon_range=%f",
@@ -1032,6 +1052,9 @@ int hubble_sat_next_pass_region_get(
 	pass->culmination -= hubble_internal_time_drift_get() / 2000U;
 
 	pass->start = pass->culmination - (pass->duration / 2U);
+
+	/* Report times in milliseconds, matching the rest of the SDK. */
+	_pass_times_to_ms(pass);
 
 	HUBBLE_LOG_DEBUG("Next region pass found: start=%llu culmination=%llu "
 			 "lon=%f duration=%llu "

@@ -35,6 +35,7 @@ icall_userCfg_t user0Cfg = BLE_USER_CFG;
 #include "app_ble.h"
 
 #define US_PER_SEC 1000000ULL
+#define US_PER_MS  1000ULL
 
 #pragma message(                                                               \
 	"Dummy key, replace with actual key by running ./embed_key_time.py -b b64key -d")
@@ -90,7 +91,7 @@ void *main_thread_entry(void *arg0)
 
 	struct hubble_sat_pass_info pass_info;
 	struct hubble_sat_packet packet;
-	uint64_t now_s;
+	uint64_t now_ms;
 	uint64_t sat_wait_us;
 	bStatus_t status;
 	int ret;
@@ -119,8 +120,8 @@ void *main_thread_entry(void *arg0)
 
 	for (;;) {
 		/* Calculate the next pass time */
-		now_s = hubble_time_get() / 1000U;
-		ret = hubble_sat_next_pass_get(now_s, &device_pos, &pass_info);
+		now_ms = hubble_time_get();
+		ret = hubble_sat_next_pass_get(now_ms, &device_pos, &pass_info);
 		if (ret != 0) {
 			Log_printf(Log_Dual_Stack, Log_ERROR,
 				   "Failed to get next pass info, err: %d", ret);
@@ -131,7 +132,7 @@ void *main_thread_entry(void *arg0)
 		 * If the pass start < current time, this means we're in a
 		 * middle of a pass. We can compute the next one
 		 */
-		if (pass_info.start <= now_s) {
+		if (pass_info.start <= now_ms) {
 			Log_printf(
 				Log_Dual_Stack,
 				Log_INFO, "Current pass is ongoing or in the past, search for next pass...");
@@ -154,10 +155,11 @@ void *main_thread_entry(void *arg0)
 		Log_printf(
 			Log_Dual_Stack,
 			Log_INFO, "Next pass at: %u (unix epoch seconds), max elevation angle: %.2f",
-			pass_info.start, pass_info.max_elevation_angle);
+			(uint32_t)(pass_info.start / 1000U),
+			pass_info.max_elevation_angle);
 
 		/* Schedule the pass */
-		sat_wait_us = (pass_info.start - now_s) * US_PER_SEC;
+		sat_wait_us = (pass_info.start - now_ms) * US_PER_MS;
 #endif
 
 		/*
