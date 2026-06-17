@@ -74,7 +74,7 @@ int main(void)
 {
 	struct hubble_sat_pass_info pass_info = {0};
 	struct hubble_sat_packet packet = {0};
-	uint64_t now_s;
+	uint64_t now_ms;
 	int err;
 
 	LOG_INF("Hubble Network dual-stack sample started");
@@ -121,9 +121,9 @@ int main(void)
 
 	for (;;) {
 		/* Compute the next satellite pass over the device location. */
-		now_s = hubble_time_get() / MSEC_PER_SEC;
+		now_ms = hubble_time_get();
 
-		err = hubble_sat_next_pass_get(now_s, &device_pos, &pass_info);
+		err = hubble_sat_next_pass_get(now_ms, &device_pos, &pass_info);
 		if (err != 0) {
 			LOG_ERR("Failed to get next pass info (err %d)", err);
 			return err;
@@ -133,7 +133,7 @@ int main(void)
 		 * A pass start in the past means we are in the middle of a
 		 * pass; compute the next one.
 		 */
-		if (pass_info.start <= now_s) {
+		if (pass_info.start <= now_ms) {
 			LOG_INF("Pass ongoing or in the past, finding next...");
 
 			err = hubble_sat_next_pass_get(
@@ -151,8 +151,8 @@ int main(void)
 		k_timer_start(&sat_timer, K_SECONDS(120), K_NO_WAIT);
 #else
 		LOG_INF("Next pass at %llu (unix epoch seconds)",
-			pass_info.start);
-		k_timer_start(&sat_timer, K_SECONDS(pass_info.start - now_s),
+			pass_info.start / MSEC_PER_SEC);
+		k_timer_start(&sat_timer, K_MSEC(pass_info.start - now_ms),
 			      K_NO_WAIT);
 #endif
 

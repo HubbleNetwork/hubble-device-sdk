@@ -100,11 +100,11 @@ struct hubble_sat_pass_info {
 	double lon;
 	/** Maximum elevation angle of the satellite above the horizon at culmination (degrees). */
 	double max_elevation_angle;
-	/** Pass start time (Unix time, seconds since epoch). */
+	/** Pass start time (Unix time, milliseconds since epoch). */
 	uint64_t start;
-	/** Time the satellite reaches culmination (Unix time, seconds since epoch). */
+	/** Time the satellite reaches culmination (Unix time, milliseconds since epoch). */
 	uint64_t culmination;
-	/** Time duration of the pass in seconds. */
+	/** Time duration of the pass in milliseconds. */
 	uint32_t duration;
 };
 
@@ -137,7 +137,7 @@ int hubble_sat_satellites_set(
  * given location, based on satellites orbital parameters
  * and the device's location.
  *
- * @param t Current time or the time to start the calculation (seconds since Unix epoch).
+ * @param t Current time or the time to start the calculation (milliseconds since Unix epoch).
  * @param pos Pointer to the device's location.
  * @param pass The next satellite pass in case of success.
  * @return 0 on success or a negative value in case of error.
@@ -152,7 +152,7 @@ int hubble_sat_next_pass_get(uint64_t t, const struct hubble_sat_device_pos *pos
  * rectangular geographic region defined by latitude and longitude
  * bounds, based on satellites orbital parameters.
  *
- * @param t Current time or the time to start the calculation (seconds since Unix epoch).
+ * @param t Current time or the time to start the calculation (milliseconds since Unix epoch).
  * @param region Pointer to the geographic region definition.
  * @param pass The next satellite pass in case of success.
  * @return 0 on success or a negative value in case of error.

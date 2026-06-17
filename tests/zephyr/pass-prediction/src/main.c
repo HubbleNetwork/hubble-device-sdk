@@ -15,6 +15,11 @@
  */
 #define TRANSMISSION_PERIOD_SINGLE_PACKET (160U)
 
+/* The pass prediction API exchanges times in milliseconds, while the golden
+ * values below are kept in seconds for readability. MSEC_PER_SEC comes from
+ * Zephyr's sys headers.
+ */
+
 struct test_result {
 	struct hubble_sat_device_pos pos;
 	uint64_t start_time;
@@ -126,13 +131,14 @@ ZTEST(satellite_pass_prediction_test, test_satellite_pass_prediction_calculation
 	zassert_equal(ret, 0, NULL);
 
 	for (uint16_t count = 0; count < ARRAY_SIZE(results); count++) {
-		ret = hubble_sat_next_pass_get(results[count].start_time,
-					       &(results[count].pos), &next_pass);
+		ret = hubble_sat_next_pass_get(
+			results[count].start_time * MSEC_PER_SEC,
+			&(results[count].pos), &next_pass);
 
 		zassert_equal(ret, 0, NULL);
 		zassert_within(next_pass.culmination,
-			       results[count].culmination_time,
-			       PASS_PREDICTION_DELTA);
+			       results[count].culmination_time * MSEC_PER_SEC,
+			       PASS_PREDICTION_DELTA * MSEC_PER_SEC);
 	}
 }
 
@@ -202,17 +208,19 @@ ZTEST(satellite_pass_prediction_test,
 
 	for (uint16_t count = 0; count < ARRAY_SIZE(region_results); count++) {
 		ret = hubble_sat_next_pass_region_get(
-			region_results[count].start_time,
+			region_results[count].start_time * MSEC_PER_SEC,
 			&(region_results[count].region), &next_pass);
 
 		zassert_equal(ret, 0, NULL);
-		zassert_within(next_pass.culmination,
-			       region_results[count].culmination_time,
-			       PASS_PREDICTION_DELTA);
+		zassert_within(
+			next_pass.culmination,
+			region_results[count].culmination_time * MSEC_PER_SEC,
+			PASS_PREDICTION_DELTA * MSEC_PER_SEC);
 		zassert_within(next_pass.duration,
-			       region_results[count].duration +
-				       TRANSMISSION_PERIOD_SINGLE_PACKET,
-			       PASS_PREDICTION_DELTA);
+			       (region_results[count].duration +
+				TRANSMISSION_PERIOD_SINGLE_PACKET) *
+				       MSEC_PER_SEC,
+			       PASS_PREDICTION_DELTA * MSEC_PER_SEC);
 	}
 }
 

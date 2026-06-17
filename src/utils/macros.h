@@ -29,4 +29,6 @@
 
 #define HUBBLE_BITS_PER_BYTE 8U
 
+#define HUBBLE_MSEC_PER_SEC  1000U
+
 #endif /* SRC_UTILS_MACROS_H */
