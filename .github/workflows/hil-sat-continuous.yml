@@ -1,0 +1,17 @@
+name: HITL Trigger - SAT Continuous
+
+on:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  trigger-hitl-endpoint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger HITL sat-continuous build/flash
+        uses: peter-evans/repository-dispatch@v3
+        with:
+          token: ${{ secrets.HITL_ENDPOINT_REPO }}
+          repository: HubbleNetwork/hitl-endpoint
+          event-type: sdk-sat-continuous-pr
+          client-payload: '{"ref": "${{ github.event.pull_request.head.sha || github.sha }}", "branch": "${{ github.head_ref || github.ref_name }}"}'
