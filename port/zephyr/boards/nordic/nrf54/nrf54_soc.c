@@ -10,6 +10,7 @@
 #include <zephyr/arch/arm/irq.h>
 #include <zephyr/logging/log_ctrl.h>
 #include <zephyr/types.h>
+#include <zephyr/version.h>
 #include <zephyr/drivers/clock_control.h>
 #include <zephyr/drivers/clock_control/nrf_clock_control.h>
 
@@ -37,6 +38,12 @@
 #define RADIO_ENABLE_TX_ON_CC0_PPI 9U
 #define RADIO_DISABLE_ON_CC1_PPI   12U
 
+#if ZEPHYR_VERSION_CODE >= ZEPHYR_VERSION(4, 4, 0)
+static nrfx_timer_t _timer0 = NRFX_TIMER_INSTANCE(NRF_TIMER_INST_GET(10));
+#else
+static nrfx_timer_t _timer0 = NRFX_TIMER_INSTANCE(10);
+#endif
+
 /**
  * Signature for APIs provided by the binary library.
  */
@@ -45,8 +52,6 @@ int hubble_nrf_lib_enable(void);
 int hubble_nrf_lib_disable(void);
 
 static const struct device *const clock0 = DEVICE_DT_GET_ONE(nordic_nrf_clock);
-
-static nrfx_timer_t _timer0 = NRFX_TIMER_INSTANCE(NRF_TIMER_INST_GET(10));
 
 /* Keep track of power before and in sat tx mode */
 static nrf_radio_txpower_t _normal_power = RADIO_TXPOWER_TXPOWER_0dBm;
