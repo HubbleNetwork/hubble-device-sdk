@@ -373,6 +373,10 @@ int hubble_sat_packet_frames_get(const struct hubble_sat_packet *packet,
 		return _ret;                                                   \
 	}
 
+	if ((packet == NULL) || (frames == NULL)) {
+		return -EINVAL;
+	}
+
 	/* Validate the packet length (which maps to the PHY payload size field)
 	 * before mutating any channel-hopping state or touching the output.
 	 */
