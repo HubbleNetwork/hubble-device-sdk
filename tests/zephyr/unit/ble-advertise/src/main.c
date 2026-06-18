@@ -113,6 +113,23 @@ ZTEST(ble_advertise_test, test_advertise_null_input_handling)
 		"NULL payload with non-zero length should return -EINVAL");
 }
 
+ZTEST(ble_advertise_test, test_init_allows_deferred_key_argument)
+{
+	int ret;
+	uint8_t output[TEST_ADV_BUFFER_SZ];
+	size_t output_len = sizeof(output);
+
+	ret = hubble_init(test_unix_time, NULL);
+	zassert_ok(ret, "hubble_init should allow NULL key argument");
+	test_seq_override = 0;
+
+	ret = hubble_key_set(test_key_primary);
+	zassert_ok(ret, "hubble_key_set failed");
+
+	ret = hubble_ble_advertise_get(NULL, 0, output, &output_len);
+	zassert_ok(ret, "advertise should use previously configured key");
+}
+
 ZTEST(ble_advertise_test, test_advertise_buffer_too_small)
 {
 	uint8_t payload[] = {0x01, 0x02, 0x03, 0x04, 0x05};
