@@ -398,6 +398,12 @@ starting conflicting radio activity until it returns. Dual-stack applications
 should stop BLE before satellite transmission unless the platform explicitly
 supports concurrent operation.
 
+Supporting New Boards
+*********************
+
+See :ref:`board_support` for integration paths, required APIs, SoC-specific
+guidance, and the board support checklist.
+
 .. _hubble_satellite_reliability:
 
 Power Consumption and Reliability
@@ -448,3 +454,4 @@ API Reference
    :glob:
 
    api.rst
+   board-support
