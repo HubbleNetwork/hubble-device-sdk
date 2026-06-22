@@ -146,6 +146,29 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../../satellite/index.html">Satellite Network Overview</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../satellite/index.html#introduction">Introduction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../satellite/index.html#how-it-works">How It Works</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../satellite/index.html#packet-generation">Packet Generation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../satellite/index.html#transmission">Transmission</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../satellite/index.html#pass-prediction">Pass Prediction</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../satellite/index.html#orbital-parameters-satellites-information">Orbital Parameters (Satellites information)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../satellite/index.html#computing-the-next-pass">Computing the Next Pass</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../satellite/index.html#common-api-workflow">Common API Workflow</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../satellite/index.html#continuous-transmission">Continuous Transmission</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../satellite/index.html#dual-stack-with-pass-prediction">Dual Stack with Pass Prediction</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../satellite/index.html#transmission-logic">Transmission Logic</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../satellite/index.html#clock-drift-compensation">Clock Drift Compensation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../satellite/index.html#radio-timing">Radio Timing</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../satellite/index.html#power-consumption-and-reliability">Power Consumption and Reliability</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../satellite/index.html#configuration-notes">Configuration Notes</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../satellite/index.html#api-reference">API Reference</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../../satellite/api.html">Application APIs</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../satellite/api.html#port-apis">Port APIs</a></li>
@@ -277,6 +300,15 @@ create a new one) by including the snippet below:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>west<span class="w"> </span>update<span class="w"> </span>hubblenetwork-sdk
 </pre></div>
 </div>
+<p>If you are building a Satellite Network application for a Nordic board, fetch
+the prebuilt radio support libraries declared as Zephyr module blobs:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>west<span class="w"> </span>blobs<span class="w"> </span>fetch<span class="w"> </span>hubblenetwork-sdk
+</pre></div>
+</div>
+<p>Run this command from a Zephyr west workspace that includes the Hubble Network
+SDK module. The downloaded blobs are placed under the module’s
+<code class="docutils literal notranslate"><span class="pre">zephyr/blobs</span></code> directory and are linked automatically when
+<code class="docutils literal notranslate"><span class="pre">CONFIG_HUBBLE_SAT_NETWORK</span></code> is enabled for supported Nordic boards.</p>
 <p>To enable the required modules, add the corresponding lines to the project’s
 <code class="docutils literal notranslate"><span class="pre">prj.conf</span></code> file:</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>CONFIG_HUBBLE_BLE_NETWORK=y

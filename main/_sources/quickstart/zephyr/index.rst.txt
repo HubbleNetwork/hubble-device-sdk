@@ -41,6 +41,18 @@ Then run:
 
    west update hubblenetwork-sdk
 
+If you are building a Satellite Network application for a Nordic board, fetch
+the prebuilt radio support libraries declared as Zephyr module blobs:
+
+.. code-block:: bash
+
+   west blobs fetch hubblenetwork-sdk
+
+Run this command from a Zephyr west workspace that includes the Hubble Network
+SDK module. The downloaded blobs are placed under the module's
+``zephyr/blobs`` directory and are linked automatically when
+``CONFIG_HUBBLE_SAT_NETWORK`` is enabled for supported Nordic boards.
+
 To enable the required modules, add the corresponding lines to the project’s
 ``prj.conf`` file:
 
