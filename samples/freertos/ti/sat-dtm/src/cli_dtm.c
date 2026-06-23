@@ -458,7 +458,7 @@ void *main_thread(void *arg0)
 			UART2_write(uart, "\r\n", 2, NULL);
 
 			/* Process the input buffer as a command */
-			CLI_processInput(input_cli, input_index);
+			CLI_processInput(input_cli, input_index, MAX_COMMAND_LEN);
 
 			/* Clear the buffer for the next command */
 			memset(input_cli, 0, MAX_COMMAND_LEN);

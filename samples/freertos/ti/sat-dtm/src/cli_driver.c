@@ -138,10 +138,13 @@ void CLI_addCommand(const char *keyword, void (*function)(int argc, char **argv)
  * The caller needs to ensure that the input buffer has enough space
  * for the null terminator.
  */
-void CLI_processInput(uint8_t *inputBuffer, size_t bufferSize)
+void CLI_processInput(uint8_t *inputBuffer, size_t bufferSize, size_t bufferCapacity)
 {
 	/* Cast the input buffer to a string and null-terminate it */
 	char *input = (char *)inputBuffer;
+	if (inputBuffer == NULL || bufferSize >= bufferCapacity) {
+		return;
+	}
 	input[bufferSize] = '\0';
 
 	/* Array to store command arguments */
@@ -149,10 +152,11 @@ void CLI_processInput(uint8_t *inputBuffer, size_t bufferSize)
 	int argc = 0;
 
 	/* Tokenize the input string into command and arguments */
-	char *token = strtok(input, " "); /* Split the input by spaces */
+	char *saveptr;
+	char *token = strtok_r(input, " ", &saveptr); /* Split the input by spaces */
 	while (token != NULL && argc < MAX_ARGS + 1) {
 		argv[argc++] = token; /* Store each token in the argv array */
-		token = strtok(NULL, " "); /* Get the next token */
+		token = strtok_r(NULL, " ", &saveptr); /* Get the next token */
 	}
 
 	/* If no command is entered, return early */
