@@ -22,9 +22,9 @@ Adding Hubble Network to FreeRTOS
 
 * Include Hubble Network SDK in your application
 
-     .. code-block:: bash
+  .. code-block:: bash
 
-     git submodule add  https://github.com/HubbleNetwork/hubble-device-sdk .
+     git submodule add https://github.com/HubbleNetwork/hubble-device-sdk .
 
 
 * Provide a configuration header
