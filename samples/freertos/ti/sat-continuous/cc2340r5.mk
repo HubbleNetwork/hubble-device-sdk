@@ -57,6 +57,12 @@ LFLAGS += "-L$(SIMPLELINK_LOWPOWER_F3_SDK_INSTALL_DIR)/source" \
     "-L$(TICLANG_ARMCOMPILER)/lib" \
     -llibc.a
 
+# check if key and time is generated
+generated_files = src/key.c src/time.c
+ifeq ($(words $(wildcard $(generated_files))),2)
+	CFLAGS += -DHUBBLE_KEY_TIME_SET
+endif
+
 all: $(BUILD_DIR) postbuild
 
 $(BUILD_DIR):

@@ -111,6 +111,12 @@ LFLAGS += -Wl,--diag_wrap=off \
 	$(BUILD_DIR)/cc2340_freertos.cmd \
 	-llibc.a
 
+# check if key and time is generated
+generated_files = src/key.c
+ifeq ($(words $(wildcard $(generated_files))),1)
+	CFLAGS += -DHUBBLE_KEY_SET
+endif
+
 all: $(BUILD_DIR) postbuild
 
 $(BUILD_DIR):

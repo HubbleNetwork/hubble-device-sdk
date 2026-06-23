@@ -23,15 +23,25 @@
 
 #define SLEEP_PERIOD_MS 1000
 
-static uint64_t _unix_time = 0xdeadbeef;
-static uint8_t _key_unused[CONFIG_HUBBLE_KEY_SIZE];
+#if defined(HUBBLE_KEY_TIME_SET)
+#include "key.c"
+#include "time.c"
+#else
+
+#pragma message(                                                               \
+	"Dummy key, replace with actual key by running ./embed_key_time.py -b b64key to set key and time")
+
+static uint8_t master_key[CONFIG_HUBBLE_KEY_SIZE];
+static uint64_t unix_time = 0xdeadbeef;
+
+#endif
 
 void *mainThread(void *arg0)
 {
 	struct hubble_sat_packet packet;
 	int ret;
 
-	ret = hubble_init(_unix_time, _key_unused);
+	ret = hubble_init(unix_time, master_key);
 	if (ret != 0) {
 		/* TODO: Call Error Handler */
 		return NULL;

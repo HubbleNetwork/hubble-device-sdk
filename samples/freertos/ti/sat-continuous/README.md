@@ -46,8 +46,17 @@ export TICLANG_ARMCOMPILER=/path/to/ti/ti-cgt-armllvm
 export SIMPLELINK_LOWPOWER_F3_SDK_INSTALL_DIR=/path/to/ti/simplelink_lowpower_f3_sdk
 export SYSCONFIG_TOOL=/path/to/ti/sysconfig/sysconfig_cli.sh
 ```
+2. **Provision Time and Key (Optional)**
 
-2. **Build the Project**
+The device's Hubble key must be baked into the firmware at build time. Use the
+*embed_key_time.py* script to generate the key in hex and time in Unix. The tool will generate
+`key.c` and `time.c` into your project's /src directory.
+
+```bash
+python ../../../../tools/embed_key_time.py --base64 <path-to-key> -o src
+```
+
+3. **Build the Project**
 
    Build the project using the provided *makefile*:
 
@@ -57,7 +66,7 @@ make -f cc2340r5.mk
 # or make -f cc2755p10.mk
 ```
 
-3. **Flash the Firmware**
+4. **Flash the Firmware**
 
    Flash the generated firmware (*sat-continuous.out*) onto the target device using your preferred flashing tool.
 

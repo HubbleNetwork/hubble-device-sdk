@@ -37,9 +37,12 @@ icall_userCfg_t user0Cfg = BLE_USER_CFG;
 #define US_PER_SEC 1000000ULL
 #define US_PER_MS  1000ULL
 
-#pragma message(                                                               \
-	"Dummy key, replace with actual key by running ./embed_key_time.py -b b64key -d")
-static uint8_t _hubble_key[CONFIG_HUBBLE_KEY_SIZE];
+#if defined(HUBBLE_KEY_SET)
+#include "key.c"
+#else
+#warning "Dummy key, replace with actual key by running ./embed_key_time.py -b b64key"
+static uint8_t master_key[CONFIG_HUBBLE_KEY_SIZE];
+#endif
 
 /* Time */
 uint64_t unix_time_ms;
@@ -245,7 +248,7 @@ int main()
 	 * work but you can not disable it.
 	 */
 	unix_time_ms = 0xdeadbeef;
-	ret = hubble_init(unix_time_ms, _hubble_key);
+	ret = hubble_init(unix_time_ms, master_key);
 	if (ret != 0) {
 		return ret;
 	}

@@ -58,11 +58,11 @@ pip install -r ../../../../tools/requirements-companion.txt
 ### 2. Embed Device Key
 
 The device's Hubble key must be baked into the firmware at build time. Use the
-*embed_key_time.py* script to generate the key in hex, and copy that into
-`_hubble_key` array:
+*embed_key_time.py* script to generate the key in hex. The tool will generate
+`key.c` into your project's /src directory.
 
 ```bash
-python ../../../../tools/embed_key_time.py --base64 <path-to-key> -d
+python ../../../../tools/embed_key_time.py --base64 <path-to-key> -o src/
 ```
 
 ### 3. Build the Project
