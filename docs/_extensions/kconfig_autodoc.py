@@ -21,56 +21,83 @@ Configuration values (set in conf.py):
 
 import logging
 import os
-import re
-import tempfile
+import sys
 from pathlib import Path
 
-import kconfiglib
 from docutils import nodes
 from docutils.parsers.rst import directives
 from sphinx.util.docutils import SphinxDirective
 
 logger = logging.getLogger(__name__)
 
-_SOURCE_RE = re.compile(r"^source\s+", re.MULTILINE)
+kconfiglib = None
 
 
-def _resolve_srctree(app):
-    """Resolve the Zephyr base directory (srctree) for Kconfig source lookups."""
-    configured = app.config.kconfig_srctree
-    if configured and Path(configured).is_dir():
-        return str(configured)
+def _import_kconfiglib(zephyr_base):
+    """Import kconfiglib
 
+    Use kconfiglib shipped with Zephyr because of additional extensions used
+    in our Kconfigs.
+    """
+
+    global kconfiglib
+    if kconfiglib is not None:
+        return kconfiglib
+
+    if zephyr_base:
+        bundled = Path(zephyr_base) / "scripts" / "kconfig"
+        if (bundled / "kconfiglib.py").is_file():
+            sys.path.insert(0, str(bundled))
+
+    import kconfiglib as _kconfiglib
+
+    kconfiglib = _kconfiglib
+    return kconfiglib
+
+
+def _find_zephyr_base(app, sdk_root):
+    """Locate the Zephyr base directory.
+    """
     env_val = os.environ.get("ZEPHYR_BASE")
     if env_val and Path(env_val).is_dir():
-        return env_val
+        return str(Path(env_val).resolve())
 
-    # Auto-detect from docs source dir: docs/ -> SDK root -> ../../zephyr
-    sdk_root = Path(app.srcdir).resolve().parent
-    candidates = [
-        sdk_root.parent.parent / "zephyr",
-        sdk_root.parent / "zephyr",
-    ]
-    for candidate in candidates:
-        if candidate.is_dir():
+    configured = app.config.kconfig_srctree
+    if configured and Path(configured).is_dir():
+        return str(Path(configured).resolve())
+
+    for parent in sdk_root.parents:
+        candidate = parent / "zephyr"
+        if (candidate / "Kconfig").is_file():
             return str(candidate)
 
     return None
 
 
-def _load_kconfig(kconfig_path, srctree=None):
-    """Parse a Kconfig file with kconfiglib.
-
-    Sets up the environment so ``source`` directives can resolve against the
-    Zephyr tree.  Falls back to replacing ``source`` with ``osource`` when the
-    referenced files cannot be found.
+def _resolve_srctree_and_zephyrtree(app):
     """
+    Resolve the source tree and Zephyr base directory for Kconfig lookups.
+    """
+
+    sdk_root = Path(app.srcdir).resolve().parent
+    zephyr_base = _find_zephyr_base(app, sdk_root)
+    srctree = zephyr_base or str(sdk_root / "port" / "zephyr")
+
+    return srctree, zephyr_base
+
+
+def _load_kconfig(kconfig_path, srctree, zephyr_base):
+    """Parse a Kconfig file with kconfiglib.
+    """
+    _import_kconfiglib(zephyr_base)
+
     env_backup = {}
     keys_to_set = {}
 
     if srctree:
         keys_to_set["srctree"] = srctree
-        keys_to_set["ZEPHYR_BASE"] = srctree
+    if zephyr_base:
+        keys_to_set["ZEPHYR_BASE"] = zephyr_base
 
     # Module variables used by Zephyr logging Kconfig template
     keys_to_set["KCONFIG_DOC_MODE"] = "1"
@@ -88,28 +115,13 @@ def _load_kconfig(kconfig_path, srctree=None):
                 "resolution, falling back to osource replacement",
                 kconfig_path,
             )
-            return _load_kconfig_with_osource(kconfig_path)
+            return None
     finally:
         for key, original in env_backup.items():
             if original is None:
                 os.environ.pop(key, None)
             else:
                 os.environ[key] = original
-
-
-def _load_kconfig_with_osource(kconfig_path):
-    """Create a temp copy of the Kconfig with ``source`` replaced by
-    ``osource`` so missing files are silently skipped."""
-    kconfig_path = Path(kconfig_path)
-    content = _SOURCE_RE.sub("osource ", kconfig_path.read_text())
-
-    # kconfiglib parses the file fully at construction time, so the temp
-    # directory can be cleaned up immediately after Kconfig() returns.
-    with tempfile.TemporaryDirectory() as tmp_dir:
-        tmp_path = Path(tmp_dir) / kconfig_path.name
-        tmp_path.write_text(content)
-        return kconfiglib.Kconfig(str(tmp_path), warn=False)
-
 
 def _dep_expr_str(expr):
     """Convert a kconfiglib dependency expression to a readable string."""
@@ -130,7 +142,9 @@ def _default_str(sym):
     if not sym.defaults:
         return None
     node_dep_str = _dep_expr_str(sym.nodes[0].dep) if sym.nodes else None
-    default, cond = sym.defaults[0]
+    # Zephyr's bundled kconfiglib appends a source-location element, so take
+    # the first two fields rather than unpacking a fixed-width tuple.
+    default, cond = sym.defaults[0][:2]
     val = kconfiglib.expr_str(default)
     cond_str = _dep_expr_str(cond)
     if cond_str and cond_str != node_dep_str:
@@ -142,7 +156,7 @@ def _range_str(sym):
     """Get range constraints for int/hex symbols."""
     if not sym.ranges:
         return None
-    low, high, _cond = sym.ranges[0]
+    low, high = sym.ranges[0][:2]
     return f"{kconfiglib.expr_str(low)} to {kconfiglib.expr_str(high)}"
 
 
@@ -164,7 +178,6 @@ def _collect_nodes(node):
 
 class KconfigAutoDoc(SphinxDirective):
     """Directive ``.. kconfig-autodoc:: path/to/Kconfig``
-
     Parses the referenced Kconfig file and generates documentation for all
     configuration options found.
     """
@@ -190,8 +203,8 @@ class KconfigAutoDoc(SphinxDirective):
         # Register the Kconfig file as a dependency so Sphinx rebuilds when it changes
         self.state.document.settings.env.note_dependency(str(kconfig_path))
 
-        srctree = _resolve_srctree(self.env.app)
-        kconfig = _load_kconfig(kconfig_path, srctree)
+        srctree, zephyr_base = _resolve_srctree_and_zephyrtree(self.env.app)
+        kconfig = _load_kconfig(kconfig_path, srctree, zephyr_base)
 
         return self._build_doc(kconfig, prefix)
 
@@ -262,8 +275,8 @@ class KconfigAutoDoc(SphinxDirective):
         name = f"{prefix}{sym.name}"
         prompt = sym.nodes[0].prompt[0] if sym.nodes and sym.nodes[0].prompt else ""
         is_default = any(
-            isinstance(d, kconfiglib.Symbol) and d is sym
-            for d, _c in choice.defaults
+            isinstance(entry[0], kconfiglib.Symbol) and entry[0] is sym
+            for entry in choice.defaults
         )
 
         dli = nodes.definition_list_item()

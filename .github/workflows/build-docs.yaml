@@ -77,6 +77,14 @@ jobs:
           python-version: "3.12"
           cache: pip
 
+      - name: Setup Zephyr project (SDK + modules)
+        uses: zephyrproject-rtos/action-zephyr-setup@v1
+        with:
+          app-path: .
+          # Lets keep it minimal, we don't need most things
+          west-group-filter: -hal,-tools,-bootloader,-babblesim,-tee,-crypto,-debug,-fs,-testing
+          west-project-filter: -nrf_hw_models
+
       - name: Install Packages
         run: |
           sudo apt-get update
