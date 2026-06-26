@@ -18,16 +18,15 @@ START_TEST(test_buffer_reads_never_exceed_declared_length)
 {
 	/* Invariant: Buffer reads never exceed the declared length */
 	const char *payloads[] = {
-		"valid",                   /* Valid input */
-		"A",                       /* Boundary: single char */
+		"valid",		   /* Valid input */
+		"A",			   /* Boundary: single char */
 		"AAAAAAAAAAAAAAAAAAAAAAAA" /* Exploit: 24 chars, exceeds typical buffer */
 	};
 	int num_payloads = sizeof(payloads) / sizeof(payloads[0]);
 
 	for (int i = 0; i < num_payloads; i++) {
 		/* Allocate buffer with guard pages before and after */
-		const size_t buffer_capacity =
-			16; /* Simulate typical buffer size */
+		const size_t buffer_capacity = 16; /* Simulate typical buffer size */
 		const size_t guard_size = 8;
 		uint8_t *full_buffer = malloc(buffer_capacity + 2 * guard_size);
 		ck_assert_ptr_nonnull(full_buffer);
@@ -41,8 +40,8 @@ START_TEST(test_buffer_reads_never_exceed_declared_length)
 		/* Copy payload into buffer, truncating if necessary */
 		size_t payload_len = strlen(payloads[i]);
 		size_t copy_len = payload_len < buffer_capacity
-					  ? payload_len
-					  : buffer_capacity;
+				? payload_len
+				: buffer_capacity;
 		memcpy(inputBuffer, payloads[i], copy_len);
 
 		/* Call the actual production function */
@@ -51,7 +50,8 @@ START_TEST(test_buffer_reads_never_exceed_declared_length)
 		/* Verify guard regions remain unchanged */
 		for (size_t j = 0; j < guard_size; j++) {
 			ck_assert_uint_eq(full_buffer[j], 0xAA);
-			ck_assert_uint_eq(inputBuffer[buffer_capacity + j], 0xBB);
+			ck_assert_uint_eq(inputBuffer[buffer_capacity + j],
+					  0xBB);
 		}
 
 		free(full_buffer);
