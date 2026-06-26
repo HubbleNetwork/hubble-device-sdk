@@ -40,17 +40,19 @@ west flash
 ```
 
 > [!NOTE]
-> When building with nRF Connect SDK (NCS) and the SoftDevice
-> Bluetooth controller, add the SoftDevice-specific overlay for the nRF54L15 DK:
+> When building with nRF Connect SDK (NCS) and the SoftDevice Bluetooth
+> controller, apply the `ncs-dual-stack` snippet provided by the SDK:
 >
 > ```sh
 > west build -b nrf54l15dk/nrf54l15/cpuapp samples/zephyr/sat-dual-stack \
->     -- -DEXTRA_CONF_FILE=boards/nrf54l15dk_nrf54l15_cpuapp-softdevice.conf \
->        -DCONFIG_HUBBLE_DEVICE_KEY=\"<your-base64-key>\"
+>     -S ncs-dual-stack \
+>     -- -DCONFIG_HUBBLE_DEVICE_KEY=\"<your-base64-key>\"
 > ```
 >
-> This overlay enables MPSL with a timeslot session so the satellite radio can
-> coexist with the SoftDevice Bluetooth controller.
+> The snippet enables MPSL with a timeslot session so the satellite radio can
+> coexist with the SoftDevice Bluetooth controller. It lives in
+> `port/zephyr/snippets/ncs-dualstack` and is discoverable on any board, so the
+> same invocation works for other NCS targets.
 
 ## Provisioning
 
