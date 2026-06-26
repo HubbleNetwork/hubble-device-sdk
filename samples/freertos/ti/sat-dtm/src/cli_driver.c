@@ -134,9 +134,10 @@ void CLI_addCommand(const char *keyword, void (*function)(int argc, char **argv)
 
 /*
  * Process input and execute matching command.
- * BufferSize is the size of the input, not the capacity of the buffer.
- * The caller needs to ensure that the input buffer has enough space
- * for the null terminator.
+ * bufferSize is the number of valid input bytes; bufferCapacity is the
+ * total allocated size of inputBuffer. Returns without action if
+ * inputBuffer is NULL or bufferSize does not leave room for a null
+ * terminator (i.e. bufferSize >= bufferCapacity).
  */
 void CLI_processInput(uint8_t *inputBuffer, size_t bufferSize, size_t bufferCapacity)
 {
