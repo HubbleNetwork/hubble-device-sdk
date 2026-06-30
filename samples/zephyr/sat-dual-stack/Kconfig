@@ -19,7 +19,6 @@ config HUBBLE_SAMPLE_DEBUG
 
 config SAMPLE_PROVIDE_SAT_BOARD_SUPPORT
     bool "Provide satellite board suport for test purpose"
-    default y
     help
 	Targets that don't support satellite must select it.
 
