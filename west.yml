@@ -5,6 +5,8 @@ manifest:
   remotes:
     - name: zephyrproject-rtos
       url-base: https://github.com/zephyrproject-rtos
+    - name: buckleypaul
+      url-base: https://github.com/buckleypaul
 
   projects:
     - name: zephyr
@@ -12,6 +14,14 @@ manifest:
       revision: v4.4.0
       import: true
       west-commands: scripts/west-commands.yml
+    - name: riglink
+      remote: buckleypaul
+      revision: main
+      path: modules/lib/riglink
+    - name: jcon
+      remote: buckleypaul
+      revision: main
+      path: modules/lib/jcon
 
   self:
     path: modules/lib/hubblenetwork-sdk

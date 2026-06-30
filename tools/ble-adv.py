@@ -12,70 +12,13 @@ Simple application to advertise data through Hubble BLE Network.
 import argparse
 import base64
 
-from bitstring import BitArray
-
-from Crypto.Cipher import AES
-from Crypto.Hash import CMAC
-from Crypto.Protocol.KDF import SP800_108_Counter
-
-HUBBLE_AES_KEY_SIZE = 32
-HUBBLE_AES_NONCE_SIZE = 12
-HUBBLE_DEVICE_ID_SIZE = 4
-HUBBLE_AES_TAG_SIZE = 4
-
-
-def generate_kdf_key(key: bytes, key_size: int, label: str,
-                     context: int) -> bytes:
-    label = label.encode()
-    context = str(context).encode()
-
-    return SP800_108_Counter(
-        key,
-        key_size,
-        lambda session_key, data: CMAC.new(session_key, data, AES).digest(),
-        label=label,
-        context=context,
-    )
-
-
-def get_device_id(master_key: bytes, time_counter: int) -> int:
-    device_key = generate_kdf_key(master_key, HUBBLE_AES_KEY_SIZE,
-                                  'DeviceKey', time_counter)
-    device_id = generate_kdf_key(device_key, HUBBLE_DEVICE_ID_SIZE,
-                                 'DeviceID', 0)
-
-    return int.from_bytes(device_id, byteorder='big')
-
-
-def get_nonce(master_key: bytes, time_counter: int, counter: int) -> bytes:
-    nonce_key = generate_kdf_key(
-        master_key, HUBBLE_AES_KEY_SIZE, "NonceKey", time_counter
-    )
-
-    return generate_kdf_key(nonce_key, HUBBLE_AES_NONCE_SIZE, "Nonce", counter)
-
-
-def get_encryption_key(master_key: bytes, time_counter: int,
-                       counter: int) -> bytes:
-    encryption_key = generate_kdf_key(
-        master_key, HUBBLE_AES_KEY_SIZE, "EncryptionKey", time_counter
-    )
-
-    return generate_kdf_key(encryption_key, HUBBLE_AES_KEY_SIZE,
-                            'Key', counter)
-
-
-def get_auth_tag(key: bytes, ciphertext: bytes) -> bytes:
-    computed_cmac = CMAC.new(key, ciphertext, AES).digest()
-
-    return computed_cmac[:HUBBLE_AES_TAG_SIZE]
-
-
-def aes_encrypt(key: bytes, nonce_session: bytes, data: bytes) -> bytes:
-    ciphertext = AES.new(key, AES.MODE_CTR, nonce=nonce_session).encrypt(data)
-    tag = get_auth_tag(key, ciphertext)
-
-    return ciphertext, tag
+from hubble_ref_crypto import (
+    generate_ble_adv,
+    get_device_id,
+    get_nonce,
+    get_encryption_key,
+    aes_encrypt,
+)
 
 
 def parse_args() -> argparse.Namespace:
@@ -112,24 +55,6 @@ def parse_args() -> argparse.Namespace:
                              "transmitting via BLE")
 
     return parser.parse_args()
-
-
-def generate_ble_adv(device_id, seq_no, auth_tag, encrypted_payload) -> bytes:
-    ble_adv = BitArray()
-
-    if len(encrypted_payload) > 13:
-        raise ValueError('Encrypted Payload is too long.')
-
-    protocol_version = 0b000000
-
-    ble_adv.append(f'uint:6={protocol_version}')
-    ble_adv.append(f'uint:10={seq_no}')
-    ble_adv.append(f'uint:32={device_id}')
-
-    ble_adv.append(auth_tag)
-    ble_adv.append(encrypted_payload)
-
-    return ble_adv.tobytes()
 
 
 def format_c_hex(data: bytes) -> str:

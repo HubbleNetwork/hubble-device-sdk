@@ -1,0 +1,12 @@
+/*
+ * Copyright (c) 2025 Hubble Network
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ *
+ * The harness builds native_sim/native/64, which uses
+ * native_sim_native_64.overlay. This bare-name overlay exists only so a plain
+ * native_sim build resolves too; include the qualified one so the riglink
+ * shell-uart binding is defined in a single place.
+ */
+
+#include "native_sim_native_64.overlay"

@@ -1,0 +1,20 @@
+/*
+ * Copyright (c) 2025 Hubble Network
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ *
+ * riglink's shell backend takes over uart0 (the J-Link VCOM). Bind
+ * zephyr,shell-uart to it explicitly; the board .conf silences the console and
+ * logging so uart0 carries only riglink's sentinel-framed JSON.
+ */
+
+/ {
+	chosen {
+		zephyr,shell-uart = &uart0;
+	};
+};
+
+&uart0 {
+	status = "okay";
+	current-speed = <115200>;
+};
