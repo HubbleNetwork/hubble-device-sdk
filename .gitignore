@@ -10,6 +10,7 @@ docs/_doxygen/
 **/twister-out*/
 **/build/**
 .cache/
+.ruff_cache/
 
 # generated files
 **/key.c
