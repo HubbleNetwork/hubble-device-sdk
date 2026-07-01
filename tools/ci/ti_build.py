@@ -94,9 +94,7 @@ def parse_sample_yaml(yaml_path: Path) -> Sample:
         if "id" not in entry:
             raise ValueError(f"{yaml_path}: build entry missing 'id'")
         if "makefile" not in entry:
-            raise ValueError(
-                f"{yaml_path}: build entry '{entry['id']}' missing 'makefile'"
-            )
+            raise ValueError(f"{yaml_path}: build entry '{entry['id']}' missing 'makefile'")
 
         build_id = entry["id"]
         if build_id in seen_ids:
@@ -107,20 +105,15 @@ def parse_sample_yaml(yaml_path: Path) -> Sample:
         # ensure it stays inside it
         makefile_raw = str(entry["makefile"])
         makefile_path = (sample_dir / makefile_raw).resolve()
-        try:
-            makefile_path.relative_to(sample_dir.resolve())
-        except ValueError:
-            raise ValueError(
-                f"{yaml_path}: makefile '{makefile_raw}' is not in sample directory"
-            )
+        if not makefile_path.is_relative_to(sample_dir.resolve()):
+            raise ValueError(f"{yaml_path}: makefile '{makefile_raw}' is not in sample directory")
+
         if not makefile_path.is_file():
             raise ValueError(f"{yaml_path}: makefile '{makefile_raw}' does not exist")
 
         extra_args = entry.get("extra_args") or []
         if not isinstance(extra_args, list):
-            raise ValueError(
-                f"{yaml_path}: 'extra_args' for '{build_id}' must be a list"
-            )
+            raise ValueError(f"{yaml_path}: 'extra_args' for '{build_id}' must be a list")
 
         builds.append(
             Build(
@@ -281,9 +274,7 @@ def main() -> int:
     parser = argparse.ArgumentParser(
         description="Recursively build samples under a given directory"
     )
-    parser.add_argument(
-        "path", type=Path, help="Directory to search for sample.yaml files"
-    )
+    parser.add_argument("path", type=Path, help="Directory to search for sample.yaml files")
     args = parser.parse_args()
 
     root = args.path.resolve()
@@ -310,7 +301,8 @@ def main() -> int:
             success, duration, output = run_build(build)
             status = "PASS" if success else "FAIL"
             print(
-                f"[{build_index:>{idx_width}}/{total}] {status}  {build.label:<{label_width}}  ({duration:.1f}s)"
+                f"[{build_index:>{idx_width}}/{total}] {status}  "
+                f"{build.label:<{label_width}}  ({duration:.1f}s)"
             )
             results.append((build, success, duration))
             if not success:
@@ -341,9 +333,7 @@ def main() -> int:
         )
     else:
         pct = (passed_count / total * 100) if total else 0.0
-        print(
-            f"{passed_count} of {total} builds passed ({pct:.1f}%), {len(failed_builds)} failed."
-        )
+        print(f"{passed_count} of {total} builds passed ({pct:.1f}%), {len(failed_builds)} failed.")
 
     if failed_builds:
         print()

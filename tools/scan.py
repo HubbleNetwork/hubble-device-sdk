@@ -4,11 +4,11 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-import click
-import os
 import base64
+import os
 from datetime import datetime
-from typing import Optional
+
+import click
 from hubblenetwork import Organization, decrypt
 from hubblenetwork import ble as ble_mod
 

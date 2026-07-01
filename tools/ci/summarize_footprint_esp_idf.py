@@ -25,14 +25,11 @@ import sys
 from datetime import datetime, timezone
 from pathlib import Path
 
-
 SAMPLE_COLUMN_SIZE = 30
 TARGET_COLUMN_SIZE = 25
 ROM_COLUMN_SIZE = 15
 RAM_COLUMN_SIZE = 15
-TOTAL_COLUMN_SIZE = (
-    SAMPLE_COLUMN_SIZE + TARGET_COLUMN_SIZE + ROM_COLUMN_SIZE + RAM_COLUMN_SIZE
-)
+TOTAL_COLUMN_SIZE = SAMPLE_COLUMN_SIZE + TARGET_COLUMN_SIZE + ROM_COLUMN_SIZE + RAM_COLUMN_SIZE
 
 # TODO: find a better way for this
 # but ESP-IDF emits the individual RAM and ROM name, so we have
@@ -133,7 +130,7 @@ def port_footprints_extract(size_data, port_file_names_by_label):
 def json_load(path):
     """Load JSON with error checking"""
     try:
-        with open(path, "r") as f:
+        with open(path) as f:
             return json.load(f)
     except (json.JSONDecodeError, OSError) as e:
         print(f"Warning: could not read {path}: {e}", file=sys.stderr)
@@ -254,10 +251,7 @@ def format_markdown(entries, revision, idf_version, run_date):
     print("| Sample | Target | Component | ROM | RAM |")
     print("|---|---|---|---|---|")
     for sample, target, rom, ram, ports in entries:
-        print(
-            f"| {sample} | {target} | **total** "
-            f"| {format_size(rom)} | {format_size(ram)} |"
-        )
+        print(f"| {sample} | {target} | **total** | {format_size(rom)} | {format_size(ram)} |")
         for label, port_rom, port_ram in ports:
             print(
                 f"| {sample} | {target} | {label} "
@@ -308,8 +302,7 @@ def main():
     entries = entries_collect(artifacts_path, port_file_names_by_label)
     if not entries:
         print(
-            f"Warning: no size-components-*.json files found under "
-            f"{args.artifacts_dir}",
+            f"Warning: no size-components-*.json files found under {args.artifacts_dir}",
             file=sys.stderr,
         )
         return 0

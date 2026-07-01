@@ -13,7 +13,6 @@ import argparse
 import base64
 
 from bitstring import BitArray
-
 from Crypto.Cipher import AES
 from Crypto.Hash import CMAC
 from Crypto.Protocol.KDF import SP800_108_Counter
@@ -24,8 +23,7 @@ HUBBLE_DEVICE_ID_SIZE = 4
 HUBBLE_AES_TAG_SIZE = 4
 
 
-def generate_kdf_key(key: bytes, key_size: int, label: str,
-                     context: int) -> bytes:
+def generate_kdf_key(key: bytes, key_size: int, label: str, context: int) -> bytes:
     label = label.encode()
     context = str(context).encode()
 
@@ -39,30 +37,24 @@ def generate_kdf_key(key: bytes, key_size: int, label: str,
 
 
 def get_device_id(master_key: bytes, time_counter: int) -> int:
-    device_key = generate_kdf_key(master_key, HUBBLE_AES_KEY_SIZE,
-                                  'DeviceKey', time_counter)
-    device_id = generate_kdf_key(device_key, HUBBLE_DEVICE_ID_SIZE,
-                                 'DeviceID', 0)
+    device_key = generate_kdf_key(master_key, HUBBLE_AES_KEY_SIZE, 'DeviceKey', time_counter)
+    device_id = generate_kdf_key(device_key, HUBBLE_DEVICE_ID_SIZE, 'DeviceID', 0)
 
     return int.from_bytes(device_id, byteorder='big')
 
 
 def get_nonce(master_key: bytes, time_counter: int, counter: int) -> bytes:
-    nonce_key = generate_kdf_key(
-        master_key, HUBBLE_AES_KEY_SIZE, "NonceKey", time_counter
-    )
+    nonce_key = generate_kdf_key(master_key, HUBBLE_AES_KEY_SIZE, "NonceKey", time_counter)
 
     return generate_kdf_key(nonce_key, HUBBLE_AES_NONCE_SIZE, "Nonce", counter)
 
 
-def get_encryption_key(master_key: bytes, time_counter: int,
-                       counter: int) -> bytes:
+def get_encryption_key(master_key: bytes, time_counter: int, counter: int) -> bytes:
     encryption_key = generate_kdf_key(
         master_key, HUBBLE_AES_KEY_SIZE, "EncryptionKey", time_counter
     )
 
-    return generate_kdf_key(encryption_key, HUBBLE_AES_KEY_SIZE,
-                            'Key', counter)
+    return generate_kdf_key(encryption_key, HUBBLE_AES_KEY_SIZE, 'Key', counter)
 
 
 def get_auth_tag(key: bytes, ciphertext: bytes) -> bytes:
@@ -89,27 +81,34 @@ def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         description=__doc__,
         formatter_class=argparse.RawDescriptionHelpFormatter,
-        allow_abbrev=False)
+        allow_abbrev=False,
+    )
 
-    parser.add_argument("master_key",
-                        help="Path to the device key file")
-    parser.add_argument("-b", "--base64",
-                        help="The key is encoded in base64",
-                        action='store_true', default=False)
-    parser.add_argument("payload", nargs="?", default="",
-                        help="Data to transmit (string)")
-    parser.add_argument("--time-counter", type=int, default=None,
-                        help="Override time counter directly "
-                             "(default: derive from current date)")
-    parser.add_argument("--seq-no", type=int, default=0,
-                        help="Sequence number 0-1023 (default: 0)")
-    parser.add_argument("--payload-hex", type=str, default=None,
-                        help="Payload as hex string (e.g. 'deadbeef'), "
-                             "empty string = no payload")
-    parser.add_argument("--print", dest="print_mode", action='store_true',
-                        default=False,
-                        help="Print output as C hex array instead of "
-                             "transmitting via BLE")
+    parser.add_argument("master_key", help="Path to the device key file")
+    parser.add_argument(
+        "-b", "--base64", help="The key is encoded in base64", action='store_true', default=False
+    )
+    parser.add_argument("payload", nargs="?", default="", help="Data to transmit (string)")
+    parser.add_argument(
+        "--time-counter",
+        type=int,
+        default=None,
+        help="Override time counter directly (default: derive from current date)",
+    )
+    parser.add_argument("--seq-no", type=int, default=0, help="Sequence number 0-1023 (default: 0)")
+    parser.add_argument(
+        "--payload-hex",
+        type=str,
+        default=None,
+        help="Payload as hex string (e.g. 'deadbeef'), empty string = no payload",
+    )
+    parser.add_argument(
+        "--print",
+        dest="print_mode",
+        action='store_true',
+        default=False,
+        help="Print output as C hex array instead of transmitting via BLE",
+    )
 
     return parser.parse_args()
 
@@ -155,6 +154,7 @@ def main() -> None:
         time_counter = args.time_counter
     else:
         from datetime import datetime
+
         time_counter = int(datetime.now().timestamp()) // 86400
 
     # Determine payload
@@ -177,7 +177,7 @@ def main() -> None:
 
     if args.print_mode:
         # Prepend UUID bytes and print as C hex array
-        uuid_bytes = bytes([0xa6, 0xfc])
+        uuid_bytes = bytes([0xA6, 0xFC])
         full_adv = uuid_bytes + ble_adv
         print(format_c_hex(full_adv))
     else:

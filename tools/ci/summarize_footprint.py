@@ -8,17 +8,16 @@
 Script to summarize RAM and ROM consumption per testsuite from twister_footprint.json
 """
 
+import argparse
 import json
 import sys
-import argparse
 from pathlib import Path
 
-
 TESTSUITE_COLUMN_SIZE = 45
-TARGET_COLUMN_SIZE    = 25
-RAM_COLUMN_SIZE       = 15
-ROM_COLUMN_SIZE       = 15
-TOTAL_COLUMN_SIZE     = TESTSUITE_COLUMN_SIZE + TARGET_COLUMN_SIZE + RAM_COLUMN_SIZE + ROM_COLUMN_SIZE
+TARGET_COLUMN_SIZE = 25
+RAM_COLUMN_SIZE = 15
+ROM_COLUMN_SIZE = 15
+TOTAL_COLUMN_SIZE = TESTSUITE_COLUMN_SIZE + TARGET_COLUMN_SIZE + RAM_COLUMN_SIZE + ROM_COLUMN_SIZE
 
 
 def format_size(size_bytes):
@@ -42,7 +41,8 @@ def hubblenetwork_components_find(symbols_node, all_components):
     children = symbols_node.get('children', [])
 
     # Check if this node is related to hubblenetwork-sdk library
-    if 'sdk' in identifier:
+    # and has a non-zero size, if size 0, continue to look into children
+    if 'sdk' in identifier and size > 0:
         # Extract component path after hubblenetwork-sdk
         parts = identifier.split('sdk')
         if len(parts) > 1:
@@ -55,13 +55,10 @@ def hubblenetwork_components_find(symbols_node, all_components):
                 # - port/zephyr (everything under port/zephyr/)
                 if path_parts and path_parts[0] == 'src' and len(path_parts) == 1:
                     # Top-level src directory - capture everything under src/
-                    if size > 0:
-                        all_components.append(('src', size, 1))
-                elif (len(path_parts) == 2 and path_parts[0] == 'port' and
-                      path_parts[1] == 'zephyr'):
+                    all_components.append(('src', size, 1))
+                elif len(path_parts) == 2 and path_parts[0] == 'port' and path_parts[1] == 'zephyr':
                     # port/zephyr directory - capture everything under port/zephyr/
-                    if size > 0:
-                        all_components.append(('port/zephyr', size, 2))
+                    all_components.append(('port/zephyr', size, 2))
 
     # Recursively process children
     for child in children:
@@ -127,14 +124,17 @@ def footprint_data_extract(testsuite):
         'rom_size': rom_size,
         'ram_size': ram_size,
         'components_rom': components_rom,
-        'components_ram': components_ram
+        'components_ram': components_ram,
     }
 
 
 def format_csv(commit_date, commit_hash, footprint_data):
     """Output as CSV."""
 
-    print("Testsuite,Target,ROM (bytes),RAM (bytes),ROM (formatted),RAM (formatted),Revision,Commit Date,SDK Components ROM,SDK Components RAM")
+    print(
+        "Testsuite,Target,ROM (bytes),RAM (bytes),ROM (formatted),RAM (formatted),"
+        "Revision,Commit Date,SDK Components ROM,SDK Components RAM"
+    )
     for entry in footprint_data:
         rom_str = str(entry['rom_size']) if entry['rom_size'] is not None else 'N/A'
         ram_str = str(entry['ram_size']) if entry['ram_size'] is not None else 'N/A'
@@ -143,37 +143,41 @@ def format_csv(commit_date, commit_hash, footprint_data):
 
         # Format components
         if entry['components_rom']:
-            components_rom_str = '; '.join([
-                f"{k}:{format_size(v)}" for k, v in sorted(entry['components_rom'].items())
-            ])
+            components_rom_str = '; '.join(
+                [f"{k}:{format_size(v)}" for k, v in sorted(entry['components_rom'].items())]
+            )
         else:
             components_rom_str = 'N/A'
 
         if entry['components_ram']:
-            components_ram_str = '; '.join([
-                f"{k}:{format_size(v)}" for k, v in sorted(entry['components_ram'].items())
-            ])
+            components_ram_str = '; '.join(
+                [f"{k}:{format_size(v)}" for k, v in sorted(entry['components_ram'].items())]
+            )
         else:
             components_ram_str = 'N/A'
 
-        print(f"{entry['name']},{entry['platform']},{rom_str},{ram_str},"
-              f"{rom_formatted},{ram_formatted},{commit_hash},{commit_date},"
-              f"\"{components_rom_str}\",\"{components_ram_str}\"")
+        print(
+            f"{entry['name']},{entry['platform']},{rom_str},{ram_str},"
+            f"{rom_formatted},{ram_formatted},{commit_hash},{commit_date},"
+            f"\"{components_rom_str}\",\"{components_ram_str}\""
+        )
 
 
 def format_table(zephyr_version, commit_date, run_date, commit_hash, footprint_data):
     """Output as formatted table."""
 
     print("\nRAM and ROM Consumption Summary per Testsuite")
-    print("="*TOTAL_COLUMN_SIZE)
+    print("=" * TOTAL_COLUMN_SIZE)
     print(f"Revision: {commit_hash}")
     print(f"Zephyr Version: {zephyr_version}")
     print(f"Commit Date: {commit_date}")
     print(f"Run Date: {run_date}")
-    print("="*TOTAL_COLUMN_SIZE)
-    print(f"{'Testsuite':<{TESTSUITE_COLUMN_SIZE}} {'Target':<{TARGET_COLUMN_SIZE}}"
-          f"{'ROM':<{ROM_COLUMN_SIZE}} {'RAM':<{RAM_COLUMN_SIZE}}")
-    print("-"*TOTAL_COLUMN_SIZE)
+    print("=" * TOTAL_COLUMN_SIZE)
+    print(
+        f"{'Testsuite':<{TESTSUITE_COLUMN_SIZE}} {'Target':<{TARGET_COLUMN_SIZE}}"
+        f"{'ROM':<{ROM_COLUMN_SIZE}} {'RAM':<{RAM_COLUMN_SIZE}}"
+    )
+    print("-" * TOTAL_COLUMN_SIZE)
 
     count_with_data = 0
 
@@ -183,9 +187,11 @@ def format_table(zephyr_version, commit_date, run_date, commit_hash, footprint_d
 
         if entry['rom_size'] is not None or entry['ram_size'] is not None:
             count_with_data += 1
-            print(f"{entry['name']:<{TESTSUITE_COLUMN_SIZE}}"
-              f"{entry['platform']:<{TARGET_COLUMN_SIZE}} {rom_str:<{ROM_COLUMN_SIZE}}"
-              f"{ram_str:<{RAM_COLUMN_SIZE}}")
+            print(
+                f"{entry['name']:<{TESTSUITE_COLUMN_SIZE}}"
+                f"{entry['platform']:<{TARGET_COLUMN_SIZE}} {rom_str:<{ROM_COLUMN_SIZE}}"
+                f"{ram_str:<{RAM_COLUMN_SIZE}}"
+            )
 
         # Display hubblenetwork-sdk components if present
         if entry['components_rom'] or entry['components_ram']:
@@ -195,17 +201,26 @@ def format_table(zephyr_version, commit_date, run_date, commit_hash, footprint_d
                 print(f"{'':>{TESTSUITE_COLUMN_SIZE}} {'  ROM:':<{TARGET_COLUMN_SIZE}}")
                 for comp_name, comp_size in sorted(entry['components_rom'].items()):
                     comp_label = f"    {comp_name}:"
-                    print(f"{'':>{TESTSUITE_COLUMN_SIZE}} {comp_label:<{TARGET_COLUMN_SIZE}} {format_size(comp_size)}")
+                    print(
+                        f"{'':>{TESTSUITE_COLUMN_SIZE}} {comp_label:<{TARGET_COLUMN_SIZE}} "
+                        f"{format_size(comp_size)}"
+                    )
             # Show RAM components
             if entry['components_ram']:
                 print(f"{'':>{TESTSUITE_COLUMN_SIZE}} {'  RAM:':<{TARGET_COLUMN_SIZE}}")
                 for comp_name, comp_size in sorted(entry['components_ram'].items()):
                     comp_label = f"    {comp_name}:"
-                    print(f"{'':>{TESTSUITE_COLUMN_SIZE}} {comp_label:<{TARGET_COLUMN_SIZE}} {format_size(comp_size)}")
+                    print(
+                        f"{'':>{TESTSUITE_COLUMN_SIZE}} {comp_label:<{TARGET_COLUMN_SIZE}} "
+                        f"{format_size(comp_size)}"
+                    )
 
-    print("-"*TOTAL_COLUMN_SIZE)
-    print(f"\nSummary: {len(footprint_data)} testsuites processed, {count_with_data} with footprint data")
-    print("="*TOTAL_COLUMN_SIZE)
+    print("-" * TOTAL_COLUMN_SIZE)
+    print(
+        f"\nSummary: {len(footprint_data)} testsuites processed, "
+        f"{count_with_data} with footprint data"
+    )
+    print("=" * TOTAL_COLUMN_SIZE)
 
 
 def footprint_summarize(json_file, output_format='table'):
@@ -217,7 +232,7 @@ def footprint_summarize(json_file, output_format='table'):
         return 1
 
     try:
-        with open(json_path, 'r') as f:
+        with open(json_path) as f:
             data = json.load(f)
     except json.JSONDecodeError as e:
         print(f"Error: Invalid JSON file: {e}", file=sys.stderr)
@@ -269,13 +284,13 @@ def main():
         'json_file',
         nargs='?',
         default='twister-out/twister_footprint.json',
-        help='Path to twister_footprint.json file (default: twister-out/twister_footprint.json)'
+        help='Path to twister_footprint.json file (default: twister-out/twister_footprint.json)',
     )
     parser.add_argument(
         '--format',
         choices=['table', 'csv'],
         default='table',
-        help='Output format: table (default) or csv'
+        help='Output format: table (default) or csv',
     )
 
     args = parser.parse_args()

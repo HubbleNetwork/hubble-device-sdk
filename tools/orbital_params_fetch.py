@@ -50,6 +50,7 @@ def iter_target_orbital_params(satellites):
         if orbital_params:
             yield sat_id, orbital_params
 
+
 def render_sat_params(orbital_params):
     """Render the sat_params.c source file as a string."""
     lines = [
@@ -63,9 +64,7 @@ def render_sat_params(orbital_params):
     for sat_id, params in orbital_params:
         lines.append("    {")
         lines.append(f"        .t0 = {params['t0']},")
-        lines.extend(
-            f"        .{field} = {params[field]!r}," for field in ORBITAL_PARAMS_FIELDS
-        )
+        lines.extend(f"        .{field} = {params[field]!r}," for field in ORBITAL_PARAMS_FIELDS)
         lines.append(f"        .satellite_id = {sat_id},")
         lines.append("    },")
 

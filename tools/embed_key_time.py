@@ -8,7 +8,6 @@ import argparse
 import base64
 import time
 
-
 KEY_TEMPLATE = """
 /*
  * This file contents was automatically generated.
@@ -27,14 +26,15 @@ UNIX_TIME_TEMPLATE = """
 static uint64_t unix_time = {unix_time};
 """
 
+
 def provision_data(key: str, encoded: bool, path: str, dry: bool) -> None:
     with open(key, "rb") as f:
         key_data = bytearray(f.read())
         if encoded:
             key_data = bytearray(base64.b64decode(key_data))
 
-    key_hex = "{" +", ".join([hex(x) for x in key_data]) + "}"
-    unix_time_ms =  str(int(time.time() * 1000))
+    key_hex = "{" + ", ".join([hex(x) for x in key_data]) + "}"
+    unix_time_ms = str(int(time.time() * 1000))
 
     if dry:
         print(f"static uint8_t master_key[CONFIG_HUBBLE_KEY_SIZE] = {key_hex}")
@@ -62,16 +62,24 @@ def parse_args() -> None:
 
     parser = argparse.ArgumentParser(
         description=__doc__,
-        formatter_class=argparse.RawDescriptionHelpFormatter, allow_abbrev=False)
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        allow_abbrev=False,
+    )
 
-    parser.add_argument("key",
-                        help="The key to provision")
-    parser.add_argument("-b", "--base64",
-                        help="The key is encoded in base64", action='store_true', default=False)
-    parser.add_argument("-o", "--output-dir",
-                        help="Path where time and key will be generated", default=".")
-    parser.add_argument("-d", "--dry-run",
-                        help="Just print the data into console", action='store_true', default=False)
+    parser.add_argument("key", help="The key to provision")
+    parser.add_argument(
+        "-b", "--base64", help="The key is encoded in base64", action='store_true', default=False
+    )
+    parser.add_argument(
+        "-o", "--output-dir", help="Path where time and key will be generated", default="."
+    )
+    parser.add_argument(
+        "-d",
+        "--dry-run",
+        help="Just print the data into console",
+        action='store_true',
+        default=False,
+    )
     args = parser.parse_args()
 
 

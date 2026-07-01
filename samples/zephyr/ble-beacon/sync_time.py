@@ -6,21 +6,16 @@
 
 import asyncio
 import datetime
-import os
 import signal
 import struct
-import sys
-import time
-
 
 from bleak import BleakClient, BleakScanner
 from bleak.backends.device import BLEDevice
 from bleak.backends.scanner import AdvertisementData
 
-
-CTS_SERVICE_UUID        =         "00001805-0000-1000-8000-00805f9b34fb"
-CTS_CHARACTERISTIC_UUID =         "00002a2b-0000-1000-8000-00805f9b34fb"
-HUBBLE_BLE_UUID_SYNC    =         "0000fca7"
+CTS_SERVICE_UUID = "00001805-0000-1000-8000-00805f9b34fb"
+CTS_CHARACTERISTIC_UUID = "00002a2b-0000-1000-8000-00805f9b34fb"
+HUBBLE_BLE_UUID_SYNC = "0000fca7"
 
 
 def cts_time_get() -> bytes:
@@ -32,15 +27,22 @@ def cts_time_get() -> bytes:
     hour = now.hour
     minute = now.minute
     second = now.second
-    day_of_week = (now.isoweekday())  # Monday=1 … Sunday=7
+    day_of_week = now.isoweekday()  # Monday=1 … Sunday=7
     fractions256 = int(now.microsecond / 1_000_000 * 256)
     adjust_reason = 0  # No adjustment
 
     # Pack into little-endian structure
     cts_payload = struct.pack(
         "<HBBBBBB2B",
-        year, month, day, hour, minute, second,
-        day_of_week, fractions256, adjust_reason
+        year,
+        month,
+        day,
+        hour,
+        minute,
+        second,
+        day_of_week,
+        fractions256,
+        adjust_reason,
     )
 
     return cts_payload
@@ -48,11 +50,7 @@ def cts_time_get() -> bytes:
 
 async def scan(stop_event: asyncio.Event) -> None:
     def match_hubble_sync_uuid(device: BLEDevice, adv: AdvertisementData):
-        for uuid in adv.service_uuids:
-            if uuid.startswith(HUBBLE_BLE_UUID_SYNC):
-                return True
-
-        return False
+        return any(uuid.startswith(HUBBLE_BLE_UUID_SYNC) for uuid in adv.service_uuids)
 
     device = await BleakScanner.find_device_by_filter(match_hubble_sync_uuid)
     if device is not None:

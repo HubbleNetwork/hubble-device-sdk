@@ -27,7 +27,6 @@ from __future__ import annotations
 
 import argparse
 import asyncio
-import geocoder
 import logging
 import os
 import struct
@@ -35,6 +34,7 @@ import sys
 import time
 from dataclasses import dataclass
 
+import geocoder
 import httpx
 from bleak import BleakClient, BleakScanner
 
@@ -122,9 +122,7 @@ def encode_device_location_cmd(lat: float, lon: float) -> bytes:
     Returns:
         A bytes object containing the encoded device location command.
     """
-    return bytes([HUBBLE_CMD, HUBBLE_CMD_DEVICE_LOCATION]) + struct.pack(
-        "<2d", lat, lon
-    )
+    return bytes([HUBBLE_CMD, HUBBLE_CMD_DEVICE_LOCATION]) + struct.pack("<2d", lat, lon)
 
 
 def resolve_device_location() -> tuple[float, float]:
@@ -157,9 +155,7 @@ async def fetch_orb_params() -> list[OrbitalParams]:
     # get the list of sats
     target_ids_str = os.environ.get("HUBBLE_TARGET_SATELLITE_IDS", "").strip()
     target_ids: set[int] = (
-        {int(x) for x in target_ids_str.split(",") if x.strip()}
-        if target_ids_str
-        else set()
+        {int(x) for x in target_ids_str.split(",") if x.strip()} if target_ids_str else set()
     )
 
     async with httpx.AsyncClient(timeout=30.0) as http:
@@ -333,9 +329,7 @@ async def provision(label: str | None, location: tuple[float, float] | None) -> 
 
 
 def main():
-    parser = argparse.ArgumentParser(
-        description="BLE provisioning utility for Hubble devices"
-    )
+    parser = argparse.ArgumentParser(description="BLE provisioning utility for Hubble devices")
     parser.add_argument(
         "--label",
         default=None,
@@ -347,12 +341,9 @@ def main():
         nargs=2,
         metavar=("LAT", "LON"),
         default=None,
-        help="Device location as latitude and longitude in degrees "
-        "(default: IP geolocation)",
+        help="Device location as latitude and longitude in degrees (default: IP geolocation)",
     )
-    parser.add_argument(
-        "-v", "--verbose", action="store_true", help="Enable debug logging"
-    )
+    parser.add_argument("-v", "--verbose", action="store_true", help="Enable debug logging")
     args = parser.parse_args()
 
     logging.basicConfig(

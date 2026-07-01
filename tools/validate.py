@@ -4,13 +4,12 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-import click
+import base64
 import os
 import time
-import base64
 import uuid
-from datetime import datetime
-from typing import Optional
+
+import click
 import hubblenetwork
 
 
@@ -22,7 +21,7 @@ def _get_env_or_fail(name: str) -> str:
 
 
 def info(msg):
-    click.secho(f"[INFO] ", fg="cyan", bold=True, nl=False)
+    click.secho("[INFO] ", fg="cyan", bold=True, nl=False)
     click.echo(msg + "... ", nl=False)
 
 
@@ -90,7 +89,7 @@ def validate(key: str, device_id: str) -> None:
     info("Validating format of inputs")
     try:
         decoded_key = bytearray(base64.b64decode(key))
-    except Exception as e:
+    except Exception:
         error(
             'Incorrectly formatted device key passed in. Must be a base 64\
             \nencoded string such as (fake keys):\
@@ -99,7 +98,7 @@ def validate(key: str, device_id: str) -> None:
             \nNote the "=" characters at the end which must be included.'
         )
     try:
-        u = uuid.UUID(device_id)
+        uuid.UUID(device_id)
     except ValueError:
         error(
             'Device UUID formatted incorrectly.\
@@ -129,7 +128,7 @@ def validate(key: str, device_id: str) -> None:
             org_id=org_id,
             api_token=api_token,
         )
-    except hubblenetwork.InvalidCredentialsError as e:
+    except hubblenetwork.InvalidCredentialsError:
         error("Invalid credentials (Org ID or API token) passed in.")
     success()
 
@@ -140,7 +139,7 @@ def validate(key: str, device_id: str) -> None:
     device = hubblenetwork.Device(id=device_id)
     try:
         org.retrieve_packets(device)
-    except hubblenetwork.errors.RequestError as e:
+    except hubblenetwork.errors.RequestError:
         error("Device ID not found in backend")
     success()
 
@@ -192,7 +191,7 @@ def validate(key: str, device_id: str) -> None:
     info("Ingesting packet into the backend")
     try:
         org.ingest_packet(pkt_to_ingest)
-    except Exception as e:
+    except Exception:
         error("Unable to ingest packet on the backend (not your fault)")
     success()
 
@@ -210,7 +209,7 @@ def validate(key: str, device_id: str) -> None:
         error("Unable to retrieve packet from the backend")
     success()
 
-    click.secho(f"\n[COMPLETE] All validation steps passed!", fg="green", bold=True)
+    click.secho("\n[COMPLETE] All validation steps passed!", fg="green", bold=True)
     click.secho("Packet metadata:")
     click.secho(f'\tname:     "{backend_pkt.device_name}"')
     click.secho(f'\tpayload:  "{backend_pkt.payload}"')

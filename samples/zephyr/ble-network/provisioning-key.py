@@ -11,7 +11,6 @@ import time
 
 import serial
 
-
 SLEEP_TIME = 0.05
 
 
@@ -46,14 +45,15 @@ def parse_args() -> None:
 
     parser = argparse.ArgumentParser(
         description=__doc__,
-        formatter_class=argparse.RawDescriptionHelpFormatter, allow_abbrev=False)
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        allow_abbrev=False,
+    )
 
-    parser.add_argument("key",
-                        help="The key to provision")
-    parser.add_argument("serial",
-                        help="The serial port connected to the device")
-    parser.add_argument("-b", "--base64",
-                        help="The key is encoded in base64", action='store_true', default=False)
+    parser.add_argument("key", help="The key to provision")
+    parser.add_argument("serial", help="The serial port connected to the device")
+    parser.add_argument(
+        "-b", "--base64", help="The key is encoded in base64", action='store_true', default=False
+    )
     args = parser.parse_args()
 
 

@@ -56,8 +56,7 @@ def _import_kconfiglib(zephyr_base):
 
 
 def _find_zephyr_base(app, sdk_root):
-    """Locate the Zephyr base directory.
-    """
+    """Locate the Zephyr base directory."""
     env_val = os.environ.get("ZEPHYR_BASE")
     if env_val and Path(env_val).is_dir():
         return str(Path(env_val).resolve())
@@ -87,8 +86,7 @@ def _resolve_srctree_and_zephyrtree(app):
 
 
 def _load_kconfig(kconfig_path, srctree, zephyr_base):
-    """Parse a Kconfig file with kconfiglib.
-    """
+    """Parse a Kconfig file with kconfiglib."""
     _import_kconfiglib(zephyr_base)
 
     env_backup = {}
@@ -122,6 +120,7 @@ def _load_kconfig(kconfig_path, srctree, zephyr_base):
                 os.environ.pop(key, None)
             else:
                 os.environ[key] = original
+
 
 def _dep_expr_str(expr):
     """Convert a kconfiglib dependency expression to a readable string."""
@@ -233,9 +232,8 @@ class KconfigAutoDoc(SphinxDirective):
                 result_nodes.extend(self._render_symbol(item, prefix))
                 continue
 
-            if item == kconfiglib.MENU and knode.prompt:
-                if knode.list:
-                    result_nodes.append(self._make_section(knode.prompt[0]))
+            if item == kconfiglib.MENU and knode.prompt and knode.list:
+                result_nodes.append(self._make_section(knode.prompt[0]))
 
         return result_nodes
 
@@ -275,8 +273,7 @@ class KconfigAutoDoc(SphinxDirective):
         name = f"{prefix}{sym.name}"
         prompt = sym.nodes[0].prompt[0] if sym.nodes and sym.nodes[0].prompt else ""
         is_default = any(
-            isinstance(entry[0], kconfiglib.Symbol) and entry[0] is sym
-            for entry in choice.defaults
+            isinstance(entry[0], kconfiglib.Symbol) and entry[0] is sym for entry in choice.defaults
         )
 
         dli = nodes.definition_list_item()
