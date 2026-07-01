@@ -38,6 +38,7 @@ jobs:
       run: |
         pip install clang-format
         pip install gitlint
+        pip install ruff
 
     # Currently, there are formatting inconsistencies that result in
     # improper code styling. Example of such issues:
@@ -57,6 +58,11 @@ jobs:
       run: |
         git config --global --add safe.directory $GITHUB_WORKSPACE
         gitlint --commits origin/$GITHUB_BASE_REF..
+
+    - name: Run ruff lint and format
+      run: |
+        ruff check --output-format=github
+        ruff format --diff
 
     - name: Check for PR description
       if: ${{ github.event.pull_request.body == '' }}
