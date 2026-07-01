@@ -188,7 +188,9 @@ Signed-off-by: John Contributor <john@example.com>
 
 ### Formatting
 
-This project uses `clang-format` for code formatting. The formatting rules are
+#### C code
+
+This project uses `clang-format` for C code formatting. The formatting rules are
 defined in [`.clang-format`](.clang-format). All code must be formatted according
 to these rules before submission.
 
@@ -205,6 +207,25 @@ clang-format -i <file>
 Or format all changed files:
 ```bash
 git clang-format
+```
+
+#### Python code
+
+Python code (tooling, samples, and docs extensions) is linted and formatted with
+[`ruff`](https://docs.astral.sh/ruff/). The rules are defined in
+[`.ruff.toml`](.ruff.toml). All Python code must pass both `ruff check` and
+`ruff format` before submission.
+
+To check linting and formatting:
+```bash
+ruff check
+ruff format --diff
+```
+
+To fix lint issues and format code:
+```bash
+ruff check --fix
+ruff format
 ```
 
 ### Naming Conventions
@@ -292,7 +313,7 @@ When adding platform-specific code:
 1. **Fork the repository** and create a branch from `main`
 2. **Make your changes** following the code style guidelines
 3. **Test your changes** on at least one platform
-4. **Format your code** using `clang-format`
+4. **Format your code** using `clang-format` (C) and `ruff` (Python)
 5. **Write clear commit messages** following the commit guide
 6. **Sign your commits** with `git commit -s`
 7. **Push to your fork** and open a Pull Request
@@ -302,7 +323,8 @@ When adding platform-specific code:
 ### Pull Request Checklist
 
 - [ ] Code follows the style guidelines
-- [ ] Code is formatted with `clang-format`
+- [ ] C code is formatted with `clang-format`
+- [ ] Python code passes `ruff check` and `ruff format`
 - [ ] Commit messages follow the commit guide
 - [ ] All commits are signed-off (`Signed-off-by`)
 - [ ] Tests pass (if applicable)
@@ -316,6 +338,7 @@ The project uses GitHub Actions for continuous integration. All pull requests mu
 pass CI checks before merging. CI checks include:
 
 - Code formatting (`clang-format`)
+- Python linting and formatting (`ruff`)
 - Commit message linting (`gitlint`)
 - Build verification on multiple platforms
 - Documentation builds
