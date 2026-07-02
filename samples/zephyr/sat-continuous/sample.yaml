@@ -29,4 +29,18 @@ tests:
       - CONFIG_HUBBLE_NETWORK_CRYPTO_MBEDTLS=y
       - CONFIG_HUBBLE_NETWORK_KEY_128=y
       - CONFIG_SAMPLE_PROVIDE_SAT_BOARD_SUPPORT=y
-
+  app.sat.continuous.ncs:
+    extra_configs:
+      - CONFIG_SAMPLE_PROVIDE_SAT_BOARD_SUPPORT=n
+    modules:
+      - nrf
+    platform_exclude:
+      - native_sim
+    platform_allow:
+      - nrf21540dk/nrf52840
+      - thingy53/nrf5340/cpunet
+      - nrf54l15dk/nrf54l15/cpuapp
+    integration_platforms:
+      - nrf21540dk/nrf52840
+      - thingy53/nrf5340/cpunet
+      - nrf54l15dk/nrf54l15/cpuapp

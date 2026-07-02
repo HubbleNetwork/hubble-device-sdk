@@ -34,3 +34,16 @@ tests:
       - CONFIG_HUBBLE_NETWORK_CRYPTO_MBEDTLS=y
       - CONFIG_HUBBLE_NETWORK_KEY_128=y
       - CONFIG_SAMPLE_PROVIDE_SAT_BOARD_SUPPORT=y
+  app.sat.dual_stack.ncs:
+    extra_configs:
+      - CONFIG_SAMPLE_PROVIDE_SAT_BOARD_SUPPORT=n
+    modules:
+      - nrf
+    required_snippets:
+      - ncs-dual-stack
+    platform_exclude:
+      - native_sim
+    platform_allow:
+      - nrf21540dk/nrf52840
+    integration_platforms:
+      - nrf21540dk/nrf52840
