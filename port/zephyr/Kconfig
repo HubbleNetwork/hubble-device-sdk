@@ -67,7 +67,7 @@ endchoice
 
 endif
 
-menuconfig HUBBLE_BLE_NETWORK
+config HUBBLE_BLE_NETWORK
 	bool "Hubble BLE Network Library"
 	help
 	  Enable the BLE advertisement module.
