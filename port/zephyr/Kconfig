@@ -5,47 +5,6 @@ module = HUBBLE
 module-str = HubbleNetwork
 source "subsys/logging/Kconfig.template.log_config"
 
-choice HUBBLE_COUNTER_SOURCE
-	prompt "Counter source"
-	default HUBBLE_COUNTER_SOURCE_UNIX_TIME
-	help
-	  Selects how the SDK computes the time counter used for
-	  EID rotation and key derivation.
-
-config HUBBLE_COUNTER_SOURCE_UNIX_TIME
-	bool "Unix time counter source"
-	help
-	  Derive the time counter from Unix epoch time. The counter
-	  increments once per rotation period
-	  (CONFIG_HUBBLE_EID_ROTATION_PERIOD_SEC).
-
-	  Best for devices with access to real-time clocks or
-	  network time synchronization.
-
-config HUBBLE_COUNTER_SOURCE_DEVICE_UPTIME
-	bool "Device uptime counter source"
-	help
-	  Derive the time counter from device uptime. No Unix time
-	  required.
-
-	  Best for devices without a real-time clock, reliable
-	  time source, or method to provision time.
-
-endchoice
-
-config HUBBLE_EID_ROTATION_PERIOD_SEC
-	int "EID rotation period in seconds"
-	default 86400
-	range 86400 86400
-	help
-	  Period in seconds between EID (Ephemeral Identifier)
-	  rotations. Each rotation derives new encryption keys
-	  and a new BLE address for privacy.
-
-	  Currently locked to 86400 (24 hours) for backend
-	  compatibility. Future versions may support shorter
-	  periods.
-
 config HUBBLE_SAT_NETWORK
 	bool "Hubble Satellite Network Library [PRE-PRODUCTION]"
 	select EXPERIMENTAL
@@ -134,6 +93,47 @@ config HUBBLE_NETWORK_KEY_128
 	  Use AES-128 for encryption and CMAC operations.
 
 endchoice
+
+choice HUBBLE_COUNTER_SOURCE
+	prompt "Counter source"
+	default HUBBLE_COUNTER_SOURCE_UNIX_TIME
+	help
+	  Selects how the SDK computes the time counter used for
+	  EID rotation and key derivation.
+
+config HUBBLE_COUNTER_SOURCE_UNIX_TIME
+	bool "Unix time counter source"
+	help
+	  Derive the time counter from Unix epoch time. The counter
+	  increments once per rotation period
+	  (CONFIG_HUBBLE_EID_ROTATION_PERIOD_SEC).
+
+	  Best for devices with access to real-time clocks or
+	  network time synchronization.
+
+config HUBBLE_COUNTER_SOURCE_DEVICE_UPTIME
+	bool "Device uptime counter source"
+	help
+	  Derive the time counter from device uptime. No Unix time
+	  required.
+
+	  Best for devices without a real-time clock, reliable
+	  time source, or method to provision time.
+
+endchoice
+
+config HUBBLE_EID_ROTATION_PERIOD_SEC
+	int "EID rotation period in seconds"
+	default 86400
+	range 86400 86400
+	help
+	  Period in seconds between EID (Ephemeral Identifier)
+	  rotations. Each rotation derives new encryption keys
+	  and a new BLE address for privacy.
+
+	  Currently locked to 86400 (24 hours) for backend
+	  compatibility. Future versions may support shorter
+	  periods.
 
 config HUBBLE_KEY_SIZE
 	int
