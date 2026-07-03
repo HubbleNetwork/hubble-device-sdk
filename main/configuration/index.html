@@ -296,51 +296,6 @@ project header.</p>
 </dd>
 </dl>
 </div>
-<div class="kconfig-choice docutils container">
-<p class="rubric">Counter source</p>
-<p><em>Choice — select one of:</em></p>
-<p>Selects how the SDK computes the time counter used for
-EID rotation and key derivation.</p>
-<dl class="kconfig-options">
-<dt><span class="target" id="config-hubble-counter-source-unix-time"></span><strong>CONFIG_HUBBLE_COUNTER_SOURCE_UNIX_TIME</strong><span> </span><em>[default]</em></dt><dd><p><span>Unix time counter source</span></p>
-<p>Derive the time counter from Unix epoch time. The counter
-increments once per rotation period
-(CONFIG_HUBBLE_EID_ROTATION_PERIOD_SEC).
-
-Best for devices with access to real-time clocks or
-network time synchronization.</p>
-</dd>
-<dt><span class="target" id="config-hubble-counter-source-device-uptime"></span><strong>CONFIG_HUBBLE_COUNTER_SOURCE_DEVICE_UPTIME</strong></dt><dd><p><span>Device uptime counter source</span></p>
-<p>Derive the time counter from device uptime. No Unix time
-required.
-
-Best for devices without a real-time clock, reliable
-time source, or method to provision time.</p>
-</dd>
-</dl>
-</div>
-<div class="kconfig-option docutils container">
-<p class="rubric" id="config-hubble-eid-rotation-period-sec">CONFIG_HUBBLE_EID_ROTATION_PERIOD_SEC</p>
-<p><em>EID rotation period in seconds</em></p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>int</p>
-</dd>
-<dt class="field-even">Default<span class="colon">:</span></dt>
-<dd class="field-even"><p>86400</p>
-</dd>
-<dt class="field-odd">Range<span class="colon">:</span></dt>
-<dd class="field-odd"><p>86400 to 86400</p>
-</dd>
-</dl>
-<p>Period in seconds between EID (Ephemeral Identifier)
-rotations. Each rotation derives new encryption keys
-and a new BLE address for privacy.
-
-Currently locked to 86400 (24 hours) for backend
-compatibility. Future versions may support shorter
-periods.</p>
-</div>
 <div class="kconfig-option docutils container">
 <p class="rubric" id="config-hubble-sat-network">CONFIG_HUBBLE_SAT_NETWORK</p>
 <p><em>Hubble Satellite Network Library [PRE-PRODUCTION]</em></p>
@@ -450,6 +405,54 @@ for buffer sizing and key operations.</p>
 <p>Use AES-128 for encryption and CMAC operations.</p>
 </dd>
 </dl>
+</div>
+<div class="kconfig-choice docutils container">
+<p class="rubric">Counter source</p>
+<p><em>Choice — select one of:</em></p>
+<p>Selects how the SDK computes the time counter used for
+EID rotation and key derivation.</p>
+<dl class="kconfig-options">
+<dt><span class="target" id="config-hubble-counter-source-unix-time"></span><strong>CONFIG_HUBBLE_COUNTER_SOURCE_UNIX_TIME</strong><span> </span><em>[default]</em></dt><dd><p><span>Unix time counter source</span></p>
+<p>Derive the time counter from Unix epoch time. The counter
+increments once per rotation period
+(CONFIG_HUBBLE_EID_ROTATION_PERIOD_SEC).
+
+Best for devices with access to real-time clocks or
+network time synchronization.</p>
+</dd>
+<dt><span class="target" id="config-hubble-counter-source-device-uptime"></span><strong>CONFIG_HUBBLE_COUNTER_SOURCE_DEVICE_UPTIME</strong></dt><dd><p><span>Device uptime counter source</span></p>
+<p>Derive the time counter from device uptime. No Unix time
+required.
+
+Best for devices without a real-time clock, reliable
+time source, or method to provision time.</p>
+</dd>
+</dl>
+</div>
+<div class="kconfig-option docutils container">
+<p class="rubric" id="config-hubble-eid-rotation-period-sec">CONFIG_HUBBLE_EID_ROTATION_PERIOD_SEC</p>
+<p><em>EID rotation period in seconds</em></p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+<dt class="field-even">Default<span class="colon">:</span></dt>
+<dd class="field-even"><p>86400</p>
+</dd>
+<dt class="field-odd">Range<span class="colon">:</span></dt>
+<dd class="field-odd"><p>86400 to 86400</p>
+</dd>
+<dt class="field-even">Depends on<span class="colon">:</span></dt>
+<dd class="field-even"><p>HUBBLE_BLE_NETWORK || HUBBLE_SAT_NETWORK</p>
+</dd>
+</dl>
+<p>Period in seconds between EID (Ephemeral Identifier)
+rotations. Each rotation derives new encryption keys
+and a new BLE address for privacy.
+
+Currently locked to 86400 (24 hours) for backend
+compatibility. Future versions may support shorter
+periods.</p>
 </div>
 <div class="kconfig-option docutils container">
 <p class="rubric" id="config-hubble-network-security-enforce-nonce-check">CONFIG_HUBBLE_NETWORK_SECURITY_ENFORCE_NONCE_CHECK</p>
