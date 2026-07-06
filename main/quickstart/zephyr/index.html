@@ -322,8 +322,11 @@ CONFIG_HUBBLE_SAT_NETWORK=y
 </section>
 <section id="using-hubble-network-as-the-manifest-repository">
 <h2>Using Hubble Network as the manifest repository<a class="headerlink" href="#using-hubble-network-as-the-manifest-repository" title="Link to this heading"></a></h2>
-<p>Hubble Network can also serve as the manifest repository. In this case,
-install West and all required <a class="reference external" href="https://docs.zephyrproject.org/4.4.0/develop/getting_started/index.html#install-dependencies">Zephyr dependencies</a> as described in the <a class="reference external" href="https://docs.zephyrproject.org/4.4.0/develop/toolchains/zephyr_sdk.html#zephyr-sdk-installation">Zephyr documentation</a>. The
+<p>Hubble Network can also serve as the manifest repository, pulling its own
+workspace. Choose the setup that matches your target.</p>
+<section id="upstream-zephyr">
+<h3>Upstream Zephyr<a class="headerlink" href="#upstream-zephyr" title="Link to this heading"></a></h3>
+<p>Install West and all required <a class="reference external" href="https://docs.zephyrproject.org/4.4.0/develop/getting_started/index.html#install-dependencies">Zephyr dependencies</a> as described in the <a class="reference external" href="https://docs.zephyrproject.org/4.4.0/develop/toolchains/zephyr_sdk.html#zephyr-sdk-installation">Zephyr documentation</a>. The
 following steps outline the process of creating a Zephyr workspace that uses the Hubble Network SDK as the manifest repository:</p>
 <blockquote>
 <div><ol class="arabic">
@@ -367,11 +370,38 @@ pip<span class="w"> </span>install<span class="w"> </span>-r<span class="w"> </s
 </li>
 </ol>
 </div></blockquote>
+</section>
+<section id="nrf-connect-sdk-ncs">
+<h3>nRF Connect SDK (NCS)<a class="headerlink" href="#nrf-connect-sdk-ncs" title="Link to this heading"></a></h3>
+<p>The <a class="reference external" href="https://docs.nordicsemi.com/bundle/ncs-latest/page/nrf/index.html">nRF Connect SDK</a>
+(NCS) is Nordic Semiconductor’s Zephyr-based distribution. The setup mirrors
+the upstream Zephyr steps above, with the differences below.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Adding Hubble Network as a <em>module</em> to an existing NCS application is
+identical to the <a class="reference internal" href="#adding-hubble-network-to-zephyr">Adding Hubble Network to Zephyr</a> step, only the
+manifest and toolchain differ.</p>
+</div>
+<ol class="arabic">
+<li><p>Install the <a class="reference external" href="https://docs.nordicsemi.com/bundle/ncs-latest/page/nrf/installation/install_ncs.html">nRF Connect SDK toolchain</a></p></li>
+<li><p>Initialize the workspace with the bundled <code class="docutils literal notranslate"><span class="pre">west-ncs.yml</span></code> manifest, which
+imports <code class="docutils literal notranslate"><span class="pre">sdk-nrf</span></code> instead of upstream Zephyr:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>west<span class="w"> </span>init<span class="w"> </span>-m<span class="w"> </span>git@github.com:HubbleNetwork/hubble-device-sdk.git<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--mf<span class="w"> </span>west-ncs.yml<span class="w"> </span>~/hubblenetwork-workspace
+<span class="nb">cd</span><span class="w"> </span>~/hubblenetwork-workspace
+west<span class="w"> </span>update
+</pre></div>
+</div>
+</li>
+</ol>
+<p>The Python virtual environment, <code class="docutils literal notranslate"><span class="pre">west</span> <span class="pre">zephyr-export</span></code>, Python dependencies,
+and blob fetching are otherwise identical to the upstream Zephyr steps.</p>
+</section>
 <section id="building-and-running-your-first-application">
 <h3>Building and running your first application<a class="headerlink" href="#building-and-running-your-first-application" title="Link to this heading"></a></h3>
-<p>Building and Running the First Application Once the steps in the previous
-section are complete, the system is ready to use Hubble Network. The following
-commands demonstrate how to build and flash a BLE Network application.</p>
+<p>Once the workspace is set up using either approach above, the system is ready
+to use Hubble Network. The following commands demonstrate how to build and
+flash a BLE Network application.</p>
 <section id="build-the-application">
 <h4>Build the application<a class="headerlink" href="#build-the-application" title="Link to this heading"></a></h4>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span><span class="w"> </span>~/hubblenetwork-workspace/

@@ -67,8 +67,13 @@ Use ``CONFIG_HUBBLE_BLE_NETWORK=y`` to enable the Bluetooth® Low Energy (BLE) N
 Using Hubble Network as the manifest repository
 ***********************************************
 
-Hubble Network can also serve as the manifest repository. In this case,
-install West and all required `Zephyr dependencies
+Hubble Network can also serve as the manifest repository, pulling its own
+workspace. Choose the setup that matches your target.
+
+Upstream Zephyr
++++++++++++++++
+
+Install West and all required `Zephyr dependencies
 <https://docs.zephyrproject.org/4.4.0/develop/getting_started/index
 .html#install-dependencies>`_ as described in the `Zephyr documentation <https://docs.zephyrproject
 .org/4.4.0/develop/toolchains/zephyr_sdk.html#zephyr-sdk-installation>`_. The
@@ -124,13 +129,41 @@ following steps outline the process of creating a Zephyr workspace that uses the
             pip install -r ~/hubblenetwork-workspace/zephyr/scripts/requirements.txt
 
 
+nRF Connect SDK (NCS)
++++++++++++++++++++++
+
+The `nRF Connect SDK <https://docs.nordicsemi.com/bundle/ncs-latest/page/nrf/index.html>`_
+(NCS) is Nordic Semiconductor's Zephyr-based distribution. The setup mirrors
+the upstream Zephyr steps above, with the differences below.
+
+.. note::
+
+   Adding Hubble Network as a *module* to an existing NCS application is
+   identical to the `Adding Hubble Network to Zephyr`_ step, only the
+   manifest and toolchain differ.
+
+#. Install the `nRF Connect SDK toolchain
+   <https://docs.nordicsemi.com/bundle/ncs-latest/page/nrf/installation/install_ncs.html>`_
+
+#. Initialize the workspace with the bundled ``west-ncs.yml`` manifest, which
+   imports ``sdk-nrf`` instead of upstream Zephyr:
+
+   .. code-block:: bash
+
+      west init -m git@github.com:HubbleNetwork/hubble-device-sdk.git \
+          --mf west-ncs.yml ~/hubblenetwork-workspace
+      cd ~/hubblenetwork-workspace
+      west update
+
+The Python virtual environment, ``west zephyr-export``, Python dependencies,
+and blob fetching are otherwise identical to the upstream Zephyr steps.
 
 Building and running your first application
 +++++++++++++++++++++++++++++++++++++++++++
 
-Building and Running the First Application Once the steps in the previous
-section are complete, the system is ready to use Hubble Network. The following
-commands demonstrate how to build and flash a BLE Network application.
+Once the workspace is set up using either approach above, the system is ready
+to use Hubble Network. The following commands demonstrate how to build and
+flash a BLE Network application.
 
 Build the application
 ---------------------
