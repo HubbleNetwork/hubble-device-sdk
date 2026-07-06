@@ -34,14 +34,14 @@ static uint64_t eid_initial_counter;
 
 int hubble_time_set(uint64_t unix_time)
 {
-	if (unix_time == 0U) {
+	uint64_t base = unix_time - hubble_uptime_get();
+	if (base > unix_time) {
 		return -EINVAL;
 	}
 
 	/* It holds when the device synced unix_time */
 	unix_time_synced = unix_time;
-
-	unix_time_base = unix_time - hubble_uptime_get();
+	unix_time_base = base;
 
 	return 0;
 }
