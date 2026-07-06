@@ -1,0 +1,17 @@
+common:
+  platform_allow:
+    - native_sim
+    - qemu_cortex_m3
+  tags:
+    - hubble
+    - apis
+
+tests:
+  hubble.api:
+    extra_configs:
+      - CONFIG_HUBBLE_SAT_NETWORK_PROTOCOL_V1=y
+  hubble.api.uptime_counter:
+    extra_configs:
+      - CONFIG_HUBBLE_SAT_NETWORK_PROTOCOL_V1=y
+      - CONFIG_HUBBLE_COUNTER_SOURCE_DEVICE_UPTIME=y
+      - CONFIG_HUBBLE_EID_ROTATION_PERIOD_SEC=86400
