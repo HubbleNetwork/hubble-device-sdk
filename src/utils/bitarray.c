@@ -10,7 +10,7 @@
 #include <errno.h>
 #include <sys/types.h>
 
-static int _append_bit(struct hubble_bitarray *bit_array, uint8_t value)
+static void _append_bit(struct hubble_bitarray *bit_array, uint8_t value)
 {
 	size_t index = bit_array->index;
 
@@ -23,8 +23,6 @@ static int _append_bit(struct hubble_bitarray *bit_array, uint8_t value)
 	}
 
 	bit_array->index++;
-
-	return 0;
 }
 
 int hubble_bitarray_set_bit(struct hubble_bitarray *bit_array, size_t index,
@@ -67,7 +65,6 @@ int hubble_bitarray_append(struct hubble_bitarray *bit_array,
 	}
 
 	for (ssize_t i = input_len_bits - 1, j = 0; i >= 0; i--, j++) {
-		int err;
 		uint8_t bit_value;
 
 		if (((i + 1) % HUBBLE_BITS_PER_BYTE) == 0) {
@@ -75,12 +72,8 @@ int hubble_bitarray_append(struct hubble_bitarray *bit_array,
 		}
 		bit_value = (input[byte_index] >> (i % HUBBLE_BITS_PER_BYTE)) &
 			    1; // Extract the i-th bit from the character
-		err = _append_bit(bit_array,
-				  bit_value); // Set the bit in the array
-
-		if (err != 0) {
-			return err;
-		}
+		_append_bit(bit_array,
+			    bit_value); // Set the bit in the array
 	}
 
 	return 0;
