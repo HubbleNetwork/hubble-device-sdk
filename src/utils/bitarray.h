@@ -16,7 +16,6 @@
 /* A simple bitarary struct to pack the data in a way that is easy to encode / decode */
 struct hubble_bitarray {
 	size_t index;
-	size_t len;
 	uint8_t data[HUBBLE_MAX_SYMBOLS];
 };
 /**
