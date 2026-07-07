@@ -46,10 +46,8 @@ for managing the Bluetooth stack.
 .. note::
    Hubble Network Inc. is a Bluetooth Member Company.
 
-   The Hubble Network SDK has completed the Bluetooth Qualification Process:
-
-   - Hubble Design Number: Q369913
-   - Qualified Product Details: https://qualification.bluetooth.com/ListingDetails/307489
+   - Member Service UUID: `0xFCA6
+     <https://bitbucket.org/bluetooth-SIG/public/src/d6855ad309bd25b87e72ab84b7ee5084b662cb3b/assigned_numbers/uuids/member_uuids.yaml#lines-1219>`_
 
 Port Layer
 **********
