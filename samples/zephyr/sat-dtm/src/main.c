@@ -417,7 +417,7 @@ static int _hubble_init(void)
 	static uint8_t _hubble_key[CONFIG_HUBBLE_KEY_SIZE];
 
 	/* Same for time. It is not needed. */
-	return hubble_init(1U, _hubble_key);
+	return hubble_init(0U, _hubble_key);
 }
 
 SYS_INIT(_hubble_init, APPLICATION, 0);

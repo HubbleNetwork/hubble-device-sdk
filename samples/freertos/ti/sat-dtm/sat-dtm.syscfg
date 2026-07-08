@@ -26,6 +26,7 @@ Hubble.useTerrestrial       = false;
 Hubble.enforceNonceCheck    = false;
 Hubble.useSatellite         = true;
 Hubble.dtmMode              = true;
+Hubble.counterSource        = "device-uptime";
 
 var hubble_radio = system.getScript("/hubble_radio.js");
 hubble_radio.config();

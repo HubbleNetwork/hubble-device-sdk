@@ -33,7 +33,6 @@ static const char *APP_TAG = "main";
 
 /* Dummy key and time because we don't need these for DTM */
 static uint8_t _dummy_key[CONFIG_HUBBLE_KEY_SIZE];
-static uint64_t _dummy_time = 0xdeadbeef;
 
 /* Keep track of the tx task and stop task */
 static TaskHandle_t _tx_task_handle;
@@ -470,7 +469,7 @@ void app_main(void)
 	 * We don't need real key and time since we don't have any
 	 * requirement for the payload content.
 	 */
-	if (hubble_init(_dummy_time, _dummy_key) != 0) {
+	if (hubble_init(0U, _dummy_key) != 0) {
 		ESP_LOGE(APP_TAG, "Failed to initialize Hubble Network");
 		return;
 	}

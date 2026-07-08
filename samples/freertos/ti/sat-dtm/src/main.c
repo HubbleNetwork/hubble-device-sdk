@@ -36,7 +36,7 @@ int main(void)
 	 * We don't need a real key since we don't have any requirement
 	 * for the payload contents.
 	 */
-	retc = hubble_init(1U, _hubble_key);
+	retc = hubble_init(0U, _hubble_key);
 	if (retc != 0) {
 		while (1) {
 			/* TODO: add error handling */
