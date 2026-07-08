@@ -87,6 +87,7 @@ Additional Resources
    introduction/index
    architecture/index
    quickstart/index
+   integration_guides/index
    configuration/index
    ble/index
    satellite/index
