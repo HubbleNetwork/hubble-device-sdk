@@ -20,7 +20,7 @@
 extern void *main_thread(void *arg0);
 
 /* Stack size in bytes */
-#define THREADSTACKSIZE 1024
+#define THREADSTACKSIZE 2048
 
 int main(void)
 {
