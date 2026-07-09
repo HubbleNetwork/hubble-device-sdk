@@ -287,7 +287,6 @@ static void _conn_event_handler(uint32 event, BLEAppUtil_msgHdr_t *pMsg)
 		Log_printf(Log_Dual_Stack, Log_DEBUG, "Disconnected");
 
 		if (unix_time_ms != 0) {
-			(void)hubble_time_set(unix_time_ms);
 			SemaphoreP_post(_sync_sem_handle);
 
 		} else {

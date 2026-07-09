@@ -45,7 +45,7 @@ static uint8_t master_key[CONFIG_HUBBLE_KEY_SIZE];
 #endif
 
 /* Time */
-uint64_t unix_time_ms;
+uint64_t unix_time_ms = 0;
 
 /* Device location and sat orbital paramters */
 struct hubble_sat_device_pos device_pos;
@@ -109,6 +109,13 @@ void *main_thread_entry(void *arg0)
 		Log_printf(Log_Dual_Stack, Log_ERROR,
 			   "Failed to sync time and orbital params, err: %d",
 			   status);
+		return NULL;
+	}
+
+	ret = hubble_init(unix_time_ms, master_key);
+	if (ret != 0) {
+		Log_printf(Log_Dual_Stack, Log_ERROR,
+			   "Failed to init Hubble SDK");
 		return NULL;
 	}
 
@@ -241,20 +248,6 @@ int main()
 	if (_sat_timer_handle == NULL) {
 		return -ENODEV;
 	}
-
-	/* TODO:
-	 * hubble init MUST be called first before starting the BLE stack
-	 * because it set up both the BT and customRF stacks. Otherwise, BT will
-	 * work but you can not disable it.
-	 */
-	unix_time_ms = 0xdeadbeef;
-	ret = hubble_init(unix_time_ms, master_key);
-	if (ret != 0) {
-		return ret;
-	}
-
-	/* Part of the workaround so time sync works correctlys */
-	unix_time_ms = 0U;
 
 	/* Update User Configuration of the stack */
 	user0Cfg.appServiceInfo->timerTickPeriod = ICall_getTickPeriod();
