@@ -24,7 +24,7 @@ Adding Hubble Network to FreeRTOS
 
   .. code-block:: bash
 
-     git submodule add https://github.com/HubbleNetwork/hubble-device-sdk .
+     git submodule add https://github.com/HubbleNetwork/hubble-device-sdk
 
 
 * Provide a configuration header
@@ -95,4 +95,4 @@ Build the application
 
 .. code-block:: bash
 
-   make -C /path/to/your/application/Makefile
+   make -C /path/to/your/application
