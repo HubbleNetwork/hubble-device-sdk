@@ -27,7 +27,7 @@ void CLI_print(const char *msg);
 void CLI_addCommand(const char *keyword, void (*function)(int argc, char **argv),
 		    const char *resultMessage, const char *helpMessage,
 		    int argCount);
-void CLI_processInput(uint8_t *inputBuffer, size_t bufferSize);
+void CLI_processInput(uint8_t *inputBuffer, size_t bufferSize, size_t bufferCapacity);
 
 /* Macro for adding commands */
 #define CLI_ADD_COMMAND(keyword, function, resultMessage, helpMessage, argCount) \
