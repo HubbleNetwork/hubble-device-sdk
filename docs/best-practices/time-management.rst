@@ -1,7 +1,7 @@
 .. _hubble_timing:
 
-Best Practices for Time Management
-##################################
+Time Management
+###############
 
 Proper time management is critical for ensuring accurate encryption
 and secure operations in the SDK. Below are the best practices for

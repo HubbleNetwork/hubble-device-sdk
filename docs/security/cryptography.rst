@@ -1,14 +1,15 @@
 .. _hubble_ble_security:
 
-BLE  Security Overview
+Cryptographic Overview
 ######################
 
-The cryptographic techniques used in the Hubble Bluetooth® Low Energy (BLE) Network ensure
-the confidentiality, integrity, and authenticity of the data being advertised
-over BLE. AES-256 provides strong encryption, CMAC ensures data integrity and
+The Hubble Network SDK protects transmitted data with the same set of
+cryptographic primitives across both the BLE (Terrestrial) Network and the
+Satellite Network, ensuring the confidentiality, integrity, and authenticity of
+every message. AES provides strong encryption, CMAC ensures data integrity and
 authenticity, and the KBKDF securely derives keys from a master key. The use
 of nonces and sequence numbers prevents replay attacks and ensures that each
-advertisement is unique.
+transmission is unique.
 
 Key concepts
 ************
@@ -43,7 +44,7 @@ Key concepts
 
 
 Encryption steps
-################
+****************
 
 
 An application will get the encrypted advertisement data using
@@ -58,7 +59,7 @@ following steps to prepare the advertisement data:
 
 
 Additional references
-#####################
+*********************
 
 * `FIPS 197 - Advanced Encryption Standard (AES): <https://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.197-upd1.pdf>`_
 
