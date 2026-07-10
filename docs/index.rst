@@ -88,9 +88,16 @@ Additional Resources
    architecture/index
    quickstart/index
    integration_guides/index
-   configuration/index
+   best-practices/index
    ble/index
    satellite/index
    security/index
-   best-practices/index
    releases/index
+
+.. toctree::
+   :maxdepth: 1
+   :hidden:
+   :caption: Reference
+
+   configuration/index
+

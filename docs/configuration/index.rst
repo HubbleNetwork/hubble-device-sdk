@@ -1,7 +1,7 @@
 .. _hubble_configuration:
 
-Configuration Reference
-#######################
+Configuration Options
+#####################
 
 The configuration options below are derived from the Zephyr Kconfig definitions
 but represent the full set of tunable parameters for the Hubble Network SDK.
