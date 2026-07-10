@@ -48,7 +48,7 @@ the prebuilt radio support libraries declared as Zephyr module blobs:
 
    west blobs fetch hubblenetwork-sdk
 
-Run this command from a Zephyr west workspace that includes the Hubble Network
+Run this command from a Zephyr west workspace that includes the Hubble Device
 SDK module. The downloaded blobs are placed under the module's
 ``zephyr/blobs`` directory and are linked automatically when
 ``CONFIG_HUBBLE_SAT_NETWORK`` is enabled for supported Nordic boards.
@@ -77,7 +77,7 @@ Install West and all required `Zephyr dependencies
 <https://docs.zephyrproject.org/4.4.0/develop/getting_started/index
 .html#install-dependencies>`_ as described in the `Zephyr documentation <https://docs.zephyrproject
 .org/4.4.0/develop/toolchains/zephyr_sdk.html#zephyr-sdk-installation>`_. The
-following steps outline the process of creating a Zephyr workspace that uses the Hubble Network SDK as the manifest repository:
+following steps outline the process of creating a Zephyr workspace that uses the Hubble Device SDK as the manifest repository:
 
 
 .. _Python virtual environment: https://docs.python.org/3/library/venv.html

@@ -76,7 +76,7 @@ make
 ```
 
    Alternatively, use the SysConfig-based build (*makefile-syscfg*), which generates driver and
-   peripheral configuration via SysConfig using both the TI SDK and Hubble Network SDK products:
+   peripheral configuration via SysConfig using both the TI SDK and Hubble Device SDK products:
 
 ```bash
 make -f makefile-syscfg
@@ -108,5 +108,5 @@ Once the firmware is flashed:
 + **src/hubble_ble_adv.c**: BLE advertising implementation.
 + **src/hubble_ble_ti.c**: This is a core file to integrate with HubbleNetwork SDK. It implements the required cryptograhic API.
 + **makefile**: Build system for the project.
-+ **makefile-syscfg**: SysConfig-based build system; generates driver configuration using both the TI SDK and Hubble Network SDK SysConfig products.
-+ **ble-beacon-hubble.syscfg**: SysConfig script that configures drivers, BLE stack, FreeRTOS, and the Hubble Network SDK module.
++ **makefile-syscfg**: SysConfig-based build system; generates driver configuration using both the TI SDK and Hubble Device SDK SysConfig products.
++ **ble-beacon-hubble.syscfg**: SysConfig script that configures drivers, BLE stack, FreeRTOS, and the Hubble Device SDK module.

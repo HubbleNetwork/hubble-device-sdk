@@ -6,7 +6,7 @@ This sample enables the Direct Test Mode (DTM) functions for the Hubble
 Satellite Network on ESP32-C6 hardware. It can be used for RF testing,
 certification (FCC/CE), and bring-up of new hardware.
 
-The sample initializes the Hubble SDK and starts an interactive shell over the
+The sample initializes the Hubble Device SDK and starts an interactive shell over the
 serial console.
 
 ## Requirements

@@ -4,14 +4,14 @@ Core API
 ########
 
 The core API provides the initialization, time, and key-management functions
-shared by every Hubble Network SDK network.
+shared by every Hubble Device SDK network.
 
 .. doxygengroup:: hubble_api
-   :project: HubbleNetworkSDK
+   :project: Hubble Device SDK
    :members:
 
 .. _hubble_crypto:
 
 .. doxygengroup:: hubble_crypto
-   :project: HubbleNetworkSDK
+   :project: Hubble Device SDK
    :members:

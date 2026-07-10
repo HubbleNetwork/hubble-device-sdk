@@ -9,7 +9,7 @@ body:
   - type: input
     id: sdk-version
     attributes:
-      label: Hubble Network  SDK Commit Hash
+      label: Hubble Device SDK Commit Hash
       description: >-
         Run `git show HEAD -s --format='%H'` in your repository
     validations:

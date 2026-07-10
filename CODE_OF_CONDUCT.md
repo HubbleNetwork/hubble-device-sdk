@@ -2,7 +2,7 @@
 
 ## Overview
 
-The Hubble Network SDK community is composed of developers,
+The Hubble Device SDK community is composed of developers,
 researchers, enthusiasts, and contributors from around the world. We
 are all collaborating to build an innovative ecosystem around
 space-based connectivity and low-power embedded systems.
@@ -91,7 +91,7 @@ Include (if possible):
 * Names or usernames of people involved
 * Whether this is ongoing
 
-Reports sent to this address are accessible only to the Hubble Network
+Reports sent to this address are accessible only to the Hubble Device
 SDK maintainers responsible for community management. Information
 shared will not be disclosed publicly.
 

@@ -3,7 +3,7 @@
 API
 ###
 
-Doxygen-generated API reference for the Hubble Network SDK, grouped by network.
+Doxygen-generated API reference for the Hubble Device SDK, grouped by network.
 
 .. toctree::
    :maxdepth: 1

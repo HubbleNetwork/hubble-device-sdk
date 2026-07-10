@@ -4,7 +4,7 @@ Configuration Options
 #####################
 
 The configuration options below are derived from the Zephyr Kconfig definitions
-but represent the full set of tunable parameters for the Hubble Network SDK.
+but represent the full set of tunable parameters for the Hubble Device SDK.
 The same options apply to all supported ports — Zephyr, FreeRTOS, ESP-IDF,
 bare-metal, and other RTOSes — though the mechanism for setting them varies by
 platform.

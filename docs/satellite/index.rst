@@ -290,7 +290,7 @@ Typical workflow:
 
 1. Start BLE provisioning.
 2. Receive Unix time, device location, and satellite orbital parameters.
-3. Initialize the Hubble SDK with the provisioned Unix time and key.
+3. Initialize the Hubble Device SDK with the provisioned Unix time and key.
 4. Register orbital parameters with :c:func:`hubble_sat_satellites_set`.
 5. Compute the next pass with :c:func:`hubble_sat_next_pass_get`.
 6. Start BLE beaconing while waiting for ``pass.start``.

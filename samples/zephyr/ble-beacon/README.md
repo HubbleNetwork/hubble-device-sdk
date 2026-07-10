@@ -1,6 +1,6 @@
 # Hubble Network BLE Beacon Sample
 
-This sample application demonstrates how to use the Hubble Network SDK to
+This sample application demonstrates how to use the Hubble Device SDK to
 create a BLE beacon that advertises its presence.
 
 ## Requirements

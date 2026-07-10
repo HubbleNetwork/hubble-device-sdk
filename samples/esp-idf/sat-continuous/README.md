@@ -1,6 +1,6 @@
 # Hubble Network Sat Continuous Sample
 
-This sample application demonstrates how to use the Hubble Network SDK to
+This sample application demonstrates how to use the Hubble Device SDK to
 continuously transmit packets to satellite.
 
 ## Requirements
@@ -20,7 +20,7 @@ This project is designed to:
 - Provide a practical starting point for developers integrating the Hubble
   Satellite Network on ESP32-C6 hardware.
 
-Once running, the device initializes the Hubble SDK and then enters a loop that
+Once running, the device initializes the Hubble Device SDK and then enters a loop that
 builds and transmits a satellite packet with normal reliability.
 
 

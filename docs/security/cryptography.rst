@@ -3,7 +3,7 @@
 Cryptographic Overview
 ######################
 
-The Hubble Network SDK protects transmitted data with the same set of
+The Hubble Device SDK protects transmitted data with the same set of
 cryptographic primitives across both the BLE (Terrestrial) Network and the
 Satellite Network, ensuring the confidentiality, integrity, and authenticity of
 every message. AES provides strong encryption, CMAC ensures data integrity and

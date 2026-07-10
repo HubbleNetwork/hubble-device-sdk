@@ -1,4 +1,4 @@
-# Hubble Network SDK build configuration file.
+# Hubble Device SDK build configuration file.
 #
 # https://www.sphinx-doc.org/en/master/usage/configuration.html
 
@@ -8,7 +8,7 @@ from pathlib import Path
 
 # -- Project information -----------------------------------------------------
 
-project = "Hubble Network SDK"
+project = "Hubble Device SDK"
 copyright = "2025, Hubble Network, Inc"
 author = "HubbleNetwork"
 release = "0.1"
@@ -42,8 +42,8 @@ templates_path = ["templates"]
 exclude_patterns = []
 
 # Setup the breathe extension
-breathe_projects = {"HubbleNetworkSDK": "./_doxygen/xml"}
-breathe_default_project = "HubbleNetworkSDK"
+breathe_projects = {"Hubble Device SDK": "./_doxygen/xml"}
+breathe_default_project = "Hubble Device SDK"
 
 # Tell sphinx what the primary language being documented is.
 primary_domain = "c"
@@ -60,7 +60,7 @@ toc_object_entries = False
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#options-for-html-output
 
 html_theme = "sphinx_rtd_theme"
-html_title = "Hubble Network SDK Documentation"
+html_title = "Hubble Device SDK Documentation"
 html_logo = "static/images/hubble-logo.svg"
 html_favicon = "static/images/hubble.png"
 html_split_index = True

@@ -3,7 +3,7 @@
 Introduction
 ############
 
-The Hubble Network SDK is designed with flexibility and scalability in mind.
+The Hubble Device SDK is designed with flexibility and scalability in mind.
 At its core, the SDK provides two primary functionalities—Satellite
 Communication and BLE Network Communication—both built around a modular
 architecture. This approach enables straightforward extensions or adaptations

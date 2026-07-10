@@ -4,5 +4,5 @@ BLE Network API
 ###############
 
 .. doxygengroup:: hubble_ble_api
-   :project: HubbleNetworkSDK
+   :project: Hubble Device SDK
    :members:

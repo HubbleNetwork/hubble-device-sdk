@@ -1,8 +1,8 @@
-# Contributing to Hubble Network SDK
+# Contributing to Hubble Device SDK
 
-Thank you for your interest in contributing to the Hubble Network SDK.
+Thank you for your interest in contributing to the Hubble Device SDK.
 
-This document outlines the contribution guidelines and processes for the Hubble Network
+This document outlines the contribution guidelines and processes for the Hubble Device
 SDK. Following these guidelines helps ensure consistency, quality, and maintainability
 across the codebase while facilitating collaboration among contributors.
 
@@ -16,7 +16,7 @@ uphold this code. Please report unacceptable behavior to support@hubble.com.
 
 Before asking a question:
 
-- Check the [Hubble Network SDK Documentation](https://docs.hubble.com/docs/device-sdk/intro)
+- Check the [Hubble Device SDK Documentation](https://docs.hubble.com/docs/device-sdk/intro)
 - Search existing [Issues](https://github.com/hubblenetwork/hubble-device-sdk/issues)
 - Review the codebase and examples in the `samples/` directory
 
@@ -55,7 +55,7 @@ your `user.name` and `user.email` in git.
 
 ### License
 
-The Hubble Network SDK uses the Apache 2.0 license. All contributions must be
+The Hubble Device SDK uses the Apache 2.0 license. All contributions must be
 compatible with this license. Each source file must include the SPDX license
 identifier:
 
@@ -360,4 +360,4 @@ If you have questions about contributing, please:
 - Review the [documentation](https://docs.hubble.com/docs/device-sdk/intro)
 - Start a new discussion in [GitHub Discussions](https://github.com/hubblenetwork/hubble-device-sdk/discussions)
 
-Thank you for contributing to the Hubble Network SDK! 🚀
+Thank you for contributing to the Hubble Device SDK! 🚀

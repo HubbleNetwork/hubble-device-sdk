@@ -3,7 +3,7 @@
 Project Organization
 ####################
 
-The Hubble Network SDK is organized around a small common core, public headers,
+The Hubble Device SDK is organized around a small common core, public headers,
 and platform-specific ports. The common code implements the SDK protocols and
 state management. The port code adapts those protocols to a specific RTOS,
 crypto provider, radio driver, and board.

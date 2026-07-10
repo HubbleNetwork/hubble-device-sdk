@@ -22,13 +22,13 @@ extern "C" {
 #endif
 
 /**
- * @brief Hubble Network SDK APIs
- * @defgroup hubble_api Hubble Network APIs
+ * @brief Hubble Device SDK APIs
+ * @defgroup hubble_api Hubble Device SDK APIs
  * @{
  */
 
 /**
- * @brief Initializes the Hubble SDK.
+ * @brief Initializes the Hubble Device SDK.
  *
  * Calling this function is essential before using any other SDK APIs.
  *
@@ -77,7 +77,7 @@ extern "C" {
 int hubble_init(uint64_t initial_time, const void *key);
 
 /**
- * @brief Sets the current Unix time in the Hubble SDK.
+ * @brief Sets the current Unix time in the Hubble Device SDK.
  *
  * @param unix_time The Unix Epoch time in milliseconds since the Unix epoch
  *                  (January 1, 1970).

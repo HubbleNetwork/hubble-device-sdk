@@ -47,7 +47,7 @@ def get_pkt_from_be_with_timestamp(org, device, timestamp):
 
 @click.group(context_settings={"help_option_names": ["-h", "--help"]})
 def cli() -> None:
-    """Hubble SDK CLI."""
+    """Hubble Device SDK CLI."""
     # top-level group; subcommands are added below
 
 

@@ -8,8 +8,8 @@
 
 let topModules;
 
-const displayName = "Hubble Network SDK";
-const description = "Hubble Network SDK Options";
+const displayName = "Hubble Device SDK";
+const description = "Hubble Device SDK Options";
 
 topModules = [
     {

@@ -35,7 +35,7 @@ extern "C" {
 #define HUBBLE_KEY_SIZE_BITS (CONFIG_HUBBLE_KEY_SIZE * 8)
 
 /**
- * @brief Hubble Network SDK Crypto APIs.
+ * @brief Hubble Device SDK Crypto APIs.
  *
  * Cryptographic functions that need to be implemented by
  * a crypto provider.

@@ -20,7 +20,7 @@ By the end of this guide you will know how to:
 Supported NCS Version and Boards
 *********************************
 
-The Hubble Network SDK currently supports **NCS v3.4.0**. If you require
+The Hubble Device SDK currently supports **NCS v3.4.0**. If you require
 support for a different version, `contact us <mailto:support@hubble.com>`_.
 
 Nordic nRF52, nRF53, and nRF54 Series SoCs are supported. The SDK includes
@@ -91,7 +91,7 @@ all required dependencies before proceeding.
 Add Hubble Network to an Existing NCS Project
 =============================================
 
-If you already have an NCS workspace, add the Hubble Network SDK as a West
+If you already have an NCS workspace, add the Hubble Device SDK as a West
 module by including the following in your project's sub-manifest or
 ``west.yml``:
 
@@ -409,8 +409,8 @@ See :ref:`hubble_satellite_orbital_params` for details on the generated format a
 how to register the array with the SDK.
 
 
-Initializing the Hubble SDK
-****************************
+Initializing the Hubble Device SDK
+**********************************
 
 Once time, location, and orbital parameters are available, initialize the SDK
 before calling any other Hubble API:
@@ -423,7 +423,7 @@ before calling any other Hubble API:
     */
    err = hubble_init(unix_time_ms, master_key);
    if (err != 0) {
-       LOG_ERR("Failed to initialize Hubble SDK (err %d)", err);
+       LOG_ERR("Failed to initialize Hubble Device SDK (err %d)", err);
        return err;
    }
 
@@ -565,7 +565,7 @@ the Multiprotocol Service Layer (MPSL) for BLE and satellite radio coexistence:
 Verifying the Application
 **************************
 
-Enable the Hubble SDK logging by adding the following to ``prj.conf``:
+Enable the Hubble Device SDK logging by adding the following to ``prj.conf``:
 
 .. code-block:: kconfig
 
@@ -582,7 +582,7 @@ After a successful :c:func:`hubble_init` call, the SDK logs:
 
 .. code-block:: none
 
-   <inf> hubblenetwork: Hubble Network SDK initialized
+   <inf> hubblenetwork: Hubble Device SDK initialized
 
 At debug level, once pass prediction runs and a transmission is scheduled, you
 will see the retry count computed from your TDR setting and the time elapsed

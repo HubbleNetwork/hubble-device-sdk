@@ -96,7 +96,7 @@ int hubble_init(uint64_t initial_time, const void *key)
 	}
 #endif /* CONFIG_HUBBLE_SAT_NETWORK */
 
-	HUBBLE_LOG_INFO("Hubble Network SDK initialized\n");
+	HUBBLE_LOG_INFO("Hubble Device SDK initialized\n");
 
 	return 0;
 }

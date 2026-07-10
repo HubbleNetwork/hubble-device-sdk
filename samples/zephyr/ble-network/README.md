@@ -2,10 +2,10 @@
 
 ## Overview
 
-This sample application demonstrates how to use the Hubble Network SDK on a
+This sample application demonstrates how to use the Hubble Device SDK on a
 Zephyr-based device to broadcast data over Bluetooth Low Energy (BLE).
 
-The application initializes the Hubble SDK, sets an encryption key and a Unix
+The application initializes the Hubble Device SDK, sets an encryption key and a Unix
 timestamp, and then advertises user-provided data within a BLE packet. It
 provides a shell interface over the serial port to input the necessary
 configuration and data.
@@ -102,7 +102,7 @@ In the sample's shell, run the `unix_time` command with the timestamp:
 uart:~$ time 1752865580290
 ```
 
-Once the Unix time is set, the application will initialize the Hubble SDK and
+Once the Unix time is set, the application will initialize the Hubble Device SDK and
 the Bluetooth subsystem.
 
 ### Step 3: Advertise Data
@@ -113,7 +113,7 @@ Now you can provide the data you want to broadcast using the `data` command.
 uart:~$ data "Hello Hubble"
 ```
 
-The application will take this string, process it with the Hubble SDK, and
+The application will take this string, process it with the Hubble Device SDK, and
 place the resulting data in the service data field of its BLE advertisement
 packet.
 

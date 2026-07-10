@@ -6,8 +6,8 @@
 
 "use strict";
 
-const topModuleDisplayName = "Hubble Network SDK";
-const topModuleDescription = "Hubble Network SDK Configuration";
+const topModuleDisplayName = "Hubble Device SDK";
+const topModuleDescription = "Hubble Device SDK Configuration";
 
 function validate(mod, validation)
 {
@@ -59,7 +59,7 @@ var cc27xxDMMDeviceFiles = [
 
 function getSDKRootDir()
 {
-    const product = system.getProducts().find(p => p.name == "Hubble Network SDK");
+    const product = system.getProducts().find(p => p.name == "Hubble Device SDK");
     if (product) {
         let sdkPath = system.utils.path.parse(
             system.utils.path.parse(product.path).dir

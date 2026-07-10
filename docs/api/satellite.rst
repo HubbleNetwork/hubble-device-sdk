@@ -7,16 +7,16 @@ Application APIs
 ****************
 
 .. doxygengroup:: hubble_sat_api
-   :project: HubbleNetworkSDK
+   :project: Hubble Device SDK
    :members:
 
 .. doxygengroup:: hubble_sat_packet_api
-   :project: HubbleNetworkSDK
+   :project: Hubble Device SDK
    :members:
 
 Port APIs
 *********
 
 .. doxygengroup:: hubble_sat_radio_port
-   :project: HubbleNetworkSDK
+   :project: Hubble Device SDK
    :members:

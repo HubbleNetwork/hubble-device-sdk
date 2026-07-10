@@ -118,7 +118,7 @@ int main(void)
 	}
 
 	/*
-	 * Initialize the Hubble SDK with the provisioned master key. This sample
+	 * Initialize the Hubble Device SDK with the provisioned master key. This sample
 	 * uses the device uptime counter source
 	 * (CONFIG_HUBBLE_COUNTER_SOURCE_DEVICE_UPTIME), so no UTC time is needed:
 	 * we pass 0 as the initial EID counter value and it advances with uptime.
