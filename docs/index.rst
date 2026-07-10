@@ -92,4 +92,5 @@ Additional Resources
    ble/index
    satellite/index
    security/index
+   best-practices/index
    releases/index

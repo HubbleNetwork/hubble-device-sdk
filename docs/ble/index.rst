@@ -29,7 +29,8 @@ Time Synchronization
 
 Functions are available to initialize the network with the current time and
 update it as needed. This ensures that all nodes remain synchronized, which
-facilitates coordinated operations and data consistency.
+facilitates coordinated operations and data consistency. See :ref:`hubble_timing`
+for best practices on provisioning time and accounting for clock drift.
 
 Advertisement Management
 ------------------------
@@ -86,24 +87,6 @@ interaction within the network:
 .. code-block:: c
 
    int hubble_ble_advertise_get(const uint8_t *input, size_t input_len, uint8_t *out, size_t *out_len);
-
-Security Details
-****************
-
-.. toctree::
-   :maxdepth: 1
-   :glob:
-
-   security.rst
-
-Timing management
-*****************
-
-.. toctree::
-   :maxdepth: 1
-   :glob:
-
-   timing.rst
 
 API Reference
 *************

@@ -5,7 +5,7 @@ Security
 
 .. toctree::
    :maxdepth: 1
-   :glob:
 
-   vulnerability-process.rst
-   vulnerabilities.rst
+   cryptography
+   vulnerability-process
+   vulnerabilities
