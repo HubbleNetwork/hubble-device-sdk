@@ -111,6 +111,8 @@ The pass prediction API needs three inputs:
 * Device location as latitude and longitude in degrees.
 * One or more satellite orbital parameter records.
 
+.. _hubble_satellite_orbital_params:
+
 Orbital Parameters (Satellites information)
 ===========================================
 
@@ -363,6 +365,8 @@ port to send the same packet and how far apart those transmissions are spaced.
      - 16
      - 10 seconds
      - Higher reliability with higher energy cost
+
+.. _hubble_satellite_clock_drift:
 
 Clock Drift Compensation
 ========================
