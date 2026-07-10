@@ -186,7 +186,7 @@ SysConfig product directly from the IDE:
 4. Click **Apply and Close**. CCS will pass this flag to the SysConfig CLI
    during the build, making the ``/Hubble`` module available in your
    ``.syscfg`` script just as described in the section above. If Satellite Network
-   is enabled the additional step must be added to you ``.syscfg`` script:
+   is enabled the additional step must be added to your ``.syscfg`` script:
 
    .. code-block:: none
 
