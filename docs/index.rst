@@ -67,9 +67,9 @@ Additional Resources
        <li class="grid-item">
 	   <a href="ble/index.html">
                <span class="grid-icon fa fa-bluetooth-b"></span>
-	       <h2>BLE Network</h2>
+	       <h2>Terrestrial Network</h2>
 	   </a>
-	   <p>BLE Network, build &amp; run a sample application</p>
+	   <p>Terrestrial Network, build &amp; run a sample application</p>
        </li>
        <li class="grid-item">
 	   <a href="satellite/index.html">
@@ -89,7 +89,7 @@ Additional Resources
    quickstart/index
    integration_guides/index
    best-practices/index
-   ble/index
+   terrestrial/index
    satellite/index
    security/index
    releases/index
