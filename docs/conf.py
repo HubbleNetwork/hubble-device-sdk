@@ -88,6 +88,25 @@ html_context = {
 }
 
 
+def _fix_breathe_toc_entries(app, doctree):
+    # Since Breathe 4.36.0 setting toc_object_entries to False
+    # is not enough to not have APIs functions appearing in the sidebar.
+    # Breathe unconditionally sets _toc_name/_toc_parts on desc_signature nodes,
+    # bypassing Sphinx's toc_object_entries check. Clear them here so that
+    # toc_object_entries = False actually suppresses API functions from the sidebar.
+    if app.config.toc_object_entries:
+        return
+
+    from sphinx import addnodes
+
+    for sig in doctree.traverse(addnodes.desc_signature):
+        sig.attributes["_toc_parts"] = ()
+        sig.attributes["_toc_name"] = ""
+
+
 def setup(app):
     # theme customizations
     app.add_css_file("css/custom.css")
+    # Priority 499 < default 500 so our handler runs before TocTreeCollector.process_doc,
+    # which builds sidebar entries from _toc_name/_toc_parts at priority 500.
+    app.connect("doctree-read", _fix_breathe_toc_entries, priority=499)
