@@ -1,18 +1,28 @@
-.. _hubble_ble_introduction:
+.. _hubble_terrestrial_introduction:
 
-BLE Network Overview
-####################
+Terrestrial Network Overview
+############################
 
 
 Introduction
 ************
 
-The Hubble Bluetooth® Low Energy (BLE) Network is a framework designed to provide secure
-and efficient communication within a Bluetooth Low Energy (BLE) environment.
+The Hubble Terrestrial Network is the name Hubble uses for its network built on
+Bluetooth® Low Energy (BLE). It is a framework designed to provide secure and
+efficient communication within a Bluetooth Low Energy (BLE) environment.
 Advanced encryption techniques and Bluetooth technology protect data
-integrity and privacy across distributed systems. The Hubble BLE API, defined
+integrity and privacy across distributed systems. The Hubble Terrestrial API, definede
 in the **hubble/ble.h** header file, provides a comprehensive set of functions
 for initializing, configuring, and managing network operations.
+
+.. note::
+
+   While this network is called the *Hubble Terrestrial Network*, the SDK code
+   and APIs use the ``ble`` namespace for it. Terrestrial functions, types, and
+   configuration options carry a ``ble`` marker — for example the
+   :c:func:`hubble_ble_advertise_get` function, the ``hubble/ble.h`` header, and
+   the ``CONFIG_HUBBLE_BLE_NETWORK`` option — reflecting the Bluetooth Low
+   Energy technology the network is built on.
 
 Key Features
 ============
@@ -20,7 +30,7 @@ Key Features
 Secure Communication
 --------------------
 
-The Hubble BLE Network uses a 128 or 256-bit encryption key to safeguard all
+The Hubble Terrestrial Network uses a 128 or 256-bit encryption key to safeguard all
 transmitted data, minimizing the risk of unauthorized access and data
 breaches. See :ref:`hubble_ble_security`
 
@@ -35,7 +45,7 @@ for best practices on provisioning time and accounting for clock drift.
 Advertisement Management
 ------------------------
 
-The Hubble BLE API processes input data to generate Bluetooth advertisements.
+The Hubble Terrestrial Network API processes input data to generate Bluetooth advertisements.
 These advertisements are essential for device discovery and communication
 within the BLE network. The API returns platform-specific pointers to the
 generated advertisements, allowing for seamless integration with various
@@ -48,7 +58,7 @@ Initialization
 ==============
 
 Initialize the network with the current Unix time before calling other Hubble
-BLE API functions. The ``hubble_init`` function sets up the required
+Terrestrial API functions. The ``hubble_init`` function sets up the required
 configurations and prepares the network for operation:
 
 .. code-block:: c
