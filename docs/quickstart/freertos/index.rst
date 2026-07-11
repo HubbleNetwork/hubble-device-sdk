@@ -1,7 +1,7 @@
 .. _freertos_quick_start:
 
-FreeRTOS Quick Start
-======================
+FreeRTOS
+========
 
 This guide provides a quick overview of how to integrate the
 Hubble Device SDK with FreeRTOS. Due to differences between various

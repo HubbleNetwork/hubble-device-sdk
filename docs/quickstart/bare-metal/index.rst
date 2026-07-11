@@ -1,7 +1,7 @@
 .. _bare_metal_quick_start:
 
-Bare Metal Quick Start
-######################
+Bare Metal
+##########
 
 Port the Hubble Device SDK to a bare metal environment — one without a
 traditional real-time operating system (RTOS) such as FreeRTOS or Zephyr.
