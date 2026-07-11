@@ -3,7 +3,7 @@
 Supporting New Boards
 #####################
 
-The Hubble Network SDK separates satellite support into three layers:
+The Hubble Device SDK separates satellite support into three layers:
 
 * the common satellite module in ``src``;
 * the RTOS or framework port in ``port/<rtos>``;

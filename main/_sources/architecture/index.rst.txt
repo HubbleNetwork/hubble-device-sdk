@@ -5,13 +5,13 @@ Architecture
 
 The SDK architecture is built on modularity and extensibility, accommodating
 a broad range of implementation requirements. The diagram below illustrates the
-role of the Hubble Network SDK within an embedded application:
+role of the Hubble Device SDK within an embedded application:
 
 .. figure:: images/sdk-architecture.svg
-   :alt: Hubble Network SDK
+   :alt: Hubble Device SDK
    :align: center
 
-   Hubble Network SDK Architecture
+   Hubble Device SDK Architecture
 
 The following sections summarize its primary components.
 

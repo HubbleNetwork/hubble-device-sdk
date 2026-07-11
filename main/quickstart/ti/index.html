@@ -6,8 +6,8 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>TI SDK Quick Start (SysConfig) &mdash; Hubble Network SDK Documentation</title>
-      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
+  <title>TI SDK Quick Start (SysConfig) &mdash; Hubble Device SDK Documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
       <link rel="stylesheet" type="text/css" href="../../_static/togglebutton.css?v=9c3e77be" />
@@ -58,7 +58,7 @@
           
           
           <a href="../../index.html" class="icon icon-home">
-            Hubble Network SDK
+            Hubble Device SDK
               <img src="../../_static/hubble-logo.svg" class="logo" alt="Logo"/>
           </a>
 <div role="search">
@@ -101,7 +101,7 @@
 </li>
 <li class="toctree-l2 current"><a class="current reference internal" href="#">TI SDK Quick Start (SysConfig)</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#prerequisites">Prerequisites</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#adding-the-hubble-network-sdk-sysconfig-product">Adding the Hubble Network SDK SysConfig Product</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#adding-the-hubble-device-sdk-sysconfig-product">Adding the Hubble Device SDK SysConfig Product</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#configuring-the-hubble-module-in-a-syscfg-script">Configuring the Hubble Module in a <code class="docutils literal notranslate"><span class="pre">.syscfg</span></code> Script</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#configuring-the-radio-for-satellite">Configuring the Radio for Satellite</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#using-code-composer-studio-ccs">Using Code Composer Studio (CCS)</a></li>
@@ -125,7 +125,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../../integration_guides/ncs/index.html#board-bring-up">Board Bring-Up</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../integration_guides/ncs/index.html#project-configuration">Project Configuration</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../integration_guides/ncs/index.html#preparing-for-satellite-transmission">Preparing for Satellite Transmission</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../integration_guides/ncs/index.html#initializing-the-hubble-sdk">Initializing the Hubble SDK</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../integration_guides/ncs/index.html#initializing-the-hubble-device-sdk">Initializing the Hubble Device SDK</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../integration_guides/ncs/index.html#the-pass-prediction-loop">The Pass Prediction Loop</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../integration_guides/ncs/index.html#building-and-flashing">Building and Flashing</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../integration_guides/ncs/index.html#verifying-the-application">Verifying the Application</a></li>
@@ -135,31 +135,26 @@
 </li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../../configuration/index.html">Configuration Reference</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../ble/index.html">BLE Network Overview</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../../ble/index.html#introduction">Introduction</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../../ble/index.html#key-features">Key Features</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../best-practices/index.html">Best Practices</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../best-practices/time-management.html">Time Management</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../best-practices/time-management.html#provisioning-unix-time">Provisioning Unix Time</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../best-practices/time-management.html#accounting-for-time-drifts">Accounting for Time Drifts</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../best-practices/time-management.html#tips-for-handling-time-persistence-across-power-cycles">Tips for Handling Time Persistence Across Power Cycles</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../best-practices/time-management.html#encryption-and-time-dependency">Encryption and Time Dependency</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="../../ble/index.html#api-overview">API Overview</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../../ble/index.html#initialization">Initialization</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../ble/index.html#time-management">Time Management</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../ble/index.html#encryption-key-management">Encryption Key Management</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../ble/index.html#advertisement-retrieval">Advertisement Retrieval</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="../../ble/index.html#security-details">Security Details</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../../ble/security.html">BLE  Security Overview</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../ble/security.html#encryption-steps">Encryption steps</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../ble/security.html#additional-references">Additional references</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../terrestrial/index.html">Terrestrial Network Overview</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../terrestrial/index.html#introduction">Introduction</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../terrestrial/index.html#key-features">Key Features</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="../../ble/index.html#timing-management">Timing management</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../../ble/timing.html">Best Practices for Time Management</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="../../ble/index.html#api-reference">API Reference</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../../ble/api.html">BLE Network API Reference</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../terrestrial/index.html#api-overview">API Overview</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../terrestrial/index.html#initialization">Initialization</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../terrestrial/index.html#time-management">Time Management</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../terrestrial/index.html#encryption-key-management">Encryption Key Management</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../terrestrial/index.html#advertisement-retrieval">Advertisement Retrieval</a></li>
 </ul>
 </li>
 </ul>
@@ -189,15 +184,19 @@
 <li class="toctree-l2"><a class="reference internal" href="../../satellite/index.html#supporting-new-boards">Supporting New Boards</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../satellite/index.html#power-consumption-and-reliability">Power Consumption and Reliability</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../satellite/index.html#configuration-notes">Configuration Notes</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../satellite/index.html#api-reference">API Reference</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../../satellite/api.html">Application APIs</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../satellite/api.html#port-apis">Port APIs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../satellite/index.html#board-support">Board Support</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../../satellite/board-support.html">Supporting New Boards</a></li>
 </ul>
 </li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../../security/index.html">Security</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../security/cryptography.html">Cryptographic Overview</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../security/cryptography.html#key-concepts">Key concepts</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../security/cryptography.html#encryption-steps">Encryption steps</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../security/cryptography.html#additional-references">Additional references</a></li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="../../security/vulnerability-process.html">Hubble Network Security Vulnerability Handling</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../../security/vulnerability-process.html#introduction">Introduction</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../security/vulnerability-process.html#security-issue-management">Security Issue Management</a></li>
@@ -246,6 +245,20 @@
 </ul>
 </li>
 </ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../api/index.html">API</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../api/core.html">Core API</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../api/ble.html">BLE Network API</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../api/satellite.html">Satellite Network API</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../api/satellite.html#application-apis">Application APIs</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/satellite.html#port-apis">Port APIs</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../configuration/index.html">Configuration Options</a></li>
+</ul>
 
     
   </div>
@@ -256,7 +269,7 @@
 
     <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-          <a href="../../index.html">Hubble Network SDK</a>
+          <a href="../../index.html">Hubble Device SDK</a>
       </nav>
 
       <div class="wy-nav-content">
@@ -291,16 +304,16 @@
              
   <section id="ti-sdk-quick-start-sysconfig">
 <span id="ti-quick-start"></span><h1>TI SDK Quick Start (SysConfig)<a class="headerlink" href="#ti-sdk-quick-start-sysconfig" title="Link to this heading"></a></h1>
-<p>This guide explains how to integrate the Hubble Network SDK into a
+<p>This guide explains how to integrate the Hubble Device SDK into a
 <a class="reference external" href="https://www.ti.com/tool/SIMPLELINK-LOWPOWER-F3-SDK">SimpleLink Low Power F3 SDK</a>
 project using <a class="reference external" href="https://www.ti.com/tool/SYSCONFIG">SysConfig</a>. SysConfig
 generates driver and peripheral initialization code from a <code class="docutils literal notranslate"><span class="pre">.syscfg</span></code> script,
-and the Hubble Network SDK provides its own SysConfig product so its module
+and the Hubble Device SDK provides its own SysConfig product so its module
 can be configured alongside the TI SDK drivers in the same script.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>SysConfig is the recommended integration path for TI SDK projects. If you
-prefer to manage Hubble Network SDK build manually or are working in an
+prefer to manage Hubble Device SDK build manually or are working in an
 environment without SysConfig, follow the generic
 <a class="reference internal" href="../freertos/index.html#freertos-quick-start"><span class="std std-ref">FreeRTOS Quick Start</span></a> instead — it describes how to include the SDK
 sources and flags directly via the provided Makefile fragment.</p>
@@ -311,7 +324,7 @@ sources and flags directly via the provided Makefile fragment.</p>
 <li><p><a class="reference external" href="https://www.ti.com/tool/SIMPLELINK-LOWPOWER-F3-SDK">SimpleLink Low Power F3 SDK</a> installed.</p></li>
 <li><p><a class="reference external" href="https://www.ti.com/tool/CCSTUDIO">TI ARM LLVM Compiler</a> installed.</p></li>
 <li><p>SysConfig CLI tool (<code class="docutils literal notranslate"><span class="pre">sysconfig_cli.sh</span></code> / <code class="docutils literal notranslate"><span class="pre">sysconfig_cli.bat</span></code>) available.</p></li>
-<li><p>The Hubble Network SDK cloned or added as a submodule.</p></li>
+<li><p>The Hubble Device SDK cloned or added as a submodule.</p></li>
 </ul>
 <p>Set the following environment variables before building:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">export</span><span class="w"> </span><span class="nv">TICLANG_ARMCOMPILER</span><span class="o">=</span>/path/to/ti-cgt-armllvm
@@ -321,9 +334,9 @@ sources and flags directly via the provided Makefile fragment.</p>
 </pre></div>
 </div>
 </section>
-<section id="adding-the-hubble-network-sdk-sysconfig-product">
-<h2>Adding the Hubble Network SDK SysConfig Product<a class="headerlink" href="#adding-the-hubble-network-sdk-sysconfig-product" title="Link to this heading"></a></h2>
-<p>The Hubble Network SDK ships a SysConfig product descriptor at
+<section id="adding-the-hubble-device-sdk-sysconfig-product">
+<h2>Adding the Hubble Device SDK SysConfig Product<a class="headerlink" href="#adding-the-hubble-device-sdk-sysconfig-product" title="Link to this heading"></a></h2>
+<p>The Hubble Device SDK ships a SysConfig product descriptor at
 <code class="docutils literal notranslate"><span class="pre">.metadata/product.json</span></code>. Pass it to the SysConfig CLI alongside the TI SDK
 product so both products are available in the same <code class="docutils literal notranslate"><span class="pre">.syscfg</span></code> script:</p>
 <div class="highlight-Makefile notranslate"><div class="highlight"><pre><span></span><span class="nv">SYSCFG_CMD_STUB</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">$(</span>SYSCONFIG_TOOL<span class="k">)</span><span class="w"> </span>--compiler<span class="w"> </span>ticlang<span class="w"> </span><span class="se">\</span>
@@ -348,7 +361,7 @@ product so both products are available in the same <code class="docutils literal
 <div class="highlight-javascript notranslate"><div class="highlight"><pre><span></span><span class="kd">var</span><span class="w"> </span><span class="nx">hubble</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">scripting</span><span class="p">.</span><span class="nx">addModule</span><span class="p">(</span><span class="s2">&quot;/Hubble&quot;</span><span class="p">);</span>
 </pre></div>
 </div>
-<p>This is all that is required. The module registers the Hubble Network SDK
+<p>This is all that is required. The module registers the Hubble Device SDK
 sources and include paths with the SysConfig framework so the generated
 <code class="docutils literal notranslate"><span class="pre">.opt</span></code> files carry the right compiler flags.</p>
 <p>A minimal <code class="docutils literal notranslate"><span class="pre">.syscfg</span></code> script for a BLE application on CC23xx looks like:</p>
@@ -361,7 +374,7 @@ sources and include paths with the SysConfig framework so the generated
 <span class="kd">var</span><span class="w"> </span><span class="nx">RCL</span><span class="w">   </span><span class="o">=</span><span class="w"> </span><span class="nx">scripting</span><span class="p">.</span><span class="nx">addModule</span><span class="p">(</span><span class="s2">&quot;/ti/drivers/RCL&quot;</span><span class="p">);</span>
 <span class="kd">var</span><span class="w"> </span><span class="nx">Power</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">scripting</span><span class="p">.</span><span class="nx">addModule</span><span class="p">(</span><span class="s2">&quot;/ti/drivers/Power&quot;</span><span class="p">);</span>
 
-<span class="cm">/* Hubble Network SDK */</span>
+<span class="cm">/* Hubble Device SDK */</span>
 <span class="kd">var</span><span class="w"> </span><span class="nx">hubble</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">scripting</span><span class="p">.</span><span class="nx">addModule</span><span class="p">(</span><span class="s2">&quot;/Hubble&quot;</span><span class="p">);</span>
 
 <span class="cm">/* BLE stack and FreeRTOS */</span>
@@ -436,7 +449,7 @@ sample for complete satellite-only and dual-stack <code class="docutils literal 
 <section id="using-code-composer-studio-ccs">
 <h2>Using Code Composer Studio (CCS)<a class="headerlink" href="#using-code-composer-studio-ccs" title="Link to this heading"></a></h2>
 <p>If you are using <a class="reference external" href="https://www.ti.com/tool/CCSTUDIO">Code Composer Studio</a>
-and prefer not to write a Makefile manually, you can add the Hubble Network SDK
+and prefer not to write a Makefile manually, you can add the Hubble Device SDK
 SysConfig product directly from the IDE:</p>
 <ol class="arabic">
 <li><p>Right-click the project folder in the <strong>Project Explorer</strong> and select
@@ -447,12 +460,12 @@ SysConfig product directly from the IDE:</p>
 </pre></div>
 </div>
 <p>Replace <code class="docutils literal notranslate"><span class="pre">/path/to/hubble-device-sdk</span></code> with the actual path to your Hubble
-Network SDK checkout.</p>
+Device SDK checkout.</p>
 </li>
 <li><p>Click <strong>Apply and Close</strong>. CCS will pass this flag to the SysConfig CLI
 during the build, making the <code class="docutils literal notranslate"><span class="pre">/Hubble</span></code> module available in your
 <code class="docutils literal notranslate"><span class="pre">.syscfg</span></code> script just as described in the section above. If Satellite Network
-is enabled the additional step must be added to you <code class="docutils literal notranslate"><span class="pre">.syscfg</span></code> script:</p>
+is enabled the additional step must be added to your <code class="docutils literal notranslate"><span class="pre">.syscfg</span></code> script:</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>var hubble_radio = system.getScript(&quot;/hubble_radio.js&quot;);
 hubble_radio.config_dual_stack(&quot;ble&quot;); // or hubble_radio.config()
 </pre></div>

@@ -3,7 +3,7 @@
 ESP-IDF Quick Start
 ===================
 
-This guide explains how to integrate the Hubble Network SDK into an
+This guide explains how to integrate the Hubble Device SDK into an
 `ESP-IDF <https://docs.espressif.com/projects/esp-idf/en/latest/esp32/get-started/index.html>`_
 project. The SDK ships as an ESP-IDF component that can be pulled into any
 ESP-IDF application via ``EXTRA_COMPONENT_DIRS``.
@@ -17,13 +17,13 @@ Prerequisites
 - A supported ESP32 target. The BLE Network module works on any ESP32 chip
   with a Bluetooth® Low Energy controller supported by ESP-IDF. The Satellite
   Network module currently targets the **ESP32-C6**.
-- The Hubble Network SDK cloned or added to your project as a Git submodule.
+- The Hubble Device SDK cloned or added to your project as a Git submodule.
 
 
 Adding Hubble Network to an ESP-IDF Project
 *******************************************
 
-#. Add the Hubble Network SDK to your application, for example as a submodule:
+#. Add the Hubble Device SDK to your application, for example as a submodule:
 
    .. code-block:: bash
 

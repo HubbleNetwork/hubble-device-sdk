@@ -3,7 +3,7 @@
 Release Notes and Lifecycle
 ############################
 
-This document describes the Hubble Network SDK release process, versioning
+This document describes the Hubble Device SDK release process, versioning
 strategy, and support policies. Understanding these policies helps developers
 plan their integration efforts and make informed decisions about when to upgrade
 to new releases.
@@ -11,7 +11,7 @@ to new releases.
 Overview
 ********
 
-The Hubble Network SDK follows a structured release lifecycle designed to ensure
+The Hubble Device SDK follows a structured release lifecycle designed to ensure
 stability, reliability, and backward compatibility. Releases progress through
 distinct phases from initial development through release candidates to stable
 production releases. The SDK adheres to `Semantic Versioning`_ principles to
@@ -22,7 +22,7 @@ clearly communicate the nature and impact of each release.
 Release Lifecycle
 *****************
 
-The Hubble Network SDK release process consists of three primary phases:
+The Hubble Device SDK release process consists of three primary phases:
 
 Development Phase
 =================
@@ -99,7 +99,7 @@ dimensions:
 Release Model
 *************
 
-The Hubble Network SDK uses `Semantic Versioning`_ with the format
+The Hubble Device SDK uses `Semantic Versioning`_ with the format
 ``MAJOR.MINOR.PATCH`` (e.g., ``1.4.2``).
 
 Version Components
@@ -153,7 +153,7 @@ The following guidelines determine version increments:
 Release Types
 *************
 
-The Hubble Network SDK maintains two types of releases:
+The Hubble Device SDK maintains two types of releases:
 
 Stable Releases
 ===============
@@ -188,7 +188,7 @@ LTS releases are explicitly marked in release announcements and documentation.
 Support Policy
 **************
 
-The Hubble Network SDK maintains different support levels depending on release
+The Hubble Device SDK maintains different support levels depending on release
 type:
 
 Stable  Releases
@@ -214,7 +214,7 @@ LTS releases receive:
 Release Schedule
 ****************
 
-The Hubble Network SDK follows a predictable release schedule:
+The Hubble Device SDK follows a predictable release schedule:
 
 Regular Releases
 ================
@@ -235,10 +235,10 @@ All releases are announced through:
 - Release notes with detailed changelogs
 - Migration guides for major version upgrades
 
-For the most current release information, visit the `Hubble Network SDK GitHub
+For the most current release information, visit the `Hubble Device SDK GitHub
 repository`_.
 
-.. _Hubble Network SDK GitHub repository: https://github.com/hubblenetwork/hubble-device-sdk
+.. _Hubble Device SDK GitHub repository: https://github.com/hubblenetwork/hubble-device-sdk
 
 Migration and Upgrade Guidance
 ******************************

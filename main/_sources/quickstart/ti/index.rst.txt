@@ -3,17 +3,17 @@
 TI SDK Quick Start (SysConfig)
 ==============================
 
-This guide explains how to integrate the Hubble Network SDK into a
+This guide explains how to integrate the Hubble Device SDK into a
 `SimpleLink Low Power F3 SDK <https://www.ti.com/tool/SIMPLELINK-LOWPOWER-F3-SDK>`_
 project using `SysConfig <https://www.ti.com/tool/SYSCONFIG>`_. SysConfig
 generates driver and peripheral initialization code from a ``.syscfg`` script,
-and the Hubble Network SDK provides its own SysConfig product so its module
+and the Hubble Device SDK provides its own SysConfig product so its module
 can be configured alongside the TI SDK drivers in the same script.
 
 .. note::
 
    SysConfig is the recommended integration path for TI SDK projects. If you
-   prefer to manage Hubble Network SDK build manually or are working in an
+   prefer to manage Hubble Device SDK build manually or are working in an
    environment without SysConfig, follow the generic
    :ref:`freertos_quick_start` instead — it describes how to include the SDK
    sources and flags directly via the provided Makefile fragment.
@@ -24,7 +24,7 @@ Prerequisites
 - `SimpleLink Low Power F3 SDK <https://www.ti.com/tool/SIMPLELINK-LOWPOWER-F3-SDK>`_ installed.
 - `TI ARM LLVM Compiler <https://www.ti.com/tool/CCSTUDIO>`_ installed.
 - SysConfig CLI tool (``sysconfig_cli.sh`` / ``sysconfig_cli.bat``) available.
-- The Hubble Network SDK cloned or added as a submodule.
+- The Hubble Device SDK cloned or added as a submodule.
 
 Set the following environment variables before building:
 
@@ -36,10 +36,10 @@ Set the following environment variables before building:
    export HUBBLE_NETWORK_SDK=/path/to/hubble-device-sdk
 
 
-Adding the Hubble Network SDK SysConfig Product
+Adding the Hubble Device SDK SysConfig Product
 ***********************************************
 
-The Hubble Network SDK ships a SysConfig product descriptor at
+The Hubble Device SDK ships a SysConfig product descriptor at
 ``.metadata/product.json``. Pass it to the SysConfig CLI alongside the TI SDK
 product so both products are available in the same ``.syscfg`` script:
 
@@ -71,7 +71,7 @@ Load the Hubble module in your ``.syscfg`` script with:
 
    var hubble = scripting.addModule("/Hubble");
 
-This is all that is required. The module registers the Hubble Network SDK
+This is all that is required. The module registers the Hubble Device SDK
 sources and include paths with the SysConfig framework so the generated
 ``.opt`` files carry the right compiler flags.
 
@@ -88,7 +88,7 @@ A minimal ``.syscfg`` script for a BLE application on CC23xx looks like:
    var RCL   = scripting.addModule("/ti/drivers/RCL");
    var Power = scripting.addModule("/ti/drivers/Power");
 
-   /* Hubble Network SDK */
+   /* Hubble Device SDK */
    var hubble = scripting.addModule("/Hubble");
 
    /* BLE stack and FreeRTOS */
@@ -171,7 +171,7 @@ Using Code Composer Studio (CCS)
 *********************************
 
 If you are using `Code Composer Studio <https://www.ti.com/tool/CCSTUDIO>`_
-and prefer not to write a Makefile manually, you can add the Hubble Network SDK
+and prefer not to write a Makefile manually, you can add the Hubble Device SDK
 SysConfig product directly from the IDE:
 
 1. Right-click the project folder in the **Project Explorer** and select
@@ -184,12 +184,12 @@ SysConfig product directly from the IDE:
       -s "/path/to/hubble-device-sdk/.metadata/product.json"
 
    Replace ``/path/to/hubble-device-sdk`` with the actual path to your Hubble
-   Network SDK checkout.
+   Device SDK checkout.
 
 4. Click **Apply and Close**. CCS will pass this flag to the SysConfig CLI
    during the build, making the ``/Hubble`` module available in your
    ``.syscfg`` script just as described in the section above. If Satellite Network
-   is enabled the additional step must be added to you ``.syscfg`` script:
+   is enabled the additional step must be added to your ``.syscfg`` script:
 
    .. code-block:: none
 

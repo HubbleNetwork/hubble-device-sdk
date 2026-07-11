@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Vulnerabilities &mdash; Hubble Device SDK Documentation</title>
+  <title>Cryptographic Overview &mdash; Hubble Device SDK Documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=4ae1632d" />
@@ -16,7 +16,7 @@
 
   
     <link rel="shortcut icon" href="../_static/hubble.png"/>
-    <link rel="canonical" href="https://HubbleNetwork.github.io/hubble-device-sdk/main/security/vulnerabilities.html" />
+    <link rel="canonical" href="https://HubbleNetwork.github.io/hubble-device-sdk/main/security/cryptography.html" />
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
       <script src="../_static/documentation_options.js?v=2709fde1"></script>
@@ -32,8 +32,8 @@
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="Release Notes and Lifecycle" href="../releases/index.html" />
-    <link rel="prev" title="Hubble Network Security Vulnerability Handling" href="vulnerability-process.html" />
+    <link rel="next" title="Hubble Network Security Vulnerability Handling" href="vulnerability-process.html" />
+    <link rel="prev" title="Security" href="index.html" />
   <meta name="color-scheme" content="dark light">
   
   <noscript id="dark-mode-toggle-stylesheets">
@@ -191,10 +191,10 @@
 </ul>
 </li>
 <li class="toctree-l1 current"><a class="reference internal" href="index.html">Security</a><ul class="current">
-<li class="toctree-l2"><a class="reference internal" href="cryptography.html">Cryptographic Overview</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="cryptography.html#key-concepts">Key concepts</a></li>
-<li class="toctree-l3"><a class="reference internal" href="cryptography.html#encryption-steps">Encryption steps</a></li>
-<li class="toctree-l3"><a class="reference internal" href="cryptography.html#additional-references">Additional references</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Cryptographic Overview</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#key-concepts">Key concepts</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#encryption-steps">Encryption steps</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#additional-references">Additional references</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="vulnerability-process.html">Hubble Network Security Vulnerability Handling</a><ul>
@@ -205,7 +205,7 @@
 <li class="toctree-l3"><a class="reference internal" href="vulnerability-process.html#backporting-of-security-vulnerabilities">Backporting of Security Vulnerabilities</a></li>
 </ul>
 </li>
-<li class="toctree-l2 current"><a class="current reference internal" href="#">Vulnerabilities</a></li>
+<li class="toctree-l2"><a class="reference internal" href="vulnerabilities.html">Vulnerabilities</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../releases/index.html">Release Notes and Lifecycle</a><ul>
@@ -286,7 +286,7 @@
   
      <li><a href="index.html">Security</a> &raquo;</li>
   
-  <li>Vulnerabilities</li>
+  <li>Cryptographic Overview</li>
 
 
   <li class="wy-breadcrumbs-aside">
@@ -302,12 +302,64 @@
   
            <div itemprop="articleBody">
              
-  <section id="vulnerabilities">
-<span id="id1"></span><h1>Vulnerabilities<a class="headerlink" href="#vulnerabilities" title="Link to this heading"></a></h1>
-<p>This page serves as a repository for tracking vulnerabilities
-identified and resolved in each software release. It frequently
-includes <em>additional details</em> beyond what is provided in the release
-notes.</p>
+  <section id="cryptographic-overview">
+<span id="hubble-ble-security"></span><h1>Cryptographic Overview<a class="headerlink" href="#cryptographic-overview" title="Link to this heading"></a></h1>
+<p>The Hubble Device SDK protects transmitted data with the same set of
+cryptographic primitives across both the BLE (Terrestrial) Network and the
+Satellite Network, ensuring the confidentiality, integrity, and authenticity of
+every message. AES provides strong encryption, CMAC ensures data integrity and
+authenticity, and the KBKDF securely derives keys from a master key. The use
+of nonces and sequence numbers prevents replay attacks and ensures that each
+transmission is unique.</p>
+<section id="key-concepts">
+<h2>Key concepts<a class="headerlink" href="#key-concepts" title="Link to this heading"></a></h2>
+<ul>
+<li><p><strong>AES Encryption</strong></p>
+<p>The code uses AES (Advanced Encryption Standard with a 256-bit or
+128-bit keys) for encryption. AES is a symmetric encryption
+algorithm, meaning the same key is used for both encryption and
+decryption.</p>
+</li>
+<li><p><strong>CMAC (Cipher-based Message Authentication Code)</strong></p>
+<p>CMAC is used to generate a message authentication code (MAC) to ensure data
+integrity and authenticity. The CMAC is computed over the input data using the
+provided key, and the result is stored in the output buffer.</p>
+</li>
+</ul>
+<ul id="hubble-ble-kbdf">
+<li><p><strong>KBKDF (Key-Based Key Derivation Function)</strong></p>
+<p>The code uses a KBKDF to derive keys from a master key. It derives keys
+based on a master key, a label, a context, and a counter. It uses CMAC as the
+pseudorandom function (PRF) to generate the derived keys.</p>
+</li>
+<li><p><strong>Nonce Generation</strong></p>
+<p>A nonce (number used once) is generated for each encryption operation to
+ensure that the same plaintext encrypted multiple times will produce different
+ciphertexts. The nonce is derived using the KBKDF with a specific label
+(“Nonce”) and the current sequence number.</p>
+</li>
+</ul>
+</section>
+<section id="encryption-steps">
+<h2>Encryption steps<a class="headerlink" href="#encryption-steps" title="Link to this heading"></a></h2>
+<p>An application will get the encrypted advertisement data using
+<code class="xref c c-func docutils literal notranslate"><span class="pre">hubble_ble_advertise_get()</span></code>. This function performs the
+following steps to prepare the advertisement data:</p>
+<ul class="simple">
+<li><p>Derives the device ID, nonce, and encryption key using the KBKDF.</p></li>
+<li><p>Sets the BLE address using the derived device ID and sequence number.</p></li>
+<li><p>Encrypts the payload data using AES in CTR mode with the derived encryption key and nonce.</p></li>
+<li><p>Computes the CMAC of the encrypted payload data to generate an authentication tag.</p></li>
+<li><p>Copies the authentication tag and encrypted data into the advertisement buffer.</p></li>
+</ul>
+</section>
+<section id="additional-references">
+<h2>Additional references<a class="headerlink" href="#additional-references" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p><a class="reference external" href="https://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.197-upd1.pdf">FIPS 197 - Advanced Encryption Standard (AES):</a></p></li>
+<li><p><a class="reference external" href="https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-108r1-upd1.pdf">NIST - Recommendation for Key Derivation Using Pseudorandom Functions</a></p></li>
+</ul>
+</section>
 </section>
 
 
@@ -315,8 +367,8 @@ notes.</p>
           </div>
 
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="vulnerability-process.html" class="btn btn-neutral float-left" title="Hubble Network Security Vulnerability Handling" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="../releases/index.html" class="btn btn-neutral float-right" title="Release Notes and Lifecycle" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="index.html" class="btn btn-neutral float-left" title="Security" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="vulnerability-process.html" class="btn btn-neutral float-right" title="Hubble Network Security Vulnerability Handling" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

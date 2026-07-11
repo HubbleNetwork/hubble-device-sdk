@@ -1,11 +1,11 @@
-.. Hubble Network SDK documentation
+.. Hubble Device SDK documentation
 
 .. _hubble-home:
 
-Hubble Network SDK documentation
+Hubble Device SDK documentation
 ================================
 
-**Welcome to the Hubble Network SDK documentation!**
+**Welcome to the Hubble Device SDK documentation!**
 
 This guide will walk you through everything you need to know to integrate the
 Hubble APIs with your application or service and begin leveraging the Hubble
@@ -13,7 +13,7 @@ Network. Designed for developers who want a straightforward and reliable way to
 harness Hubble’s powerful capabilities, this SDK provides a suite of tools and
 libraries that make it easy to interact with all of Hubble’s services.
 
-Using Hubble Network SDK
+Using Hubble Device SDK
 ************************
 
 
@@ -46,7 +46,7 @@ Additional Resources
        <li class="grid-item">
 	   <a href="introduction/index.html">
                <span class="grid-icon fa fa-info"></span>
-	       <h2>About Hubble Network SDK</h2>
+	       <h2>About Hubble Device SDK</h2>
 	   </a>
 	   <p>Overview, features &amp; where to start</p>
        </li>
@@ -67,9 +67,9 @@ Additional Resources
        <li class="grid-item">
 	   <a href="ble/index.html">
                <span class="grid-icon fa fa-bluetooth-b"></span>
-	       <h2>BLE Network</h2>
+	       <h2>Terrestrial Network</h2>
 	   </a>
-	   <p>BLE Network, build &amp; run a sample application</p>
+	   <p>Terrestrial Network, build &amp; run a sample application</p>
        </li>
        <li class="grid-item">
 	   <a href="satellite/index.html">
@@ -88,8 +88,17 @@ Additional Resources
    architecture/index
    quickstart/index
    integration_guides/index
-   configuration/index
-   ble/index
+   best-practices/index
+   terrestrial/index
    satellite/index
    security/index
    releases/index
+
+.. toctree::
+   :maxdepth: 1
+   :hidden:
+   :caption: Reference
+
+   api/index
+   configuration/index
+

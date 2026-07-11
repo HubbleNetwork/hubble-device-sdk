@@ -4,7 +4,7 @@ FreeRTOS Quick Start
 ======================
 
 This guide provides a quick overview of how to integrate the
-Hubble Network SDK with FreeRTOS. Due to differences between various
+Hubble Device SDK with FreeRTOS. Due to differences between various
 FreeRTOS vendors, the SDK provides mechanisms to integrate it into the
 application build system. However, this integration requires some work
 from the user to adapt it to their specific environment.
@@ -20,11 +20,11 @@ Prerequisites
 Adding Hubble Network to FreeRTOS
 *********************************
 
-* Include Hubble Network SDK in your application
+* Include Hubble Device SDK in your application
 
   .. code-block:: bash
 
-     git submodule add https://github.com/HubbleNetwork/hubble-device-sdk .
+     git submodule add https://github.com/HubbleNetwork/hubble-device-sdk
 
 
 * Provide a configuration header
@@ -74,7 +74,7 @@ Example of including the Makefile fragment:
 
 .. code-block:: Makefile
 
-   # Hubble Network SDK
+   # Hubble Device SDK
 
    HUBBLENETWORK_SDK_CONFIG = $(MY_APP_DIR)/hubble_config.h
    include path/to/hubblenetwork-sdk/port/freertos/hubblenetwork-sdk.mk
@@ -86,7 +86,7 @@ Example of including the Makefile fragment:
 
    $(foreach source_file,$(HUBBLENETWORK_SDK_SOURCES),$(eval $(call HUBBLE_RULE,$(source_file))))
 
-   # Hubble Network SDK END
+   # Hubble Device SDK END
 
 
 Build the application
@@ -95,4 +95,4 @@ Build the application
 
 .. code-block:: bash
 
-   make -C /path/to/your/application/Makefile
+   make -C /path/to/your/application

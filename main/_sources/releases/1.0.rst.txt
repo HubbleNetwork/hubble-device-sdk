@@ -5,7 +5,7 @@ Release 1.0.0
 
 **Release Date**: January 6, 2026
 
-This is the first stable release of the Hubble Network Device SDK. This release
+This is the first stable release of the Hubble Device SDK. This release
 provides a production-ready SDK for connecting Bluetooth® Low Energy
 (BLE) embedded devices to the Hubble **Terrestrial Network**.
 
@@ -17,7 +17,7 @@ provides a production-ready SDK for connecting Bluetooth® Low Energy
 Overview
 ********
 
-Release 1.0.0 represents a significant milestone for the Hubble Network Device SDK,
+Release 1.0.0 represents a significant milestone for the Hubble Device SDK,
 delivering a stable, well-tested foundation for building applications that leverage
 Hubble Terrestrial Network (BLE) infrastructure. This release includes
 comprehensive platform support, robust security features, and extensive
@@ -35,7 +35,7 @@ participate in secure BLE communication:
 - **Secure Communication**: Encryption used for all network communications
 - **Advertisement Generation**: API for generating Bluetooth advertisement packets
   compatible with Hubble Network infrastructure
-- **Bluetooth Qualification**: The Hubble Network Device SDK has completed
+- **Bluetooth Qualification**: The Hubble Device SDK has completed
   the Bluetooth Qualification Process (Design Number: Q369913)
 
 Platform Support

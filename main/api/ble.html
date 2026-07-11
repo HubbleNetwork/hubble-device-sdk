@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Vulnerabilities &mdash; Hubble Device SDK Documentation</title>
+  <title>BLE Network API &mdash; Hubble Device SDK Documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=4ae1632d" />
@@ -16,7 +16,7 @@
 
   
     <link rel="shortcut icon" href="../_static/hubble.png"/>
-    <link rel="canonical" href="https://HubbleNetwork.github.io/hubble-device-sdk/main/security/vulnerabilities.html" />
+    <link rel="canonical" href="https://HubbleNetwork.github.io/hubble-device-sdk/main/api/ble.html" />
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
       <script src="../_static/documentation_options.js?v=2709fde1"></script>
@@ -32,8 +32,8 @@
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="Release Notes and Lifecycle" href="../releases/index.html" />
-    <link rel="prev" title="Hubble Network Security Vulnerability Handling" href="vulnerability-process.html" />
+    <link rel="next" title="Satellite Network API" href="satellite.html" />
+    <link rel="prev" title="Core API" href="core.html" />
   <meta name="color-scheme" content="dark light">
   
   <noscript id="dark-mode-toggle-stylesheets">
@@ -71,7 +71,7 @@
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
   <div data-nosnippet>
     
-              <ul class="current">
+              <ul>
 <li class="toctree-l1"><a class="reference internal" href="../introduction/index.html">Introduction</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../introduction/index.html#where-to-go-next">Where to go next</a></li>
 </ul>
@@ -190,22 +190,22 @@
 </li>
 </ul>
 </li>
-<li class="toctree-l1 current"><a class="reference internal" href="index.html">Security</a><ul class="current">
-<li class="toctree-l2"><a class="reference internal" href="cryptography.html">Cryptographic Overview</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="cryptography.html#key-concepts">Key concepts</a></li>
-<li class="toctree-l3"><a class="reference internal" href="cryptography.html#encryption-steps">Encryption steps</a></li>
-<li class="toctree-l3"><a class="reference internal" href="cryptography.html#additional-references">Additional references</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../security/index.html">Security</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../security/cryptography.html">Cryptographic Overview</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../security/cryptography.html#key-concepts">Key concepts</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../security/cryptography.html#encryption-steps">Encryption steps</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../security/cryptography.html#additional-references">Additional references</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="vulnerability-process.html">Hubble Network Security Vulnerability Handling</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="vulnerability-process.html#introduction">Introduction</a></li>
-<li class="toctree-l3"><a class="reference internal" href="vulnerability-process.html#security-issue-management">Security Issue Management</a></li>
-<li class="toctree-l3"><a class="reference internal" href="vulnerability-process.html#fix-recommendations">Fix Recommendations</a></li>
-<li class="toctree-l3"><a class="reference internal" href="vulnerability-process.html#vulnerability-notification">Vulnerability Notification</a></li>
-<li class="toctree-l3"><a class="reference internal" href="vulnerability-process.html#backporting-of-security-vulnerabilities">Backporting of Security Vulnerabilities</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../security/vulnerability-process.html">Hubble Network Security Vulnerability Handling</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../security/vulnerability-process.html#introduction">Introduction</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../security/vulnerability-process.html#security-issue-management">Security Issue Management</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../security/vulnerability-process.html#fix-recommendations">Fix Recommendations</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../security/vulnerability-process.html#vulnerability-notification">Vulnerability Notification</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../security/vulnerability-process.html#backporting-of-security-vulnerabilities">Backporting of Security Vulnerabilities</a></li>
 </ul>
 </li>
-<li class="toctree-l2 current"><a class="current reference internal" href="#">Vulnerabilities</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../security/vulnerabilities.html">Vulnerabilities</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../releases/index.html">Release Notes and Lifecycle</a><ul>
@@ -246,13 +246,13 @@
 </li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Reference</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="../api/index.html">API</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../api/core.html">Core API</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../api/ble.html">BLE Network API</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../api/satellite.html">Satellite Network API</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../api/satellite.html#application-apis">Application APIs</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../api/satellite.html#port-apis">Port APIs</a></li>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">API</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="core.html">Core API</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">BLE Network API</a></li>
+<li class="toctree-l2"><a class="reference internal" href="satellite.html">Satellite Network API</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="satellite.html#application-apis">Application APIs</a></li>
+<li class="toctree-l3"><a class="reference internal" href="satellite.html#port-apis">Port APIs</a></li>
 </ul>
 </li>
 </ul>
@@ -284,9 +284,9 @@
 
   <li><a href="../index.html">Docs</a> &raquo;</li>
   
-     <li><a href="index.html">Security</a> &raquo;</li>
+     <li><a href="index.html">API</a> &raquo;</li>
   
-  <li>Vulnerabilities</li>
+  <li>BLE Network API</li>
 
 
   <li class="wy-breadcrumbs-aside">
@@ -302,12 +302,110 @@
   
            <div itemprop="articleBody">
              
-  <section id="vulnerabilities">
-<span id="id1"></span><h1>Vulnerabilities<a class="headerlink" href="#vulnerabilities" title="Link to this heading"></a></h1>
-<p>This page serves as a repository for tracking vulnerabilities
-identified and resolved in each software release. It frequently
-includes <em>additional details</em> beyond what is provided in the release
-notes.</p>
+  <section id="ble-network-api">
+<span id="hubble-ble-api"></span><h1>BLE Network API<a class="headerlink" href="#ble-network-api" title="Link to this heading"></a></h1>
+<dl>
+<dt class="sig sig-object cpp">
+<span class="target" id="group__hubble__ble__api"></span><em><span class="pre">group</span></em> <span class="sig-name descname"><span class="pre">BLE</span> <span class="pre">Network</span> <span class="pre">Function</span> <span class="pre">APIs</span></span></dt>
+<dd><p>Hubble BLE Network Function APIs. </p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-defines">Defines</p>
+<dl class="cpp macro">
+<dt class="sig sig-object cpp" id="c.HUBBLE_BLE_UUID">
+<span class="target" id="group__hubble__ble__api_1ga41fb50c39db4be60769f17cc59abd26f"></span><span class="sig-name descname"><span class="n"><span class="pre">HUBBLE_BLE_UUID</span></span></span><a class="headerlink" href="#c.HUBBLE_BLE_UUID" title="Link to this definition"></a><br /></dt>
+<dd><p>Hubble BLE Network UUID. </p>
+<p>This is the UUID should be listed in the services list. </p>
+</dd></dl>
+
+<dl class="cpp macro">
+<dt class="sig sig-object cpp" id="c.HUBBLE_BLE_MAX_DATA_LEN">
+<span class="target" id="group__hubble__ble__api_1ga11ed4310044e81bef4eb485a9b10079e"></span><span class="sig-name descname"><span class="n"><span class="pre">HUBBLE_BLE_MAX_DATA_LEN</span></span></span><a class="headerlink" href="#c.HUBBLE_BLE_MAX_DATA_LEN" title="Link to this definition"></a><br /></dt>
+<dd><p>Maximum amount of data sendable in bytes. </p>
+<p>This is the maximum length of data that can be sent with Hubble. If other services or service data are advertised then this number will be smaller for your application given the finite length of advertisements. </p>
+</dd></dl>
+
+<dl class="cpp macro">
+<dt class="sig sig-object cpp" id="c.HUBBLE_BLE_ADV_HEADER_SIZE">
+<span class="target" id="group__hubble__ble__api_1ga1f0a64639c5aa897e03f895c01d97a3e"></span><span class="sig-name descname"><span class="n"><span class="pre">HUBBLE_BLE_ADV_HEADER_SIZE</span></span></span><a class="headerlink" href="#c.HUBBLE_BLE_ADV_HEADER_SIZE" title="Link to this definition"></a><br /></dt>
+<dd><p>Fixed header size of a Hubble BLE advertisement in bytes. </p>
+<p>Every advertisement produced by <a class="reference internal" href="#group__hubble__ble__api_1gaaf81e6fb42b8a80311a1f085c2ebcc7a"><span class="std std-ref">hubble_ble_advertise_get</span></a> contains this many fixed-overhead bytes (UUID prefix, device address, and authentication tag) before any caller-supplied data.</p>
+<p>Use this to size the output buffer: <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>uint8_t buf[HUBBLE_BLE_ADV_HEADER_SIZE + my_data_len];
+size_t buf_len = sizeof(buf);
+hubble_ble_advertise_get(data, my_data_len, buf, &amp;buf_len);
+</pre></div>
+</div>
+</p>
+<p>The maximum possible output length is: <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>HUBBLE_BLE_ADV_HEADER_SIZE + HUBBLE_BLE_MAX_DATA_LEN   // = 25 bytes
+</pre></div>
+</div>
+</p>
+</dd></dl>
+
+</div>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-functions">Functions</p>
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv424hubble_ble_advertise_getPK7uint8_t6size_tP7uint8_tP6size_t">
+<span id="_CPPv324hubble_ble_advertise_getPK7uint8_t6size_tP7uint8_tP6size_t"></span><span id="_CPPv224hubble_ble_advertise_getPK7uint8_t6size_tP7uint8_tP6size_t"></span><span id="hubble_ble_advertise_get__uint8_tCP.s.uint8_tP.sP"></span><span class="target" id="group__hubble__ble__api_1gaaf81e6fb42b8a80311a1f085c2ebcc7a"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">hubble_ble_advertise_get</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">uint8_t</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">input</span></span>, <span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">input_len</span></span>, <span class="n"><span class="pre">uint8_t</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">out</span></span>, <span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">out_len</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv424hubble_ble_advertise_getPK7uint8_t6size_tP7uint8_tP6size_t" title="Link to this definition"></a><br /></dt>
+<dd><p>Retrieves advertisements from the provided data. </p>
+<p>This function processes the input data and creates the advertisement payload. The returned data should be used with Service Data - 16 bit UUID advertisement type (0x16).</p>
+<p>It is also required to add Hubble 16-bit service UUID in the complete list of 16-bit service class UUID (0x03).</p>
+<p>Example:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>int status = hubble_ble_advertise_get(data, data_len, out, &amp;out_len);
+</pre></div>
+</div>
+<p>The following advertisement packet shows a valid example and where the returned data fits in.</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>| len   | ad type | data   | len                  | ad type | data       |
+|-------+---------+--------+----------------------+---------+------------|
+| 0x03  | 0x03    | 0xFCA6 | out_len + 0x01       | 0x16    | ad_data    |
+|       |         |        | (ad type len)        |         |            |
+|       |         |        | (out_len is adv_data |         |            |
+|       |         |        |  len - returned by   |         |            |
+|       |         |        |  this API)           |         |            |
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>- This function is neither thread-safe nor reentrant. The caller must ensure proper synchronization.<ul class="simple">
+<li><p>The payload is encrypted using the key set by <a class="reference internal" href="core.html#group__hubble__api_1ga888299129a16a442594958fb5d1585c9"><span class="std std-ref">hubble_key_set</span></a></p></li>
+<li><p>Legacy packet type (Extended Advertisements not supported)</p></li>
+</ul>
+</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>input</strong> – Pointer to the input data. </p></li>
+<li><p><strong>input_len</strong> – Length of the input data. </p></li>
+<li><p><strong>out</strong> – Output buffer to place data into </p></li>
+<li><p><strong>out_len</strong> – in: Size of the <code class="docutils literal notranslate"><span class="pre">out</span></code> buffer in bytes. Must be at least <a class="reference internal" href="#group__hubble__ble__api_1ga1f0a64639c5aa897e03f895c01d97a3e"><span class="std std-ref">HUBBLE_BLE_ADV_HEADER_SIZE</span></a> + <code class="docutils literal notranslate"><span class="pre">input_len</span></code>. out: Actual advertisement length written.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p>0 on success</p></li>
+<li><p>Non-zero on failure </p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv435hubble_ble_advertise_expiration_getv">
+<span id="_CPPv335hubble_ble_advertise_expiration_getv"></span><span id="_CPPv235hubble_ble_advertise_expiration_getv"></span><span id="hubble_ble_advertise_expiration_get__void"></span><span class="target" id="group__hubble__ble__api_1gabdcc6e98b1abc90916a123b0d9fc4c02"></span><span class="n"><span class="pre">uint32_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">hubble_ble_advertise_expiration_get</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">void</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv435hubble_ble_advertise_expiration_getv" title="Link to this definition"></a><br /></dt>
+<dd><p>Gets the time remaining until the BLE advertisement expires. </p>
+<p>Returns the number of milliseconds until the current BLE advertisement expires and a new one should be generated. This helps applications refresh their advertisements in synchronization with the EID rotation period.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Milliseconds until the current advertisement expires. </p>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+</dd></dl>
+
 </section>
 
 
@@ -315,8 +413,8 @@ notes.</p>
           </div>
 
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="vulnerability-process.html" class="btn btn-neutral float-left" title="Hubble Network Security Vulnerability Handling" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="../releases/index.html" class="btn btn-neutral float-right" title="Release Notes and Lifecycle" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="core.html" class="btn btn-neutral float-left" title="Core API" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="satellite.html" class="btn btn-neutral float-right" title="Satellite Network API" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>
