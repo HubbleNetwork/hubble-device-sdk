@@ -12,5 +12,6 @@ Quick Start
    freertos/index
    ti/index
    esp-idf/index
+   bare-metal/index
 
 
