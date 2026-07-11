@@ -152,9 +152,12 @@ and the ``-DUSE_DMM*`` flags.
 
 .. important::
 
-   In a dual-stack application, :c:func:`hubble_init` must be called **before**
-   the BLE stack is started. ``hubble_init`` sets up both the BLE (BT) and the
-   custom RF stacks for satellite use.
+   In a dual-stack application, ``hubble_init`` sets up both the BLE (BT) and
+   the custom RF stacks for satellite use. It must be called **before** the BLE
+   stack is started **only when** ``CONFIG_HUBBLE_FREERTOS_DAEMON_HOOK``
+   (``configUSE_DAEMON_TASK_STARTUP_HOOK`` when using SysConfig) is disabled.
+   When the daemon task startup hook is enabled, :c:func:`hubble_init` has to
+   be invoked only before using Hubble SDK APIs.
 
 .. note::
 

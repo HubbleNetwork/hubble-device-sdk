@@ -418,9 +418,12 @@ sources and include paths and defines <code class="docutils literal notranslate"
 and the <code class="docutils literal notranslate"><span class="pre">-DUSE_DMM*</span></code> flags.</p>
 <div class="admonition important">
 <p class="admonition-title">Important</p>
-<p>In a dual-stack application, <code class="xref c c-func docutils literal notranslate"><span class="pre">hubble_init()</span></code> must be called <strong>before</strong>
-the BLE stack is started. <code class="docutils literal notranslate"><span class="pre">hubble_init</span></code> sets up both the BLE (BT) and the
-custom RF stacks for satellite use.</p>
+<p>In a dual-stack application, <code class="docutils literal notranslate"><span class="pre">hubble_init</span></code> sets up both the BLE (BT) and
+the custom RF stacks for satellite use. It must be called <strong>before</strong> the BLE
+stack is started <strong>only when</strong> <code class="docutils literal notranslate"><span class="pre">CONFIG_HUBBLE_FREERTOS_DAEMON_HOOK</span></code>
+(<code class="docutils literal notranslate"><span class="pre">configUSE_DAEMON_TASK_STARTUP_HOOK</span></code> when using SysConfig) is disabled.
+When the daemon task startup hook is enabled, <code class="xref c c-func docutils literal notranslate"><span class="pre">hubble_init()</span></code> has to
+be invoked only before using Hubble SDK APIs.</p>
 </div>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
