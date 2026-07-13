@@ -1,7 +1,7 @@
 .. _ti_quick_start:
 
-TI SDK Quick Start (SysConfig)
-==============================
+TI SDK (SysConfig)
+==================
 
 This guide explains how to integrate the Hubble Device SDK into a
 `SimpleLink Low Power F3 SDK <https://www.ti.com/tool/SIMPLELINK-LOWPOWER-F3-SDK>`_

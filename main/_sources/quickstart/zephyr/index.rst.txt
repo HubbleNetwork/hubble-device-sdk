@@ -1,7 +1,7 @@
 .. _zephyr_quick_start:
 
-Zephyr Quick Start
-==================
+Zephyr
+======
 
 Hubble Network can be added to the manifest of an existing Zephyr project or
 function as the manifest repository. The following sections describe each

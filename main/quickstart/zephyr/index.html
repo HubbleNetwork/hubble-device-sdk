@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Zephyr Quick Start &mdash; Hubble Device SDK Documentation</title>
+  <title>Zephyr &mdash; Hubble Device SDK Documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
@@ -32,7 +32,7 @@
     <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="FreeRTOS Quick Start" href="../freertos/index.html" />
+    <link rel="next" title="FreeRTOS" href="../freertos/index.html" />
     <link rel="prev" title="Quick Start" href="../index.html" />
   <meta name="color-scheme" content="dark light">
   
@@ -89,17 +89,17 @@
 </ul>
 </li>
 <li class="toctree-l1 current"><a class="reference internal" href="../index.html">Quick Start</a><ul class="current">
-<li class="toctree-l2 current"><a class="current reference internal" href="#">Zephyr Quick Start</a><ul>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Zephyr</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#adding-hubble-network-to-zephyr">Adding Hubble Network to Zephyr</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#using-hubble-network-as-the-manifest-repository">Using Hubble Network as the manifest repository</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="../freertos/index.html">FreeRTOS Quick Start</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../freertos/index.html">FreeRTOS</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../freertos/index.html#prerequisites">Prerequisites</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../freertos/index.html#adding-hubble-network-to-freertos">Adding Hubble Network to FreeRTOS</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="../ti/index.html">TI SDK Quick Start (SysConfig)</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../ti/index.html">TI SDK (SysConfig)</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../ti/index.html#prerequisites">Prerequisites</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../ti/index.html#adding-the-hubble-device-sdk-sysconfig-product">Adding the Hubble Device SDK SysConfig Product</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../ti/index.html#configuring-the-hubble-module-in-a-syscfg-script">Configuring the Hubble Module in a <code class="docutils literal notranslate"><span class="pre">.syscfg</span></code> Script</a></li>
@@ -108,10 +108,22 @@
 <li class="toctree-l3"><a class="reference internal" href="../ti/index.html#building-the-application">Building the Application</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="../esp-idf/index.html">ESP-IDF Quick Start</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../esp-idf/index.html">ESP-IDF</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../esp-idf/index.html#prerequisites">Prerequisites</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../esp-idf/index.html#adding-hubble-network-to-an-esp-idf-project">Adding Hubble Network to an ESP-IDF Project</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../esp-idf/index.html#satellite-network-on-esp32-c6-required-phy-blob">Satellite Network on ESP32-C6: Required PHY Blob</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../bare-metal/index.html">Bare Metal</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../bare-metal/index.html#requirements">Requirements</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../bare-metal/index.html#overview">Overview</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../bare-metal/index.html#counter-source">Counter Source</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../bare-metal/index.html#source-files">Source Files</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../bare-metal/index.html#configuration-defines">Configuration Defines</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../bare-metal/index.html#abstraction-layers">Abstraction Layers</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../bare-metal/index.html#complete-example">Complete Example</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../bare-metal/index.html#validation">Validation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../bare-metal/index.html#troubleshooting">Troubleshooting</a></li>
 </ul>
 </li>
 </ul>
@@ -286,7 +298,7 @@
   
      <li><a href="../index.html">Quick Start</a> &raquo;</li>
   
-  <li>Zephyr Quick Start</li>
+  <li>Zephyr</li>
 
 
   <li class="wy-breadcrumbs-aside">
@@ -302,8 +314,8 @@
   
            <div itemprop="articleBody">
              
-  <section id="zephyr-quick-start">
-<span id="id1"></span><h1>Zephyr Quick Start<a class="headerlink" href="#zephyr-quick-start" title="Link to this heading"></a></h1>
+  <section id="zephyr">
+<span id="zephyr-quick-start"></span><h1>Zephyr<a class="headerlink" href="#zephyr" title="Link to this heading"></a></h1>
 <p>Hubble Network can be added to the manifest of an existing Zephyr project or
 function as the manifest repository. The following sections describe each
 approach.</p>
@@ -457,7 +469,7 @@ west<span class="w"> </span>build<span class="w"> </span>-p<span class="w"> </sp
 
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="../index.html" class="btn btn-neutral float-left" title="Quick Start" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="../freertos/index.html" class="btn btn-neutral float-right" title="FreeRTOS Quick Start" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="../freertos/index.html" class="btn btn-neutral float-right" title="FreeRTOS" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

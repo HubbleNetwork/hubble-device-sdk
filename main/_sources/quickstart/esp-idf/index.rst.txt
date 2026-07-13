@@ -1,7 +1,7 @@
 .. _esp_idf_quick_start:
 
-ESP-IDF Quick Start
-===================
+ESP-IDF
+=======
 
 This guide explains how to integrate the Hubble Device SDK into an
 `ESP-IDF <https://docs.espressif.com/projects/esp-idf/en/latest/esp32/get-started/index.html>`_

@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>ESP-IDF Quick Start &mdash; Hubble Device SDK Documentation</title>
+  <title>ESP-IDF &mdash; Hubble Device SDK Documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
@@ -32,8 +32,8 @@
     <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="Integration Guides" href="../../integration_guides/index.html" />
-    <link rel="prev" title="TI SDK Quick Start (SysConfig)" href="../ti/index.html" />
+    <link rel="next" title="Bare Metal" href="../bare-metal/index.html" />
+    <link rel="prev" title="TI SDK (SysConfig)" href="../ti/index.html" />
   <meta name="color-scheme" content="dark light">
   
   <noscript id="dark-mode-toggle-stylesheets">
@@ -89,17 +89,17 @@
 </ul>
 </li>
 <li class="toctree-l1 current"><a class="reference internal" href="../index.html">Quick Start</a><ul class="current">
-<li class="toctree-l2"><a class="reference internal" href="../zephyr/index.html">Zephyr Quick Start</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../zephyr/index.html">Zephyr</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../zephyr/index.html#adding-hubble-network-to-zephyr">Adding Hubble Network to Zephyr</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../zephyr/index.html#using-hubble-network-as-the-manifest-repository">Using Hubble Network as the manifest repository</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="../freertos/index.html">FreeRTOS Quick Start</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../freertos/index.html">FreeRTOS</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../freertos/index.html#prerequisites">Prerequisites</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../freertos/index.html#adding-hubble-network-to-freertos">Adding Hubble Network to FreeRTOS</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="../ti/index.html">TI SDK Quick Start (SysConfig)</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../ti/index.html">TI SDK (SysConfig)</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../ti/index.html#prerequisites">Prerequisites</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../ti/index.html#adding-the-hubble-device-sdk-sysconfig-product">Adding the Hubble Device SDK SysConfig Product</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../ti/index.html#configuring-the-hubble-module-in-a-syscfg-script">Configuring the Hubble Module in a <code class="docutils literal notranslate"><span class="pre">.syscfg</span></code> Script</a></li>
@@ -108,10 +108,22 @@
 <li class="toctree-l3"><a class="reference internal" href="../ti/index.html#building-the-application">Building the Application</a></li>
 </ul>
 </li>
-<li class="toctree-l2 current"><a class="current reference internal" href="#">ESP-IDF Quick Start</a><ul>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">ESP-IDF</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#prerequisites">Prerequisites</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#adding-hubble-network-to-an-esp-idf-project">Adding Hubble Network to an ESP-IDF Project</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#satellite-network-on-esp32-c6-required-phy-blob">Satellite Network on ESP32-C6: Required PHY Blob</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../bare-metal/index.html">Bare Metal</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../bare-metal/index.html#requirements">Requirements</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../bare-metal/index.html#overview">Overview</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../bare-metal/index.html#counter-source">Counter Source</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../bare-metal/index.html#source-files">Source Files</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../bare-metal/index.html#configuration-defines">Configuration Defines</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../bare-metal/index.html#abstraction-layers">Abstraction Layers</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../bare-metal/index.html#complete-example">Complete Example</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../bare-metal/index.html#validation">Validation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../bare-metal/index.html#troubleshooting">Troubleshooting</a></li>
 </ul>
 </li>
 </ul>
@@ -286,7 +298,7 @@
   
      <li><a href="../index.html">Quick Start</a> &raquo;</li>
   
-  <li>ESP-IDF Quick Start</li>
+  <li>ESP-IDF</li>
 
 
   <li class="wy-breadcrumbs-aside">
@@ -302,8 +314,8 @@
   
            <div itemprop="articleBody">
              
-  <section id="esp-idf-quick-start">
-<span id="id1"></span><h1>ESP-IDF Quick Start<a class="headerlink" href="#esp-idf-quick-start" title="Link to this heading"></a></h1>
+  <section id="esp-idf">
+<span id="esp-idf-quick-start"></span><h1>ESP-IDF<a class="headerlink" href="#esp-idf" title="Link to this heading"></a></h1>
 <p>This guide explains how to integrate the Hubble Device SDK into an
 <a class="reference external" href="https://docs.espressif.com/projects/esp-idf/en/latest/esp32/get-started/index.html">ESP-IDF</a>
 project. The SDK ships as an ESP-IDF component that can be pulled into any
@@ -397,8 +409,8 @@ will consume it directly and the blob swap will no longer be needed.</p>
           </div>
 
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="../ti/index.html" class="btn btn-neutral float-left" title="TI SDK Quick Start (SysConfig)" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="../../integration_guides/index.html" class="btn btn-neutral float-right" title="Integration Guides" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="../ti/index.html" class="btn btn-neutral float-left" title="TI SDK (SysConfig)" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../bare-metal/index.html" class="btn btn-neutral float-right" title="Bare Metal" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>
