@@ -405,10 +405,14 @@ to be visible from the device location. This reduces radio-on time and is the
 recommended workflow for battery-powered devices.</p>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
-<p>Pass prediction requires <code class="docutils literal notranslate"><span class="pre">CONFIG_HUBBLE_COUNTER_SOURCE_UNIX_TIME</span></code>. Never use
-pass prediction with <code class="docutils literal notranslate"><span class="pre">CONFIG_HUBBLE_COUNTER_SOURCE_DEVICE_UPTIME</span></code>. Both pass
-prediction and the drift-based retry compensation rely on synchronized Unix
-time, which the device-uptime counter source does not provide.</p>
+<p>Pass prediction relies on synchronized Unix time. When the device uses
+<code class="docutils literal notranslate"><span class="pre">CONFIG_HUBBLE_COUNTER_SOURCE_UNIX_TIME</span></code>, this time is provisioned as part of
+normal initialization. When the device uses
+<code class="docutils literal notranslate"><span class="pre">CONFIG_HUBBLE_COUNTER_SOURCE_DEVICE_UPTIME</span></code>, the SDK counter is derived from
+device uptime rather than wall-clock time, so the application must provision
+Unix time with <code class="xref c c-func docutils literal notranslate"><span class="pre">hubble_time_set()</span></code> before calling any pass prediction
+API. Both pass prediction and the drift-based retry compensation depend on this
+synchronized time.</p>
 </div>
 <p>The pass prediction API needs three inputs:</p>
 <ul class="simple">

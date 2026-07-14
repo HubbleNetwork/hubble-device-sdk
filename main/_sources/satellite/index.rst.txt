@@ -100,10 +100,14 @@ recommended workflow for battery-powered devices.
 
 .. warning::
 
-   Pass prediction requires ``CONFIG_HUBBLE_COUNTER_SOURCE_UNIX_TIME``. Never use
-   pass prediction with ``CONFIG_HUBBLE_COUNTER_SOURCE_DEVICE_UPTIME``. Both pass
-   prediction and the drift-based retry compensation rely on synchronized Unix
-   time, which the device-uptime counter source does not provide.
+   Pass prediction relies on synchronized Unix time. When the device uses
+   ``CONFIG_HUBBLE_COUNTER_SOURCE_UNIX_TIME``, this time is provisioned as part of
+   normal initialization. When the device uses
+   ``CONFIG_HUBBLE_COUNTER_SOURCE_DEVICE_UPTIME``, the SDK counter is derived from
+   device uptime rather than wall-clock time, so the application must provision
+   Unix time with :c:func:`hubble_time_set` before calling any pass prediction
+   API. Both pass prediction and the drift-based retry compensation depend on this
+   synchronized time.
 
 The pass prediction API needs three inputs:
 
