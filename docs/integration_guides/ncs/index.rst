@@ -764,6 +764,8 @@ Further Reading
 
 * :ref:`hubble_satellite_introduction`: satellite protocol details,
   reliability modes, and power trade-offs.
+* :ref:`hubble_pass_prediction_best_practices`: choosing pass options,
+  interpreting pass results, and computing multiple upcoming passes.
 * :ref:`hubble_configuration`: full Kconfig reference for all
   ``CONFIG_HUBBLE_*`` options.
 * :ref:`hubble_timing`: time management best practices for devices
