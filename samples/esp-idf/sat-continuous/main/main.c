@@ -70,7 +70,7 @@ void app_main(void)
 	}
 #endif
 
-	err = hubble_init(_unix_time_ms, _hubble_key);
+	err = hubble_init(_unix_time_ms, 0, _hubble_key);
 	if (err != 0) {
 		ESP_LOGE(APP_TAG,
 			 "Failed to initialize Hubble Sat Network, error: %d",

@@ -63,7 +63,7 @@ configurations and prepares the network for operation:
 
 .. code-block:: c
 
-    int hubble_init(uint64_t initial_time, const void *key);
+    int hubble_init(uint64_t unix_time, uint32_t initial_counter, const void *key);
 
 Time Management
 ===============

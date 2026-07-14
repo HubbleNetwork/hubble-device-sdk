@@ -469,7 +469,7 @@ void app_main(void)
 	 * We don't need real key and time since we don't have any
 	 * requirement for the payload content.
 	 */
-	if (hubble_init(0U, _dummy_key) != 0) {
+	if (hubble_init(0U, 0U, _dummy_key) != 0) {
 		ESP_LOGE(APP_TAG, "Failed to initialize Hubble Network");
 		return;
 	}

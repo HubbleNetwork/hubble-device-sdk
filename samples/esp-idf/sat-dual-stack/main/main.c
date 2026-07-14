@@ -126,7 +126,7 @@ void app_main(void)
 	xSemaphoreTake(sync_sem, portMAX_DELAY);
 
 	/* Init Hubble */
-	ret = hubble_init(unix_time_ms, _hubble_key);
+	ret = hubble_init(unix_time_ms, 0, _hubble_key);
 	if (ret != 0) {
 		ESP_LOGE(APP_TAG,
 			 "Failed to initialize Hubble Network, ret: %d", ret);

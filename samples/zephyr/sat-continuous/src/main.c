@@ -97,7 +97,7 @@ int main(void)
 	 * (CONFIG_HUBBLE_COUNTER_SOURCE_DEVICE_UPTIME), so no UTC time is needed:
 	 * we pass 0 as the initial EID counter value and it advances with uptime.
 	 */
-	err = hubble_init(0, master_key);
+	err = hubble_init(0, 0, master_key);
 	if (err != 0) {
 		LOG_ERR("Failed to initialize Hubble Sat Network");
 		goto end;

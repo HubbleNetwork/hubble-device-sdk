@@ -69,7 +69,7 @@ ZTEST(ble_nonce_test, test_ble_nonce_invalid)
 
 static void *ble_nonce_test_setup(void)
 {
-	(void)hubble_init(ble_nonce_unix_time, ble_nonce_key);
+	(void)hubble_init(ble_nonce_unix_time, 0, ble_nonce_key);
 
 	testing_adv = false;
 	nonce_idx = 0U;
@@ -140,7 +140,7 @@ ZTEST(ble_adv_test, test_adv_get_overflow)
 
 static void *ble_adv_test_setup(void)
 {
-	(void)hubble_init(ble_adv_unix_time, ble_adv_key);
+	(void)hubble_init(ble_adv_unix_time, 0, ble_adv_key);
 
 	testing_adv = true;
 	nonce_idx = 0U;
@@ -162,7 +162,7 @@ static uint8_t counter_test_key[CONFIG_HUBBLE_KEY_SIZE] = {
 ZTEST(ble_counter_test, test_counter_init_zero)
 {
 	/* In counter mode, 0 is a valid initial counter value */
-	int ret = hubble_init(0, counter_test_key);
+	int ret = hubble_init(0, 0, counter_test_key);
 
 	zassert_ok(ret, "hubble_init with counter=0 should succeed");
 }
@@ -170,7 +170,7 @@ ZTEST(ble_counter_test, test_counter_init_zero)
 ZTEST(ble_counter_test, test_counter_init_nonzero)
 {
 	/* In counter mode, non-zero initial counter should work */
-	int ret = hubble_init(100, counter_test_key);
+	int ret = hubble_init(0, 100, counter_test_key);
 
 	zassert_ok(ret, "hubble_init with counter=100 should succeed");
 }
@@ -178,7 +178,7 @@ ZTEST(ble_counter_test, test_counter_init_nonzero)
 ZTEST(ble_counter_test, test_eid_counter_get)
 {
 	/* Initialize with counter=0 */
-	int ret = hubble_init(0, counter_test_key);
+	int ret = hubble_init(0, 0, counter_test_key);
 
 	zassert_ok(ret, "hubble_init should succeed");
 
@@ -194,8 +194,8 @@ ZTEST(ble_counter_test, test_eid_counter_get)
 ZTEST(ble_counter_test, test_eid_counter_get_with_initial)
 {
 	/* Initialize with counter=50 */
-	const uint64_t initial_counter = 50;
-	int ret = hubble_init(initial_counter, counter_test_key);
+	const uint32_t initial_counter = 50;
+	int ret = hubble_init(0, initial_counter, counter_test_key);
 
 	zassert_ok(ret, "hubble_init should succeed");
 
@@ -210,7 +210,7 @@ ZTEST(ble_counter_test, test_eid_counter_get_with_initial)
 
 ZTEST(ble_counter_test, test_time_to_next_rotation)
 {
-	int ret = hubble_init(0, counter_test_key);
+	int ret = hubble_init(0, 0, counter_test_key);
 
 	zassert_ok(ret, "hubble_init should succeed");
 
@@ -231,7 +231,7 @@ ZTEST(ble_counter_test, test_time_to_next_rotation)
 
 ZTEST(ble_counter_test, test_counter_adv_generation)
 {
-	int ret = hubble_init(0, counter_test_key);
+	int ret = hubble_init(0, 0, counter_test_key);
 
 	zassert_ok(ret, "hubble_init should succeed");
 

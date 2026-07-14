@@ -76,12 +76,16 @@ The counter advances once per :ref:`EID rotation period
 <bare_metal_eid_rotation_period>` (daily by default) and wraps at the EID pool
 size of ``128``.
 
-:c:func:`hubble_init` takes the **initial counter value** rather than a
-timestamp:
+:c:func:`hubble_init` takes the counter as its **second** argument,
+``initial_counter``, and the Unix time as its **first** argument,
+``unix_time``:
 
-- Pass ``0`` to start at counter epoch 0 (valid).
-- Pass a previously saved counter to resume from a known state after a reboot,
-  preserving continuity across power cycles.
+- Pass ``0`` as ``initial_counter`` to start at counter epoch 0 (valid).
+- Pass a previously saved counter as ``initial_counter`` to resume from a
+  known state after a reboot, preserving continuity across power cycles.
+- ``unix_time`` is optional in this mode: pass ``0`` if no clock is
+  available, or a non-zero Unix time to also seed :c:func:`hubble_time_get`
+  (useful for timestamps even without driving the EID counter).
 
 Use :c:func:`hubble_counter_get` to read the current counter value so your
 application can persist it to non-volatile storage and reload it on the next
@@ -89,20 +93,20 @@ boot. Its signature is ``int hubble_counter_get(uint32_t *counter)``: it returns
 a status code (``0`` on success) and writes the counter value through the
 pointer. In device uptime mode the value it returns is the wrapped pool counter
 in the range ``0`` to ``127``. That is exactly the form :c:func:`hubble_init`
-expects as its initial counter, so saving it and passing it back on the next
-boot restores counter continuity across the reboot.
+expects as its ``initial_counter``, so saving it and passing it back on the
+next boot restores counter continuity across the reboot.
 
 .. code-block:: c
 
-   /* Device uptime mode — start at counter epoch 0 */
-   int ret = hubble_init(0, master_key);
+   /* Device uptime mode — start at counter epoch 0, no time available */
+   int ret = hubble_init(0, 0, master_key);
 
    /* Device uptime mode — resume from a saved counter after reboot.
     * hubble_counter_get() writes a uint32_t (the wrapped 0..127 pool
     * value), so store and reload the counter as uint32_t. hubble_init()
-    * accepts it as the uint64_t initial counter. */
+    * accepts it directly as the uint32_t initial_counter. */
    uint32_t saved_counter = your_nvs_read_u32("hubble_counter");
-   int ret = hubble_init(saved_counter, master_key);
+   int ret = hubble_init(0, saved_counter, master_key);
 
 .. tip::
 
@@ -126,7 +130,7 @@ milliseconds since the Unix epoch**:
 
    /* Unix time mode — provide current Unix time in milliseconds */
    uint64_t unix_time_ms = 1705881600000;
-   int ret = hubble_init(unix_time_ms, master_key);
+   int ret = hubble_init(unix_time_ms, 0, master_key);
 
 
 Source Files
@@ -587,12 +591,14 @@ Validation
 Test your port by:
 
 #. Verifying ``hubble_uptime_get()`` returns monotonically increasing values.
-#. Calling :c:func:`hubble_init` with your key and the appropriate initial value
-   for your counter source:
+#. Calling :c:func:`hubble_init` with your key, a Unix time, and an initial
+   counter value appropriate for your counter source:
 
-   - **Device uptime mode:** an initial counter value (``0`` to start at epoch
-     0, or a saved counter to resume).
-   - **Unix time mode:** a known, non-zero Unix timestamp in milliseconds.
+   - **Device uptime mode:** pass the initial counter (``0`` to start at epoch
+     0, or a saved counter to resume); ``unix_time`` may be ``0`` when no clock
+     is available.
+   - **Unix time mode:** pass a known, non-zero Unix timestamp in milliseconds;
+     ``initial_counter`` is ignored.
 
 #. Generating advertisements with :c:func:`hubble_ble_advertise_get` and
    verifying output length.

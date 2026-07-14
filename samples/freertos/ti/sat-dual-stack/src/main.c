@@ -112,7 +112,7 @@ void *main_thread_entry(void *arg0)
 		return NULL;
 	}
 
-	ret = hubble_init(unix_time_ms, master_key);
+	ret = hubble_init(unix_time_ms, 0, master_key);
 	if (ret != 0) {
 		Log_printf(Log_Dual_Stack, Log_ERROR,
 			   "Failed to init Hubble SDK");

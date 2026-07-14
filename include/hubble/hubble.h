@@ -32,36 +32,42 @@ extern "C" {
  *
  * Calling this function is essential before using any other SDK APIs.
  *
- * The interpretation of the `initial_time` parameter depends on the configured
- * counter source:
+ * `unix_time` and `initial_counter` are independent parameters; how each is
+ * used depends on the configured counter source:
  *
  * **Unix time mode (CONFIG_HUBBLE_COUNTER_SOURCE_UNIX_TIME):**
- *   - `initial_time` is the time in milliseconds since Unix epoch
- *   - Value of 0 is invalid and will return an error
- *   - Time can be updated later via hubble_time_set()
+ *   - `unix_time` drives the EID counter and must be non-zero for
+ *     hubble_counter_get() to succeed.
+ *   - `initial_counter` is a no-op in this mode, reserved for future use /
+ *     device uptime mode only.
  *
  * **Device uptime mode (CONFIG_HUBBLE_COUNTER_SOURCE_DEVICE_UPTIME):**
- *   - `initial_time` is the initial counter value
- *   - Value of 0 starts the counter at epoch 0 (valid)
- *   - The counter increments based on uptime from this initial value
- *   - Useful for resuming from a known state after reboot
+ *   - `initial_counter` seeds the EID counter. A value of 0 starts the
+ *     counter at epoch 0 (valid); a saved counter resumes from a known state
+ *     after reboot.
+ *   - `unix_time` is optional here: when non-zero it seeds the SDK clock so
+ *     hubble_time_get(), satellite pass prediction, and BLE advertisement
+ *     timestamps work.
  *
  * @code
  * // Unix time mode example
  * uint64_t unix_time_ms = 1705881600000; // Current Unix Epoch time
- * int ret = hubble_init(unix_time_ms, master_key);
+ * int ret = hubble_init(unix_time_ms, 0, master_key);
  *
- * // Device uptime mode example (start at 0)
- * int ret = hubble_init(0, master_key);
+ * // Device uptime mode example (start at 0, no time available)
+ * int ret = hubble_init(0, 0, master_key);
  *
- * // Device uptime mode example (resume from saved counter)
- * uint64_t saved_counter = load_from_flash();
- * int ret = hubble_init(saved_counter, master_key);
+ * // Device uptime mode example (resume from saved counter, time known)
+ * uint32_t saved_counter = load_from_flash();
+ * int ret = hubble_init(unix_time_ms, saved_counter, master_key);
  * @endcode
  *
- * @param initial_time For Unix time mode: Unix time in milliseconds since
- *                     epoch. For device uptime mode: Initial counter value
- *                     (0 = start at 0).
+ * @param unix_time Unix time in milliseconds since epoch. Applied via
+ *                  hubble_time_set() whenever non-zero, in both counter-source
+ *                  modes. 0 means "time unknown" and is skipped without error.
+ * @param initial_counter Initial EID counter value (0 = start at epoch 0).
+ *                        Only meaningful in device uptime mode; ignored
+ *                        (reserved for future use) in Unix time mode.
  * @param key An opaque pointer to the master key buffer. The SDK
  *            stores this pointer directly and does not copy the key
  *            data. The caller must ensure the buffer remains valid
@@ -74,7 +80,7 @@ extern "C" {
  *          - 0 on success.
  *          - Non-zero on failure.
  */
-int hubble_init(uint64_t initial_time, const void *key);
+int hubble_init(uint64_t unix_time, uint32_t initial_counter, const void *key);
 
 /**
  * @brief Sets the current Unix time in the Hubble Device SDK.

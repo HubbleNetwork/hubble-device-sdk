@@ -240,9 +240,10 @@ Use continuous transmission when the device is constantly powered, when power is
 not the primary constraint, or when validating radio integration. The sample
 applications under ``samples/*/sat-continuous`` follow this pattern.
 
-The example below initializes the SDK with ``hubble_init(0, master_key)``. This
-requires ``CONFIG_HUBBLE_COUNTER_SOURCE_DEVICE_UPTIME`` so the time counter is
-derived from device uptime.
+The example below initializes the SDK with ``hubble_init(0, 0, master_key)``.
+This requires ``CONFIG_HUBBLE_COUNTER_SOURCE_DEVICE_UPTIME`` so the time counter
+is derived from device uptime; the first argument is the (here unknown) Unix
+time and the second is the initial counter value.
 
 Typical workflow:
 
@@ -255,7 +256,7 @@ Typical workflow:
 
 .. code-block:: c
 
-   err = hubble_init(0, master_key);
+   err = hubble_init(0, 0, master_key);
    if (err != 0) {
            return err;
    }
@@ -300,7 +301,7 @@ Typical workflow:
 
 .. code-block:: c
 
-   err = hubble_init(unix_time_ms, master_key);
+   err = hubble_init(unix_time_ms, 0, master_key);
    if (err != 0) {
            return err;
    }

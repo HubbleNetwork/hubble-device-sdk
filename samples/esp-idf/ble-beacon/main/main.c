@@ -100,7 +100,7 @@ void app_main(void)
 	esp_err_t ret;
 	esp_timer_handle_t adv_timer;
 
-	ret = hubble_init(unix_time, master_key);
+	ret = hubble_init(unix_time, 0, master_key);
 	if (ret != 0) {
 		ESP_LOGE(DEMO_TAG, "Failed to initialize Hubble BLE Network");
 		return;

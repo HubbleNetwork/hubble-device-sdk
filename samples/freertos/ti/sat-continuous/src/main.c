@@ -41,7 +41,7 @@ void *mainThread(void *arg0)
 	struct hubble_sat_packet packet;
 	int ret;
 
-	ret = hubble_init(unix_time, master_key);
+	ret = hubble_init(unix_time, 0, master_key);
 	if (ret != 0) {
 		/* TODO: Call Error Handler */
 		return NULL;

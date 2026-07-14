@@ -82,22 +82,22 @@ ZTEST(hubble_api_test, test_init)
 	int err;
 
 	/* Valid init */
-	err = hubble_init(_unix_time, _key);
+	err = hubble_init(_unix_time, 0, _key);
 	zassert_ok(err);
 
 	/* NULL key is accepted; key must be provisioned separately */
-	err = hubble_init(_unix_time, NULL);
+	err = hubble_init(_unix_time, 0, NULL);
 	zassert_ok(err);
 
 	/* It fails when board initialization fails */
 	_board_init_fail = true;
-	err = hubble_init(_unix_time, _key);
+	err = hubble_init(_unix_time, 0, _key);
 	zassert_not_ok(err);
 	_board_init_fail = false;
 
 	/* It fails when crypto initialization fails */
 	_crypto_init_fail = true;
-	err = hubble_init(_unix_time, _key);
+	err = hubble_init(_unix_time, 0, _key);
 	zassert_not_ok(err);
 	_crypto_init_fail = false;
 }
@@ -108,7 +108,7 @@ ZTEST(hubble_api_test, test_init_invalid_time)
 	int err;
 
 	/* Time smaller than current uptime must be rejected */
-	err = hubble_init(1U, _key);
+	err = hubble_init(1U, 0, _key);
 	zassert_not_ok(err);
 #else
 	ztest_test_skip();
@@ -119,7 +119,7 @@ ZTEST(hubble_api_test, test_time_set)
 {
 	int err;
 
-	err = hubble_init(_unix_time, _key);
+	err = hubble_init(_unix_time, 0, _key);
 	zassert_ok(err);
 
 #ifdef CONFIG_HUBBLE_COUNTER_SOURCE_UNIX_TIME
@@ -142,7 +142,7 @@ ZTEST(hubble_api_test, test_time_get)
 {
 	int err;
 
-	err = hubble_init(_unix_time, _key);
+	err = hubble_init(_unix_time, 0, _key);
 	zassert_ok(err);
 
 #ifdef CONFIG_HUBBLE_COUNTER_SOURCE_UNIX_TIME
@@ -184,7 +184,7 @@ ZTEST(hubble_api_test, test_counter_get)
 	zassert_not_ok(err);
 #endif
 
-	err = hubble_init(_unix_time, _key);
+	err = hubble_init(_unix_time, 0, _key);
 	zassert_ok(err);
 
 	/* NULL output pointer must be rejected */

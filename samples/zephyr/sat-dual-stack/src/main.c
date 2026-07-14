@@ -104,7 +104,7 @@ int main(void)
 	LOG_INF("Waiting for provisioning over BLE...");
 	k_sem_take(&sync_sem, K_FOREVER);
 
-	err = hubble_init(unix_time_ms, _hubble_key);
+	err = hubble_init(unix_time_ms, 0, _hubble_key);
 	if (err != 0) {
 		LOG_ERR("Failed to initialize Hubble Network (err %d)", err);
 		return err;

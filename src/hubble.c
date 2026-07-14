@@ -51,7 +51,7 @@ uint64_t hubble_time_get(void)
 	return (unix_time_synced == 0) ? 0 : unix_time_base + hubble_uptime_get();
 }
 
-int hubble_init(uint64_t initial_time, const void *key)
+int hubble_init(uint64_t unix_time, uint32_t initial_counter, const void *key)
 {
 	int ret = hubble_lock_init();
 
@@ -67,17 +67,28 @@ int hubble_init(uint64_t initial_time, const void *key)
 	}
 
 #ifdef CONFIG_HUBBLE_COUNTER_SOURCE_DEVICE_UPTIME
-	/* Counter-based mode: initial_time is the starting counter value */
 	/* 0 is a valid value meaning "start at epoch 0" */
-	eid_initial_counter = initial_time;
+	eid_initial_counter = initial_counter;
+	/* Unix time is optional in this mode; apply it only when provided so
+	 * that hubble_time_get(), satellite pass prediction, and timestamps
+	 * work.
+	 */
+	const bool apply_time = (unix_time != 0U);
 #else
-	/* Unix Epoch-based mode: initial_time is Unix Epoch timestamp in milliseconds */
-	ret = hubble_time_set(initial_time);
-	if (ret != 0) {
-		HUBBLE_LOG_WARNING("Failed to set Unix Epoch time");
-		return ret;
-	}
+	/* Unix-time mode drives the EID counter from unix_time.
+	 * initial_counter is reserved/ignored in this mode.
+	 */
+	(void)initial_counter;
+	const bool apply_time = true;
 #endif
+
+	if (apply_time) {
+		ret = hubble_time_set(unix_time);
+		if (ret != 0) {
+			HUBBLE_LOG_WARNING("Failed to set Unix Epoch time");
+			return ret;
+		}
+	}
 
 	if (key != NULL) {
 		ret = hubble_key_set(key);

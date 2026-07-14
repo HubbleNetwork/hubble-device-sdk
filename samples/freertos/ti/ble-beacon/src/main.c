@@ -62,7 +62,7 @@ void App_StackInitDoneHandler(gapDeviceInitDoneEvent_t *deviceInitDoneData)
 
 	(void)deviceInitDoneData;
 
-	err = hubble_init(unix_time, master_key);
+	err = hubble_init(unix_time, 0, master_key);
 	if (err != 0) {
 		Log_printf(LogModule_Beacon, Log_ERROR,
 			   "Failed to initialize Hubble, err: %d", err);

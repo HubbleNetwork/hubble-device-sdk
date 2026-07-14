@@ -228,7 +228,7 @@ static void *sat_test_setup(void)
 {
 	int err;
 
-	err = hubble_init(_unix_time, sat_key);
+	err = hubble_init(_unix_time, 0, sat_key);
 	zassert_ok(err);
 
 	return NULL;

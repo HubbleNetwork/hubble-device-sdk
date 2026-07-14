@@ -183,7 +183,7 @@ int main(void)
 
 	LOG_DBG("Key and Unix Epoch time set");
 
-	err = hubble_init(unix_time, NULL);
+	err = hubble_init(unix_time, 0, NULL);
 	if (err != 0) {
 		LOG_ERR("Failed to initialize Hubble BLE Network");
 		return err;

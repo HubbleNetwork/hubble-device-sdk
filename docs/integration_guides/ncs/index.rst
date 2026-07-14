@@ -421,7 +421,7 @@ before calling any other Hubble API:
     * At this point unix_time_ms, device_pos, and orb_params are assumed to be
     * valid. Either baked into firmware or received via BLE provisioning.
     */
-   err = hubble_init(unix_time_ms, master_key);
+   err = hubble_init(unix_time_ms, 0, master_key);
    if (err != 0) {
        LOG_ERR("Failed to initialize Hubble Device SDK (err %d)", err);
        return err;
