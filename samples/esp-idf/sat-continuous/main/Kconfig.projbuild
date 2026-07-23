@@ -11,10 +11,4 @@ menu "Sat Continuous Sample Configuration"
     help
         Hubble device's cryptographic key
 
-    config SAMPLE_SYNC_TIME
-    bool "Enable time sync with Hubble Connect App"
-    default y
-    help
-        Enable time sync with Hubble Connect App.
-
 endmenu

@@ -8,8 +8,6 @@ continuously transmit packets to satellite.
 - Cryptographic key provided by Hubble Network
 - [ESP-IDF](https://docs.espressif.com/projects/esp-idf/en/latest/esp32/get-started/index.html)
 - ESP32-C6 hardware
-- The [Hubble Connect app](https://hubble.com/docs/guides/hubble-connect) (only required when time
-  sync is enabled)
 
 ## Overview
 
@@ -32,7 +30,6 @@ The sample exposes the following options (via `idf.py menuconfig`, under
 | Option                     | Default | Description                                              |
 | -------------------------- | ------- | -------------------------------------------------------- |
 | `CONFIG_HUBBLE_DEVICE_KEY` | `""`    | Hubble device cryptographic key, base64-encoded.         |
-| `CONFIG_SAMPLE_SYNC_TIME`  | `y`     | Enable BLE time sync with the Hubble Connect app.        |
 
 ## Building and Running
 
@@ -65,7 +62,5 @@ Next, `cd` to the sat-continuous example where you can build/flash/monitor:
 idf.py build flash monitor
 ```
 
-After flashing, if time sync is enabled the device starts advertising over BLE
-and waits for time sync. Use the Hubble Connect app to provision unix epoch time.
-Once synced, the device continuously transmits a packet to satellite with
+After flashing, the device continuously transmits a packet to satellite with
 normal reliability.
