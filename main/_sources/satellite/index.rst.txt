@@ -98,6 +98,12 @@ Pass prediction lets the application transmit only when a satellite is expected
 to be visible from the device location. This reduces radio-on time and is the
 recommended workflow for battery-powered devices.
 
+.. seealso::
+
+   For guidance on selecting pass options — choosing the minimum elevation
+   angle, interpreting the pass result, and computing multiple upcoming passes —
+   see :ref:`hubble_pass_prediction_best_practices`.
+
 .. warning::
 
    Pass prediction relies on synchronized Unix time. When the device uses
