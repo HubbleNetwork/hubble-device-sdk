@@ -11,7 +11,6 @@
 #include "freertos/task.h"
 
 #include "esp_log.h"
-#include "nvs_flash.h"
 #include "esp_system.h"
 
 #include "mbedtls/base64.h"
@@ -19,30 +18,15 @@
 #include <hubble/hubble.h>
 #include <hubble/sat/packet.h>
 
-#ifdef CONFIG_SAMPLE_SYNC_TIME
-#include "time_sync.h"
-#endif
-
 #define SAT_TX_SLEEP_MS 2000
 
 static const char *APP_TAG = "sat_continuous";
-
-static uint64_t _unix_time_ms = 0xdeadbeef;
 static uint8_t _hubble_key[CONFIG_HUBBLE_KEY_SIZE];
 
 void app_main(void)
 {
 	esp_err_t err = 0;
 	struct hubble_sat_packet pkt;
-
-	/* NVS flash init, dependency of ble stack to store configs */
-	err = nvs_flash_init();
-	if (err == ESP_ERR_NVS_NO_FREE_PAGES ||
-	    err == ESP_ERR_NVS_NEW_VERSION_FOUND) {
-		ESP_ERROR_CHECK(nvs_flash_erase());
-		err = nvs_flash_init();
-	}
-	ESP_ERROR_CHECK(err);
 
 	/* Decode device key */
 	if (strlen(CONFIG_HUBBLE_DEVICE_KEY) != 0) {
@@ -62,15 +46,7 @@ void app_main(void)
 					 ESP_LOG_DEBUG);
 	}
 
-#ifdef CONFIG_SAMPLE_SYNC_TIME
-	err = ble_sync_time(&_unix_time_ms);
-	if (err != ESP_OK) {
-		ESP_LOGE(APP_TAG, "Failed to sync time, error: %d", err);
-		return;
-	}
-#endif
-
-	err = hubble_init(_unix_time_ms, _hubble_key);
+	err = hubble_init(0, _hubble_key);
 	if (err != 0) {
 		ESP_LOGE(APP_TAG,
 			 "Failed to initialize Hubble Sat Network, error: %d",
