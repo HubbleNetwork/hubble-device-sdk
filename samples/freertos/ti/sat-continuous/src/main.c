@@ -21,7 +21,8 @@
 /* Stack size in bytes */
 #define THREADSTACKSIZE 2048
 
-#define SLEEP_PERIOD_MS 1000
+/* Sleep interval between each sat packet */
+#define SLEEP_PERIOD_MS 10000
 
 #if defined(HUBBLE_KEY_TIME_SET)
 #include "key.c"
@@ -29,10 +30,9 @@
 #else
 
 #pragma message(                                                               \
-	"Dummy key, replace with actual key by running ./embed_key_time.py -b b64key to set key and time")
+	"Dummy key, replace with actual key by running ./embed_key_time.py -b <your-b64key> to set key")
 
 static uint8_t master_key[CONFIG_HUBBLE_KEY_SIZE];
-static uint64_t unix_time = 0xdeadbeef;
 
 #endif
 
@@ -41,7 +41,11 @@ void *mainThread(void *arg0)
 	struct hubble_sat_packet packet;
 	int ret;
 
-	ret = hubble_init(unix_time, master_key);
+	/*
+	 * This sample uses the device uptime counter source,
+	 * so it is acceptable to give the initial time as 0.
+	 */
+	ret = hubble_init(0, master_key);
 	if (ret != 0) {
 		/* TODO: Call Error Handler */
 		return NULL;
@@ -54,8 +58,13 @@ void *mainThread(void *arg0)
 			return NULL;
 		}
 
+		/*
+		 * Set reliability to NONE. This will trigger a single
+		 * transmission instead of a sequence. This is only for testing
+		 * purposes and not recommended for production.
+		 */
 		ret = hubble_sat_packet_send(&packet,
-					     HUBBLE_SAT_RELIABILITY_NORMAL);
+					     HUBBLE_SAT_RELIABILITY_NONE);
 		if (ret != 0) {
 			/* TODO: Call Error Handler */
 			return NULL;

@@ -19,6 +19,16 @@ as the operating system. It is originally based on the TI
 [`rfCarrierWave`](https://github.com/TexasInstruments/simplelink-prop_rf-examples/tree/main/examples/rtos/LP_EM_CC2340R5/prop_rf/rfCarrierWave)
 example and has been extended to support Hubble Satellite transmission.
 
+> [!NOTE]
+> The sample uses the **device uptime** counter source
+> (`CONFIG_HUBBLE_COUNTER_SOURCE_DEVICE_UPTIME`), so it does not need UTC time
+> provisioned: the EID counter used for encryption starts at 0 and advances with
+> device uptime. Only the master key has to be embedded before building.
+
+> [!WARNING]
+> Make sure that your generated secret key from [Hubble API](https://hubble.com/docs/api-specification/register-new-devices)
+> is using the same key size (AES-128) and counter source (DEVICE_UPTIME) as the sample.
+
 ## Features
 
 - Integration with the **Hubble Device SDK** for satellite-specific transmission.
