@@ -72,7 +72,7 @@ do
 			FILE="${i#*=}"
 			if [ ! -e "$FILE" ]; then
 				echo "unknown option: '${i#*=}'"
-	too			echo "$usage"
+				echo "$usage"
 				exit 2
 			fi
 			;;

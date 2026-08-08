@@ -1,0 +1,132 @@
+name: Static Analysis
+
+on:
+  pull_request:
+    paths:
+      - 'src/**'
+      - 'include/**'
+      - 'port/**'
+      - 'samples/**'
+      - 'tools/coccinelle/**'
+      - 'tools/coccicheck'
+      - 'tools/analyze'
+      - 'tools/cppcheck-suppressions.txt'
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  static-analysis:
+    runs-on: ubuntu-22.04
+    name: Differential static analysis (cppcheck + Coccinelle)
+
+    steps:
+    - name: Checkout PR code
+      uses: actions/checkout@v4
+      with:
+        ref: ${{ github.event.pull_request.head.sha }}
+        path: pr-code
+
+    - name: Checkout base branch code
+      uses: actions/checkout@v4
+      with:
+        ref: ${{ github.event.pull_request.base.sha }}
+        path: base-code
+
+    - name: Install tools
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y cppcheck coccinelle
+
+    - name: Analyze PR code
+      working-directory: pr-code
+      run: ./tools/analyze --ci --output-dir /tmp/results-pr
+
+    # If the base branch lacks tools/analyze (or an older version without
+    # --output-dir), copy the PR's tooling into the base checkout.  The
+    # analyze script only reads source files — it never modifies them.
+    - name: Prepare base analysis tools
+      id: base-tools
+      run: |
+        if [ -x base-code/tools/analyze ] && \
+           grep -q 'output-dir' base-code/tools/analyze; then
+          echo "source=base" >> "$GITHUB_OUTPUT"
+        else
+          echo "source=pr" >> "$GITHUB_OUTPUT"
+        fi
+
+    - name: Copy PR analysis tools to base (if needed)
+      if: steps.base-tools.outputs.source == 'pr'
+      run: |
+        mkdir -p base-code/tools/ci base-code/tools/coccinelle
+        cp pr-code/tools/analyze base-code/tools/analyze
+        cp pr-code/tools/coccicheck base-code/tools/coccicheck
+        cp -r pr-code/tools/coccinelle/ base-code/tools/coccinelle/
+        [ -f pr-code/tools/cppcheck-suppressions.txt ] && \
+          cp pr-code/tools/cppcheck-suppressions.txt base-code/tools/cppcheck-suppressions.txt
+        chmod +x base-code/tools/analyze base-code/tools/coccicheck
+
+    - name: Analyze base code
+      working-directory: base-code
+      run: ./tools/analyze --ci --output-dir /tmp/results-base
+
+    - name: Compare results
+      id: diff
+      continue-on-error: true
+      run: |
+        python3 pr-code/tools/ci/diff-static-analysis.py \
+          --base-dir /tmp/results-base \
+          --pr-dir   /tmp/results-pr   \
+          --output   /tmp/comment.md
+
+    - name: Post or update PR comment
+      if: always() && steps.diff.outcome != 'skipped'
+      uses: actions/github-script@v7
+      with:
+        script: |
+          const fs = require('fs');
+          const marker = '<!-- static-analysis-diff-comment -->';
+
+          let body;
+          try {
+            body = fs.readFileSync('/tmp/comment.md', 'utf8');
+          } catch {
+            body = marker + '\n## Static Analysis Results\n\n' +
+              'Analysis comparison failed. Check the workflow logs.';
+          }
+
+          const comments = await github.paginate(
+            github.rest.issues.listComments,
+            {
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.payload.pull_request.number,
+            }
+          );
+
+          const existing = comments.find(c => c.body.includes(marker));
+
+          if (existing) {
+            await github.rest.issues.updateComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              comment_id: existing.id,
+              body,
+            });
+            core.info(`Updated existing comment ${existing.id}`);
+          } else {
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.payload.pull_request.number,
+              body,
+            });
+            core.info('Created new comment');
+          }
+
+    - name: Fail if new findings
+      if: steps.diff.outcome == 'failure'
+      run: |
+        echo "New static analysis findings detected. See PR comment for details."
+        exit 1

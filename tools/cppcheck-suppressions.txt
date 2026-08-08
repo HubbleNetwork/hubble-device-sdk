@@ -1,0 +1,62 @@
+// Hubble Device SDK - cppcheck baseline suppressions
+//
+// These suppress existing findings so CI enforces zero NEW findings.
+// Remove entries as the underlying code is fixed.
+//
+// Format: errorId:fileName:lineNumber
+
+// --- src/ ---
+
+// Return value check after early exit - intentional error propagation pattern
+identicalConditionAfterEarlyExit:src/hubble_ble.c:105
+
+// Ephemeris math: condition is always true due to prior sort guarantees
+knownConditionTrueFalse:src/hubble_sat_ephemeris.c:541
+
+// Intentional self-division for normalization
+duplicateExpression:src/hubble_sat_ephemeris.c:199
+
+// Ephemeris orbital constants used for physical correctness, not all referenced yet
+unusedStructMember:src/hubble_sat_ephemeris.c:40
+unusedStructMember:src/hubble_sat_ephemeris.c:41
+
+// Pointer constness suggestions in satellite packet encoding
+constVariablePointer:src/hubble_sat_packet.c:238
+constVariablePointer:src/hubble_sat_packet.c:335
+
+// Reed-Solomon encoder: variable scope and const suggestions
+variableScope:src/reed_solomon_encoder.c:127
+variableScope:src/reed_solomon_encoder.c:128
+constParameter:src/reed_solomon_encoder.c:125
+
+// Bitarray: error variable always zero after successful prior check
+knownConditionTrueFalse:src/utils/bitarray.c:81
+
+// --- port/ ---
+
+// FreeRTOS port: variable scope suggestion
+variableScope:port/freertos/hubble_freertos.c:68
+
+// Satellite board offset tables could be const
+constVariable:port/freertos/hubble_sat_freertos.c:34
+constVariable:port/zephyr/hubble_sat_zephyr.c:26
+
+// --- samples/ ---
+
+// Callback parameter constness - cannot change without breaking callback signatures
+constParameterCallback:samples/esp-idf/ble-beacon/main/main.c:93
+constParameterCallback:samples/zephyr/ble-beacon/src/main.c:110
+constParameterCallback:samples/zephyr/ble-network/src/main.c:45
+
+// TI sample: pointer constness and uninitialized variable
+constVariablePointer:samples/freertos/ti/ble-beacon/src/hubble_ble_adv.c:139
+uninitvar:samples/freertos/ti/ble-beacon/src/hubble_ble_adv.c:151
+
+// TI sample: platform-specific ALIGNED macro not known to cppcheck
+unknownMacro:samples/freertos/ti/ble-beacon/src/hubble_ble_ti.c:37
+
+// TI sample: unused variable (platform-specific verification)
+unusedVariable:samples/freertos/ti/ble-beacon/src/hubble_ble_ti.c:36
+
+// Zephyr sample: variable scope suggestion
+variableScope:samples/zephyr/ble-network/src/main.c:49
