@@ -1,38 +1,64 @@
-# Hubble Network Satellite Direct Test Mode (DTM) Sample Application
+# Hubble Network Satellite Direct Test Mode (DTM) Sample on ESP-IDF
 
-## Overview
-
-This sample enables the Direct Test Mode (DTM) functions for the Hubble
-Satellite Network on ESP32-C6 hardware. It can be used for RF testing,
-certification (FCC/CE), and bring-up of new hardware.
-
-The sample initializes the Hubble Device SDK and starts an interactive shell over the
-serial console.
+This sample puts an esp32 in DTM for satellite RF testing.
 
 ## Requirements
 
 - A serial terminal program (e.g., `minicom`, `screen`, PuTTY) or `idf.py monitor`.
 - [ESP-IDF](https://docs.espressif.com/projects/esp-idf/en/latest/esp32/get-started/index.html)
 - ESP32-C6 hardware
+- [ESP32-C6 Satellite PHY Blob](https://github.com/HubbleNetwork/hubble-device-sdk/blob/main/docs/integration_guides/esp-idf/index.rst#fetch-the-satellite-phy-blob-esp32-c6)
+  <!-- TODO: Remove this requirement once Espressif ships the API upstream. -->
 - A spectrum analyzer or test setup if you want to observe the transmissions.
 
-## Building and Running
+## Overview
+
+This sample enables the Direct Test Mode (DTM) functions for the Hubble
+Satellite Network on ESP32 hardware. It can be used for RF testing,
+certification (FCC/CE), and bring-up of new hardware.
+
+The sample initializes the Hubble Device SDK and starts an interactive shell over the
+serial console.
+
+> [!NOTE]
+> All commands should be ran from the sample folder containing this file:
+> `<SDK path>/samples/esp-idf/sat-dtm`
+
+## Environment Setup
 
 First, set up the environment. This step assumes you've installed esp-idf
-to `~/esp/esp-idf`. If you haven't, follow the initial steps in the [Installation
-guide](https://docs.espressif.com/projects/esp-idf/en/latest/esp32/get-started/index.html#installation) for your OS.
+to `~/esp/esp-idf`. If you haven't, follow the initial steps in the
+[Installation guide](https://docs.espressif.com/projects/esp-idf/en/latest/esp32/get-started/index.html#installation)
+for your OS. Use the following command to export any necessary temporary environment variables for ESP-IDF to function.
+
+### Windows
+
+ESP-IDF does not support MSys, which is used by Git Bash. You must use PowerShell.
+
+```ps1
+& "C:\esp\<esp_idf_version>\esp-idf\export.ps1"
+```
+
+### Linux & macOS
 
 ```sh
 source ~/esp/esp-idf/export.sh
 ```
 
-Set the target chip to ESP32-C6:
+## Pre-build
 
+Set the target chip.
+
+```sh
+idf.py set-target <chip>
+```
+
+e.g.
 ```sh
 idf.py set-target esp32c6
 ```
 
-Then `cd` to the sat-dtm example where you can build/flash/monitor:
+## Build
 
 ```sh
 idf.py build flash monitor

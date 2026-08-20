@@ -1,4 +1,4 @@
-# Hubble Network BLE ESP-IDF Beacon Sample
+# Hubble Network BLE Beacon Sample on ESP-IDF
 
 This sample application demonstrates how to use the Hubble Device SDK to
 create a BLE beacon that advertises its presence.
@@ -6,7 +6,8 @@ create a BLE beacon that advertises its presence.
 ## Requirements
 
 - Cryptographic key provided by Hubble Network
-- ESP-IDF SDK (https://docs.espressif.com/projects/esp-idf/en/latest/esp32/get-started/index.html)
+- [ESP-IDF](https://docs.espressif.com/projects/esp-idf/en/latest/esp32/get-started/index.html)
+- ESP SoC with Bluetooth LE support
 
 ## Overview
 
@@ -18,6 +19,10 @@ The sample requires a master key and the current Unix time to be provisioned
 into the device. This is done by running the `embed_key_time.py` script before
 building the application.
 
+> [!NOTE]
+> All commands should be ran from the sample folder containing this file:
+> `<SDK path>/samples/esp-idf/ble-beacon`
+
 ## Advertising parameters
 
 The sample advertises with the following parameters by default. They can be modified.
@@ -26,6 +31,40 @@ The sample advertises with the following parameters by default. They can be modi
 | --- | --- | --- |
 | Beacon interval | 1000–1200 ms | `ADV_INTERVAL_MIN_MS` / `ADV_INTERVAL_MAX_MS` in [main/main.c](main/main.c) |
 | Tx power | 0 dBm | `CONFIG_BT_LE_DFT_TX_POWER_LEVEL_N0` in [sdkconfig.defaults](sdkconfig.defaults) |
+
+## Environment Setup
+
+First, set up the environment. This step assumes you've installed esp-idf
+to `~/esp/esp-idf`. If you haven't, follow the initial steps in the
+[Installation guide](https://docs.espressif.com/projects/esp-idf/en/latest/esp32/get-started/index.html#installation)
+for your OS. Use the following command to export any necessary temporary environment variables for ESP-IDF to function.
+
+### Windows
+
+ESP-IDF does not support MSys, which is used by Git Bash. You must use PowerShell.
+
+```ps1
+& "C:\esp\<esp_idf_version>\esp-idf\export.ps1"
+```
+
+### Linux & macOS
+
+```sh
+source ~/esp/esp-idf/export.sh
+```
+
+## Pre-build
+
+Set the target chip.
+
+```sh
+idf.py set-target <chip>
+```
+
+e.g.
+```sh
+idf.py set-target esp32c6
+```
 
 ## Provisioning
 
@@ -52,35 +91,15 @@ Use the `-b` or `--base64` flag:
 
 After running the script, the key and timestamp will be compiled into the application.
 
-## Building and Running
-
-### Command-line
-
-First, setup the environment. This step assumes you've installed esp-idf
-to `~/esp/esp-idf`. If you haven't, follow the initial steps in
-examples/esp_idf/README.md
+## Build
 
 ```sh
-source ~/esp/esp-idf/export.sh
-```
-You may have to set target based on the ESP32 chip you are using.
-For example, if you are using ESP32-C3, enter this:
-
-```
-idf.py set-target esp32c3
-```
-
-Next, `cd` to the hello example where you can build/flash/monitor:
-
-```
-idf.py build
-idf.py flash
-idf.py monitor
+idf.py build flash monitor
 ```
 
 After flashing, the device will start advertising as a Hubble BLE beacon.
 
-## Testing
+## Test
 
 The `scan.py` tool can be used to test the BLE
 beacon. The script scans for BLE devices, and when it finds a Hubble Network
