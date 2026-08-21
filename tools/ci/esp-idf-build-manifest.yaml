@@ -5,8 +5,8 @@ samples/esp-idf/ble-beacon:
 
 samples/esp-idf/sat-continuous:
   enable:
-    - if: IDF_TARGET == "esp32c6"
-      reason: sat functionality only supported on esp32c6
+    - if: IDF_TARGET in ["esp32s3", "esp32c6"]
+      reason: sat functionality only supported on esp32s3 and esp32c6
 
 samples/esp-idf/sat-dual-stack:
   enable:
