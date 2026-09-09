@@ -630,6 +630,28 @@ must implement all functions declared in
 </dd>
 </dl>
 </div>
+<div class="kconfig-option docutils container">
+<p class="rubric" id="config-hubble-network-crypto-psa-use-key-id">CONFIG_HUBBLE_NETWORK_CRYPTO_PSA_USE_KEY_ID</p>
+<p><em>Use PSA Crypto opaque key id</em></p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+<dt class="field-even">Depends on<span class="colon">:</span></dt>
+<dd class="field-even"><p>HUBBLE_NETWORK_CRYPTO_PSA &amp;&amp; &lt;choice&gt;</p>
+</dd>
+</dl>
+<p>Reference the Hubble key by its PSA opaque key
+identifier instead of by its key material.
+
+With this option the SDK never needs nor has access to
+the Hubble key material. The application provisions the
+key into a secure key storage (for example TF-M ITS or
+a KMU) and hands the SDK only the key id returned by
+that storage. All cryptographic operations are then
+performed by the PSA implementation on the key it holds
+internally, so the Hubble key material is never directly used.</p>
+</div>
 </section>
 
 
