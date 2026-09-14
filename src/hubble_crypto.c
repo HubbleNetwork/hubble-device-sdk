@@ -4,10 +4,8 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 #include <errno.h>
-#include <inttypes.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include <stdio.h>
 #include <string.h>
 
 #include <hubble/hubble.h>
@@ -225,29 +223,52 @@ exit:
 	return ret;
 }
 
+/**
+ * Writes the decimal representation of @p value into @p out.
+ * The output is not NUL terminated.
+ *
+ * Returns the number of digits written.
+ */
+static size_t _uint_to_digits(uint32_t value, uint8_t *out)
+{
+	uint8_t digits[_CONTEXT_SIZE];
+	size_t len = 0U;
+
+	do {
+		digits[len] = (uint8_t)('0' + (value % 10U));
+		len++;
+		value /= 10U;
+	} while (value != 0U);
+
+	for (size_t i = 0U; i < len; i++) {
+		out[i] = digits[len - 1U - i];
+	}
+
+	return len;
+}
+
 static int _derived_key_get(enum hubble_key_label label, uint32_t counter,
 			    uint8_t output_key[CONFIG_HUBBLE_KEY_SIZE])
 {
 	int err = 0;
-	uint8_t context[_CONTEXT_SIZE] = {0};
+	uint8_t context[_CONTEXT_SIZE];
+	size_t context_len = _uint_to_digits(counter, context);
 
-	snprintf((char *)context, _CONTEXT_SIZE, "%" PRIu32, counter);
 	switch (label) {
 	case HUBBLE_DEVICE_KEY:
-		err = _kbkdf_counter(master_key, "DeviceKey",
-				     strlen("DeviceKey"), true, context,
-				     strlen((const char *)context), output_key,
+		err = _kbkdf_counter(master_key, "DeviceKey", strlen("DeviceKey"),
+				     true, context, context_len, output_key,
 				     CONFIG_HUBBLE_KEY_SIZE);
 		break;
 	case HUBBLE_NONCE_KEY:
 		err = _kbkdf_counter(master_key, "NonceKey", strlen("NonceKey"),
-				     true, context, strlen((const char *)context),
-				     output_key, CONFIG_HUBBLE_KEY_SIZE);
+				     true, context, context_len, output_key,
+				     CONFIG_HUBBLE_KEY_SIZE);
 		break;
 	case HUBBLE_ENCRYPTION_KEY:
 		err = _kbkdf_counter(master_key, "EncryptionKey",
 				     strlen("EncryptionKey"), true, context,
-				     strlen((const char *)context), output_key,
+				     context_len, output_key,
 				     CONFIG_HUBBLE_KEY_SIZE);
 		break;
 	default:
@@ -263,10 +284,9 @@ static int _derived_value_get(enum hubble_value_label label,
 			      uint8_t *output_value, uint32_t output_len)
 {
 	int ret = 0;
-	uint8_t context[_CONTEXT_SIZE] = {0};
+	uint8_t context[_CONTEXT_SIZE];
 	uint8_t derived_key[CONFIG_HUBBLE_KEY_SIZE] = {0};
-
-	snprintf((char *)context, _CONTEXT_SIZE, "%u", seq_no);
+	size_t context_len = _uint_to_digits(seq_no, context);
 
 	switch (label) {
 	case HUBBLE_DEVICE_VALUE:
@@ -277,8 +297,7 @@ static int _derived_value_get(enum hubble_value_label label,
 		}
 		ret = _kbkdf_counter(derived_key, "DeviceID",
 				     strlen("DeviceID"), false, context,
-				     strlen((const char *)context),
-				     output_value, output_len);
+				     context_len, output_value, output_len);
 		break;
 	case HUBBLE_NONCE_VALUE:
 		ret = _derived_key_get(HUBBLE_NONCE_KEY, time_counter,
@@ -286,9 +305,9 @@ static int _derived_value_get(enum hubble_value_label label,
 		if (ret != 0) {
 			goto exit;
 		}
-		ret = _kbkdf_counter(
-			derived_key, "Nonce", strlen("Nonce"), false, context,
-			strlen((const char *)context), output_value, output_len);
+		ret = _kbkdf_counter(derived_key, "Nonce", strlen("Nonce"),
+				     false, context, context_len, output_value,
+				     output_len);
 		break;
 	case HUBBLE_ENCRYPTION_VALUE:
 		ret = _derived_key_get(HUBBLE_ENCRYPTION_KEY, time_counter,
@@ -297,8 +316,8 @@ static int _derived_value_get(enum hubble_value_label label,
 			goto exit;
 		}
 		ret = _kbkdf_counter(derived_key, "Key", strlen("Key"), false,
-				     context, strlen((const char *)context),
-				     output_value, output_len);
+				     context, context_len, output_value,
+				     output_len);
 		break;
 	default:
 		ret = -EINVAL;
