@@ -19,8 +19,9 @@
 #include "rail_config.h"
 
 /* xG24, xG26 step size = 74.3865966796875 Hz */
-#define EFR32_STEP_SCALE(step) (step * 4)
-#define MAX_POWER_DDBM         200 /* DBm = 10 * dBm */
+#define EFR32_STEP_SCALE(step)     (step * 4)
+#define MAX_POWER_DDBM             200 /* DBm = 10 * dBm */
+#define HUBBLE_SYMBOL_RAMP_TIME_US 20U
 
 /**
  * This semaphore is used to protect a packet transmission and avoid
@@ -181,6 +182,16 @@ static int _rail_radio_init(void)
 
 	sl_rail_util_pa_init();
 	sl_rail_util_pa_post_init(_rail_handle, pa_mode);
+
+	/*
+	 * Default SL_RAIL_UTIL_PA_RAMP_TIME_US is 10 us for xg24 and xg26,
+	 * change to 20 us in effort to reduce spectral leakage.
+	 */
+	status = sl_rail_set_tx_pa_ramp_time(_rail_handle,
+					     HUBBLE_SYMBOL_RAMP_TIME_US);
+	if (status != SL_RAIL_STATUS_NO_ERROR) {
+		return _sl_status_to_errno(status);
+	}
 
 	/* Config calibration settings */
 	status = sl_rail_config_cal(_rail_handle, SL_RAIL_CAL_ALL);
