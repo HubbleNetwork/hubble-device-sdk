@@ -308,6 +308,7 @@
 <li class="toctree-l2"><a class="reference internal" href="index.html#migration-and-upgrade-guidance">Migration and Upgrade Guidance</a></li>
 <li class="toctree-l2 current"><a class="reference internal" href="index.html#release-notes">Release Notes</a><ul class="current">
 <li class="toctree-l3 current"><a class="current reference internal" href="#">Release 3.0.0</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#release-3-0-1">Release 3.0.1</a></li>
 <li class="toctree-l3"><a class="reference internal" href="2.0.html">Release 2.0.0</a></li>
 <li class="toctree-l3"><a class="reference internal" href="1.0.html">Release 1.0.0</a></li>
 </ul>
@@ -549,6 +550,63 @@ Network API are stable within the 3.x series.</p></li>
 <li><p>HDCV generation and matching, including mismatched, truncated, and malformed
 vectors</p></li>
 <li><p>Platform-specific CI builds: Zephyr, FreeRTOS (TI), ESP-IDF and NCS (nRF Connect SDK)</p></li>
+</ul>
+</section>
+</section>
+<section id="release-3-0-1">
+<span id="id2"></span><h1>Release 3.0.1<a class="headerlink" href="#release-3-0-1" title="Link to this heading"></a></h1>
+<p><strong>Release Date</strong>: September 15, 2026</p>
+<p>Release 3.0.1 is a patch release. It contains build and radio-reliability fixes
+across the Silicon Labs, Nordic, and TI platforms, with no API changes. It is a
+drop-in replacement for 3.0.0.</p>
+<section id="bug-fixes">
+<h2>Bug Fixes<a class="headerlink" href="#bug-fixes" title="Link to this heading"></a></h2>
+<section id="satellite-silicon-labs">
+<h3>Satellite / Silicon Labs<a class="headerlink" href="#satellite-silicon-labs" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><strong>Fix radio stuck in PA init</strong>: Newer Simplicity SDK (SISDK v2026.6.1) requires
+the custom protocol to initialize the PA after <code class="docutils literal notranslate"><span class="pre">rail_init</span></code> and before
+changing the channel and other configuration steps. The initialization order
+was corrected; the change remains compatible with earlier SISDK/RAIL versions.</p></li>
+<li><p><strong>Correct xG24 channel spacing</strong>: The xG24 channel spacing now reflects the
+correct step size, accounting for decimal precision instead of rounding to an
+integer.</p></li>
+</ul>
+</section>
+<section id="zephyr-nordic">
+<h3>Zephyr / Nordic<a class="headerlink" href="#zephyr-nordic" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><strong>Fix nRF5340 DTM build</strong>: Resolved undefined references to used symbols when
+building Direct Test Mode for the nRF5340.</p></li>
+<li><p><strong>Use MPSL FEM with SoftDevice</strong>: The MPSL front-end module is now used when
+building with the nRF SDK and the SoftDevice controller.</p></li>
+</ul>
+</section>
+<section id="zephyr-build">
+<h3>Zephyr / Build<a class="headerlink" href="#zephyr-build" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><strong>Declare</strong> <code class="docutils literal notranslate"><span class="pre">SILABS_SISDK_RAIL_MULTIPROTOCOL</span></code>: <code class="docutils literal notranslate"><span class="pre">Kconfig.silabs</span></code> applied a
+<code class="docutils literal notranslate"><span class="pre">configdefault</span></code> to a symbol that is only declared in trees carrying the
+Simplicity SDK HAL. On older trees the symbol was typeless, which Zephyr
+promotes to a Kconfig error and broke every TI board build on the
+simplelink-zephyr v3.7.0 fork. The symbol is now always declared with a type;
+where the upstream definition exists, Kconfig merges the two and its prompt and
+dependencies still apply.</p></li>
+</ul>
+</section>
+<section id="samples">
+<h3>Samples<a class="headerlink" href="#samples" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><strong>ble-beacon</strong>: Fixed the build for older Zephyr versions.</p></li>
+</ul>
+</section>
+</section>
+<section id="id3">
+<h2>Compatibility<a class="headerlink" href="#id3" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p><strong>API compatibility</strong>: Fully compatible with 3.0.0. No public API, structure,
+or documented behavior changes. Both the BLE Terrestrial Network API and the
+Satellite Network API remain stable within the 3.x series.</p></li>
 </ul>
 </section>
 </section>
