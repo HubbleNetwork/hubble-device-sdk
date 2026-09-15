@@ -16,7 +16,7 @@ extern "C" {
 /** Minor version number (x.X.x) */
 #define HUBBLE_SDK_VERSION_MINOR 0
 /** Patch version number (x.x.X) */
-#define HUBBLE_SDK_VERSION_PATCH 0
+#define HUBBLE_SDK_VERSION_PATCH 1
 
 /**
  * Macro to convert version number into an integer
@@ -38,7 +38,7 @@ extern "C" {
 /**
  * HubbleNetwork SDK version - printable format.
  */
-#define HUBBLE_SDK_VERSION_STRING "3.0.0"
+#define HUBBLE_SDK_VERSION_STRING "3.0.1"
 
 #ifdef __cplusplus
 }
