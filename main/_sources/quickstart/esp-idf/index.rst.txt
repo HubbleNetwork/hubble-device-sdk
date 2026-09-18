@@ -38,8 +38,8 @@ From the root of your project:
 
 .. code-block:: bash
 
-   # change '^3.0.0' to your desired version of the SDK in the Registry
-   idf.py add-dependency "hubblenetwork/hubble-device-sdk^3.0.0"
+   # change '^3.1.0' to your desired version of the SDK in the Registry
+   idf.py add-dependency "hubblenetwork/hubble-device-sdk^3.1.0"
 
 This records the dependency in your project's ``idf_component.yml`` and
 downloads the SDK into ``managed_components/`` on the next build. ESP-IDF
