@@ -147,7 +147,8 @@ the header search path.
        management.
    * - ``src/hubble_ble.c``
      - BLE advertisement packet generation.
-   * - ``src/crypto/mbedtls.c`` or ``src/crypto/psa.c``
+   * - ``src/crypto/mbedtls.c``, ``src/crypto/psa.c`` or
+       ``src/crypto/nrf_softdevice.c``
      - Cryptographic implementation (choose one, or implement and port your
        own).
    * - Your port file(s)
@@ -460,12 +461,14 @@ cryptographic libraries. To use a provided implementation, include the matching
    compiles the matching file for you. The crypto source files themselves do
    **not** test that symbol, so a bare-metal build makes the same selection
    simply by compiling exactly one of ``src/crypto/mbedtls.c``,
-   ``src/crypto/psa.c``, or your own implementation. You do not need to define
+   ``src/crypto/psa.c``, ``src/crypto/nrf_softdevice.c``, or your own
+   implementation. You do not need to define
    ``CONFIG_HUBBLE_NETWORK_CRYPTO_*`` for the source file to build. Note that
-   both ``mbedtls.c`` and ``psa.c`` select the AES cipher from the
+   ``mbedtls.c`` and ``psa.c`` select the AES cipher from the
    ``CONFIG_HUBBLE_NETWORK_KEY_128`` / ``CONFIG_HUBBLE_NETWORK_KEY_256`` choice,
    so that define must still be set as described under
-   :ref:`bare_metal_required_defines`.
+   :ref:`bare_metal_required_defines`; ``nrf_softdevice.c`` requires
+   ``CONFIG_HUBBLE_NETWORK_KEY_128``.
 
 .. list-table::
    :header-rows: 1
@@ -480,6 +483,10 @@ cryptographic libraries. To use a provided implementation, include the matching
    * - **PSA Crypto API**
      - ``src/crypto/psa.c``
      - ARM's standard crypto API, supports hardware acceleration.
+   * - **Nordic SoftDevice**
+     - ``src/crypto/nrf_softdevice.c``
+     - Smallest footprint on nRF5 SDK SoftDevice builds; no extra crypto
+       library. **128-bit keys only.** See :ref:`bare_metal_nrf_softdevice`.
 
 For most bare metal projects, **we recommend using Mbed TLS or the PSA Crypto
 API.**
@@ -515,6 +522,36 @@ use.
 
    If code size is a critical constraint, consider using **Mbed TLS** with a
    minimal configuration or the **PSA Crypto API** with hardware acceleration.
+
+.. _bare_metal_nrf_softdevice:
+
+Nordic SoftDevice Backend
+^^^^^^^^^^^^^^^^^^^^^^^^^
+
+``src/crypto/nrf_softdevice.c`` builds AES-CTR and AES-CMAC on the
+SoftDevice's AES-128 ECB (``sd_ecb_blocks_encrypt``). It is intended for the
+legacy nRF5 SDK only and works with the nRF52 SoftDevices (S112, S113, S122,
+S132, S140). nRF51 devices are not supported. nRF Connect SDK builds should use
+the PSA backend instead.
+
+**128-bit keys only.** The SoftDevice ECB only implements AES-128, so the build
+fails with a compile error unless ``CONFIG_HUBBLE_NETWORK_KEY_128`` is defined.
+A device's key size is fixed when it is registered: devices provisioned with
+256-bit keys must use the Mbed TLS or PSA backend.
+
+**Calling context.** Every encryption is a SoftDevice call, so SDK functions
+that encrypt (:c:func:`hubble_ble_advertise_get`,
+:c:func:`hubble_sat_packet_get`) must run from thread mode or an application
+low priority interrupt (5 to 7 on nRF52). They must not be called from
+application high priority interrupts (2 and 3), with ``PRIMASK`` set, or with
+``BASEPRI`` masking priority 4 and below (for example inside an RTOS critical
+section). In those contexts the SoftDevice would
+escalate the call to a HardFault, so the backend returns ``-EACCES`` instead.
+A SoftDevice critical region (``sd_nvic_critical_region_enter``, used by the
+nRF5 SDK's ``CRITICAL_REGION_ENTER``) is fine.
+
+**SoftDevice enabled.** Enable the SoftDevice before generating the first
+advertisement.
 
 Custom Implementation
 ^^^^^^^^^^^^^^^^^^^^^
