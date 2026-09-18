@@ -1,0 +1,11 @@
+id: hubble-device-sdk
+label: Hubble Device SDK
+description: >
+  On-device SDK for connecting to Hubble's Terrestrial (Bluetooth Low Energy)
+  and Satellite Networks, built on a modular architecture that ports across
+  RTOSes and hardware.
+version: 3.1.0
+vendor: hubble-network
+supplier: Hubble Network, Inc.
+component_path:
+  - path: port/sisdk
