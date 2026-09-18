@@ -20,22 +20,10 @@
 #include "esp_phy_init.h"
 #include "esp_phy_cert_test.h"
 
+#include "esp_sat_radio_config.h"
 #include "sat_board.h"
 
-#define ESP_RADIO_OFF_DELAY_US          450U
-#define ESP_RADIO_ON_DELAY_US           70U
-#define MAX_TX_POWER_DBM                20U
-#define ESP_STEP_SCALE(_step)           ((_step) * 4)
-
-/* The center frequency for channel 0 is 2482208625
- * -> f_base = 2482208625 - (32 * 400) = 2482195825
- * Each channel is 25.75 kHz
- * --> offset = 25.75k / 400 ~= 64 steps (round)
- * Base is set at 24822 MHz,
- * (2482195825 - 2.482e9) / 400 = 489 steps
- */
-#define HUBBLE_BASE_FREQUENCY           2482U
-#define HUBBLE_CHANNEL_OFFSET(_channel) (((_channel) * 64) + 489)
+#define MAX_TX_POWER_DBM 20U
 
 /**
  * This semaphore is used to protect a packet transmission and avoid
@@ -64,8 +52,14 @@ uint8_t _sat_power_dbm = MAX_TX_POWER_DBM;
 
 /* Espressif PHY API */
 extern void phy_set_step_01k(bool step_01k);
-extern void phy_set_freq(uint16_t freq_mhz, int offset);
 extern void phy_tx_tone(bool txtone_en, bool bt_mode, uint8_t pwr_index);
+
+#if defined(CONFIG_IDF_TARGET_ESP32S31)
+extern void phy_set_freq_01k(uint16_t freq_mhz, int offset);
+#define phy_set_freq(freq_mhz, offset) phy_set_freq_01k(freq_mhz, offset)
+#else
+extern void phy_set_freq(uint16_t freq_mhz, int offset);
+#endif /* CONFIG_IDF_TARGET_ESP32S31 */
 
 static int _esp_err_to_errno(esp_err_t status)
 {
