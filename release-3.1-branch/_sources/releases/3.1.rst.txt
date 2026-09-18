@@ -1,0 +1,214 @@
+.. _release_3_1_0:
+
+Release 3.1.0
+#############
+
+**Release Date**: September 18, 2026
+
+Release 3.1.0 is a minor release that builds on the 3.0.0 Satellite Network
+foundation. It adds pass-adaptive satellite transmission, lets the SDK sign with
+a key it never sees by referencing an opaque PSA key identifier, promotes region
+pass prediction out of experimental status, and extends board and distribution
+support. The release is backward compatible with 3.0.x.
+
+Overview
+********
+
+Two additions stand out. On the satellite side,
+:c:func:`hubble_sat_packet_pass_send` derives the number of retransmissions from
+the duration of a predicted pass instead of the fixed baseline attached to a
+reliability mode, filling the satellite visibility window as densely as
+possible. It is required for passes obtained from
+:c:func:`hubble_sat_next_pass_region_get`, which is no longer marked
+experimental in this release.
+
+On the security side, PSA Crypto builds can now reference the Hubble key by an
+opaque key identifier. With
+``CONFIG_HUBBLE_NETWORK_CRYPTO_PSA_USE_KEY_ID`` enabled, the application
+provisions the key into secure key storage and hands the SDK only the
+identifier; key derivation is performed by the PSA implementation on the key it
+holds internally, so the key material never enters the firmware image or SDK
+memory.
+
+The release also adds Silicon Labs EFR32xG26 satellite support, publishes the
+SDK to the ESP Component Registry, and adds CI coverage against the Zephyr
+v3.7 LTS branch.
+
+Key Features
+************
+
+Pass-Adaptive Satellite Transmission
+====================================
+
+- :c:func:`hubble_sat_packet_pass_send` transmits a packet across a predicted
+  pass window described by ``struct hubble_sat_pass_info``. The retry count is
+  derived from ``pass.duration`` rather than from the reliability mode's fixed
+  baseline. The caller must wait until ``pass.start`` before calling the
+  function: it starts transmitting immediately and uses only ``pass.duration``
+  to determine the retry count. The call blocks until its transmissions finish.
+- The function must be used for a pass obtained from
+  :c:func:`hubble_sat_next_pass_region_get`, since a region pass has no single
+  reference point the fixed baselines were tuned for. For a single-point pass
+  from :c:func:`hubble_sat_next_pass_get` it is a drop-in alternative to
+  :c:func:`hubble_sat_packet_send` that adapts retries to that pass.
+- ``HUBBLE_SAT_RELIABILITY_NONE`` is rejected with ``-EINVAL``: a single-shot
+  transmission provides no coverage across a pass window. A ``NULL`` ``packet``
+  or ``pass`` also returns ``-EINVAL``.
+- :c:func:`hubble_sat_next_pass_region_get` is no longer experimental. The
+  ``HUBBLE_EXPERIMENTAL`` marker was removed and the API is stable within the
+  3.x series.
+
+Opaque PSA Key Identifier Support
+=================================
+
+``CONFIG_HUBBLE_NETWORK_CRYPTO_PSA_USE_KEY_ID`` (depends on
+``CONFIG_HUBBLE_NETWORK_CRYPTO_PSA``) makes the SDK treat the key passed to
+:c:func:`hubble_init` or :c:func:`hubble_key_set` as a pointer to a key
+identifier rather than to key material:
+
+- A new port hook, :c:func:`hubble_crypto_key_id_cmac`, computes the CMAC from a
+  key identifier in the format the crypto provider expects (a ``psa_key_id_t``
+  for PSA Crypto). The PSA backend implements it; only the device key derivation
+  step uses it, so the derived keys continue to flow through the existing
+  :c:func:`hubble_crypto_cmac` path.
+- ``tools/ncs-generate-key.py`` generates the PSA attributes of a Hubble key
+  held in an nRF54L CRACEN KMU slot, under the PROTECTED usage scheme, as a JSON
+  file for ``nrfutil device x-provision-keys``. It supports 128-bit and 256-bit
+  keys and selectable slot persistence (default, revocable, or read-only).
+- The Zephyr ``ble-beacon`` sample demonstrates the flow end to end with a new
+  ``ncs_cracen.conf`` fragment and a ``src/key_id.c`` that builds the key id
+  from a CRACEN KMU slot. The sample README documents key generation,
+  provisioning, and building.
+
+Crypto Improvements
+===================
+
+- The KDF context no longer goes through ``snprintf``. A small internal decimal
+  conversion helper replaced the two ``snprintf`` calls, dropping the dependency
+  on the libc formatter and its footprint on targets where that pulls in a large
+  amount of code.
+- The PSA backend maps more error codes: ``PSA_ERROR_INVALID_HANDLE`` to
+  ``-EINVAL``, ``PSA_ERROR_NOT_SUPPORTED`` to ``-ENOTSUP``, and
+  ``PSA_ERROR_NOT_PERMITTED`` to ``-EPERM``.
+- The ``hubble_crypto_cmac()`` parameters were renamed from
+  ``input``/``input_len`` to ``data``/``len`` in the implementations and samples
+  to match the declaration in ``include/hubble/port/crypto.h`` and the sibling
+  ``hubble_crypto_aes_ctr()``. This is a naming change only; no signature or ABI
+  change.
+
+Platform and Board Support
+==========================
+
+- **Silicon Labs**: satellite support for **EFR32xG26**, with RAIL radio
+  configuration and board files. The xG24 channel spacing was corrected to
+  account for decimal precision instead of rounding to an integer step size.
+- **Silicon Labs / RAIL**: fixed the radio getting stuck in PA initialization
+  with SISDK v2026.6.1, which requires the custom protocol to initialize the PA
+  after ``rail_init`` and before channel and other configuration steps. The new
+  ordering is compatible with earlier SISDK and RAIL versions.
+- **Silicon Labs / Kconfig**: ``SILABS_SISDK_RAIL_MULTIPROTOCOL`` is now
+  declared in ``port/zephyr/Kconfig.silabs``. On trees without the Simplicity
+  SDK HAL glue, the SDK's ``configdefault`` was the symbol's only definition,
+  which Kconfig reported as typeless and Zephyr promoted to an error, breaking
+  every TI board build on the simplelink-zephyr v3.7.0 fork.
+- **Espressif**: the ``esp_phy_rftest_*`` calls were removed from the satellite
+  port per Espressif's recommendation. Enabling the satellite stack now requires
+  Bluetooth initialization; combining RF test with BT was redundant and caused
+  problems on some SoCs.
+- **Nordic**: MPSL FEM is used when building with the nRF Connect SDK and the
+  SoftDevice Controller. The DTM build for nRF5340 was fixed (undefined
+  references to used symbols).
+
+ESP Component Registry
+======================
+
+The SDK is now published to the ESP Component Registry:
+
+- Root ``CMakeLists.txt``, ``Kconfig``, and ``idf_component.yml`` register the
+  SDK as an ESP component, so its options show up in ``idf.py menuconfig``.
+- A GitHub workflow publishes the component automatically when a new tag is
+  created, excluding release candidate tags.
+- The ESP-IDF quickstart documents adding the SDK to an existing project from
+  the registry.
+
+Sample Applications
+*******************
+
+- **Zephyr** ``ble-beacon``: key identifier support and a build fix for older
+  Zephyr versions, which required selecting between ``zephyr/kvss/nvs.h`` and
+  ``zephyr/fs/nvs.h`` based on the kernel version.
+- **Zephyr** ``sat-dtm`` and ``sat-dual-stack``: both now build for real
+  hardware targets in CI instead of build-only configurations, exercising the
+  satellite implementation on selected boards.
+- **ESP-IDF** samples moved to log v2 for output that includes level and
+  timestamp, dropped the RF test dependency, and initialize Bluetooth as the
+  satellite stack requires.
+- **FreeRTOS / TI** samples: CMAC parameter names aligned with the public
+  header.
+
+Documentation
+*************
+
+- New "Pass-Adaptive Transmission" section in the satellite reliability guide,
+  covering :c:func:`hubble_sat_packet_pass_send`, when it is required, and the
+  invalid argument cases.
+- The nRF Connect SDK integration guide gained a notes column about SoC power,
+  matching the other guides, so it is clear whether a development board supplies
+  enough power for the satellite network.
+- PA and FEM are now spelled out on first use in the integration guides.
+- The ESP-IDF quickstart documents component registry usage.
+- The Zephyr ``ble-beacon`` README documents the KMU-backed key workflow.
+
+Testing and CI
+**************
+
+- New Zephyr LTS workflow builds and runs tests and samples against Zephyr
+  ``v3.7-branch``, pinned by ``west-zephyr-lts.yml``, with a separate quarantine
+  list excluding PSA crypto scenarios that release does not support.
+- Zephyr test workflows now fetch Hubble blobs before building.
+- The NCS workflow only builds samples tagged for NCS, since satellite samples
+  need the appropriate snippet.
+- The footprint summary handles sysbuild targets, where no top-level footprint
+  exists and each domain must be collected individually.
+- CI triggers were extended to cover the source paths that affect each port's
+  tests.
+- Unit test coverage was added for :c:func:`hubble_sat_packet_pass_send`.
+
+API Additions
+*************
+
+- :c:func:`hubble_sat_packet_pass_send` — transmit a packet across a predicted
+  pass window, deriving the retry count from the pass duration
+- :c:func:`hubble_crypto_key_id_cmac` — port hook computing a CMAC from an
+  opaque key identifier
+
+Compatibility
+*************
+
+- **API compatibility**: 3.1.0 is backward compatible with 3.0.x. No existing
+  function signature, structure, or documented behavior changed.
+- **Custom crypto ports**: :c:func:`hubble_crypto_key_id_cmac` is only called
+  when ``CONFIG_HUBBLE_NETWORK_CRYPTO_PSA_USE_KEY_ID`` is enabled, which depends
+  on the PSA backend. Ports that do not enable it need no changes.
+- **Header include**: ``hubble/sat.h`` now includes
+  ``hubble/sat/pass_prediction.h`` for the
+  :c:func:`hubble_sat_packet_pass_send` declaration. Applications that included
+  both continue to work.
+- **Espressif applications**: initialize Bluetooth before using the satellite
+  stack. The SDK no longer enables the RF test path on its own.
+
+Testing
+*******
+
+This release has been validated through:
+
+- Unit tests for BLE advertisement generation and encryption
+- Unit tests for EID generation in both counter source modes
+- Satellite packet encoding, frame-splitting, and payload-length validation
+  tests
+- Satellite API tests including :c:func:`hubble_sat_packet_pass_send`
+- Pass-prediction (ephemeris) unit tests
+- HDCV generation and matching
+- Platform-specific CI builds: Zephyr (current and v3.7 LTS), FreeRTOS (TI),
+  ESP-IDF, and NCS (nRF Connect SDK)
+- Hardware sample builds for Zephyr DTM and dual-stack targets
