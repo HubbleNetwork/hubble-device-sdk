@@ -344,6 +344,48 @@ Other common options for a dual-stack application:
    :start-after: hubble-integration-data-requirements
 
 
+.. _ncs_device_key:
+
+.. include:: ../common/handling-device-key.rst
+   :start-after: hubble-integration-device-key
+
+
+To supply the key from configuration, declare a string option in your
+application's ``Kconfig`` and decode it at runtime with Zephyr's
+``base64_decode()``, into a buffer with static storage duration:
+
+.. code-block:: c
+
+   #include <zephyr/sys/base64.h>
+
+   static uint8_t _hubble_key[CONFIG_HUBBLE_KEY_SIZE];
+
+   /* ... */
+
+   if (strlen(CONFIG_HUBBLE_DEVICE_KEY) != 0) {
+       size_t olen;
+
+       err = base64_decode(_hubble_key, sizeof(_hubble_key), &olen,
+                           CONFIG_HUBBLE_DEVICE_KEY,
+                           strlen(CONFIG_HUBBLE_DEVICE_KEY));
+
+       if (err != 0) {
+           LOG_ERR("Invalid key provided!");
+           return -EINVAL;
+       }
+
+       if (olen != sizeof(_hubble_key)) {
+           LOG_ERR("Invalid key length provided!");
+           return -EINVAL;
+       }
+   }
+
+   /* unix_time_ms is obtained separately, as described above. */
+   err = hubble_init(unix_time_ms, _hubble_key);
+
+See ``samples/zephyr/sat-dual-stack`` for a complete example.
+
+
 .. include:: ../common/sdk-init.rst
    :start-after: hubble-integration-sdk-init
 

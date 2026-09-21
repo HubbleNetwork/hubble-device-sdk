@@ -232,6 +232,12 @@ options to your project's ``.syscfg`` file.
    :start-after: hubble-integration-data-requirements
 
 
+.. _ti_device_key:
+
+.. include:: ../common/handling-device-key.rst
+   :start-after: hubble-integration-device-key
+
+
 .. _ti_sat_sdk_init:
 
 .. include:: ../common/sdk-init.rst

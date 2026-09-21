@@ -180,7 +180,7 @@ static int _cmd_channel(int argc, char **argv)
 	int channel;
 
 	if (argc != 2) {
-		printf("Usage:  channel <0..%d>\n", HUBBLE_NUM_CHANNELS - 1);
+		printf("Usage: channel <0..%d>\n", HUBBLE_NUM_CHANNELS - 1);
 		return -EINVAL;
 	}
 
@@ -274,12 +274,12 @@ static int _cmd_transmit(int argc, char **argv)
 	return hubble_sat_dtm_packet_send(_packet_type, _channel);
 }
 
-static int _cmd_transmit_repeating(int argc, char **argv, bool sweep)
+static int _transmit_repeating(int argc, char **argv, bool sweep)
 {
 	int interval;
 
 	if (argc != 2) {
-		printf("Usage: transmit_repeating <interval_ms>\n");
+		printf("Usage: %s <interval_ms>\n", argv[0]);
 		return -EINVAL;
 	}
 
@@ -318,12 +318,12 @@ static int _cmd_transmit_repeating(int argc, char **argv, bool sweep)
 
 static int _cmd_transmit_continuously(int argc, char **argv)
 {
-	return _cmd_transmit_repeating(argc, argv, false);
+	return _transmit_repeating(argc, argv, false);
 }
 
 static int _cmd_transmit_sweep(int argc, char **argv)
 {
-	return _cmd_transmit_repeating(argc, argv, true);
+	return _transmit_repeating(argc, argv, true);
 }
 
 static void _register_commands(void)
