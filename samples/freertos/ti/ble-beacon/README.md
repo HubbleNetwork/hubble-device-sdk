@@ -14,7 +14,7 @@ This project is designed to:
 
 The project targets the *CC23xx* family of devices and uses *FreeRTOS*
 as the operating system. It is originally a copy of
-[basic-ble](https://github.com/TexasInstruments/simplelink-ble5stack-examples/tree/main/examples/rtos/LP_EM_CC2340R5/ble5stack/basic_ble)
+[basic-ble](https://github.com/TexasInstruments/simplelink-ble5stack-examples/tree/lpf2-lpf3-7.41.00.17-8.20.00.119-ble5stack/examples/rtos/LP_EM_CC2340R5/ble5stack/basic_ble)
 sample.
 
 ### Features
@@ -44,18 +44,55 @@ To build and run this project, you will need:
 
    Ensure that the TI SDK is installed on your
    system. Set *SYSCONFIG_TOOL*, *SIMPLELINK_LOWPOWER_F3_SDK_INSTALL_DIR* and *TICLANG_ARMCOMPILER*
-   environment variables. e.g:
-```bash
-export TICLANG_ARMCOMPILER=/Applications/ti/ccs2040/ccs/tools/compiler/ti-cgt-armllvm_4.0.4.LTS/
-export SIMPLELINK_LOWPOWER_F3_SDK_INSTALL_DIR=/Applications/ti/simplelink_lowpower_f3_sdk_9_14_00_41
-export SYSCONFIG_TOOL=/Applications/ti/sysconfig_1.23.2/sysconfig_cli.sh
-```
+   environment variables.
 
    When using the SysConfig-based build (*makefile-syscfg*), also set *HUBBLE_NETWORK_SDK* to the
    root of this SDK (defaults to four directories above the sample if unset):
-```bash
-export HUBBLE_NETWORK_SDK=/path/to/hubblenetwork-sdk
-```
+   ```bash
+   export HUBBLE_NETWORK_SDK=/path/to/hubble-device-sdk
+   ```
+
+   #### **Linux and macOS**
+
+   ```bash
+   export TICLANG_ARMCOMPILER=/path/to/ti/ti-cgt-armllvm
+   export SIMPLELINK_LOWPOWER_F3_SDK_INSTALL_DIR=/path/to/ti/simplelink_lowpower_f3_sdk
+   export SYSCONFIG_TOOL=/path/to/ti/sysconfig/sysconfig_cli.sh
+   ```
+
+   #### **Windows**
+
+   If using Bash, the above commands work.
+
+   Command Prompt:
+
+   ```bat
+   set TICLANG_ARMCOMPILER=/path/to/ti/ti-cgt-armllvm
+   set SIMPLELINK_LOWPOWER_F3_SDK_INSTALL_DIR=/path/to/ti/simplelink_lowpower_f3_sdk
+   set SYSCONFIG_TOOL=/path/to/ti/sysconfig/sysconfig_cli.bat
+   ```
+
+   PowerShell:
+
+   ```powershell
+   $env:TICLANG_ARMCOMPILER = "/path/to/ti/ti-cgt-armllvm"
+   $env:SIMPLELINK_LOWPOWER_F3_SDK_INSTALL_DIR = "/path/to/ti/simplelink_lowpower_f3_sdk"
+   $env:SYSCONFIG_TOOL = "/path/to/ti/sysconfig/sysconfig_cli.bat"
+   ```
+
+   > [!WARNING]
+   > For any shell, write the paths with **forward slashes** (e.g. `C:/ti/...`, not `C:\ti\...`).
+   > Windows GNU Make strips backslashes out of the commands.
+
+   > [!NOTE]
+   > If not using Bash, you may need to include Unix tools on your `PATH`:
+   > `C:\Program Files\Git\usr\bin`. It is not added by default when installing
+   > Git. A Bash session will inherit this automatically.
+
+   > [!NOTE]
+   > If using Powershell or cmd, set the SYSCONFIG_TOOL to `sysconfig_cli.bat` instead of
+   > `sysconfig_cli.sh`.
+
 
 2. **Embed Key and Unix Time**
 

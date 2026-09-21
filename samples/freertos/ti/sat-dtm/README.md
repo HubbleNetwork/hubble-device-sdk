@@ -32,17 +32,52 @@ demo. The generic UART CLI driver was reused and extended to fit with the sample
 
 ## Building and Flashing
 
-1. **Install dependencies**
+1. **Install Dependencies**
 
-   Ensure the TI SDK is installed and set the `SYSCONFIG_TOOL`,
-   `SIMPLELINK_LOWPOWER_F3_SDK_INSTALL_DIR`, and `TICLANG_ARMCOMPILER`
-   environment variables, e.g.:
+   Ensure that the TI SDK is installed on your
+   system. Set *SYSCONFIG_TOOL*, *SIMPLELINK_LOWPOWER_F3_SDK_INSTALL_DIR* and *TICLANG_ARMCOMPILER*
+   environment variables.
+
+   #### **Linux and macOS**
 
    ```bash
    export TICLANG_ARMCOMPILER=/path/to/ti/ti-cgt-armllvm
    export SIMPLELINK_LOWPOWER_F3_SDK_INSTALL_DIR=/path/to/ti/simplelink_lowpower_f3_sdk
    export SYSCONFIG_TOOL=/path/to/ti/sysconfig/sysconfig_cli.sh
    ```
+
+   #### **Windows**
+
+   If using Bash, the above commands work.
+
+   Command Prompt:
+
+   ```bat
+   set TICLANG_ARMCOMPILER=/path/to/ti/ti-cgt-armllvm
+   set SIMPLELINK_LOWPOWER_F3_SDK_INSTALL_DIR=/path/to/ti/simplelink_lowpower_f3_sdk
+   set SYSCONFIG_TOOL=/path/to/ti/sysconfig/sysconfig_cli.bat
+   ```
+
+   PowerShell:
+
+   ```powershell
+   $env:TICLANG_ARMCOMPILER = "/path/to/ti/ti-cgt-armllvm"
+   $env:SIMPLELINK_LOWPOWER_F3_SDK_INSTALL_DIR = "/path/to/ti/simplelink_lowpower_f3_sdk"
+   $env:SYSCONFIG_TOOL = "/path/to/ti/sysconfig/sysconfig_cli.bat"
+   ```
+
+   > [!WARNING]
+   > For any shell, write the paths with **forward slashes** (e.g. `C:/ti/...`, not `C:\ti\...`).
+   > Windows GNU Make strips backslashes out of the commands.
+
+   > [!NOTE]
+   > If not using Bash, you may need to include Unix tools on your `PATH`:
+   > `C:\Program Files\Git\usr\bin`. It is not added by default when installing
+   > Git. A Bash session will inherit this automatically.
+
+   > [!NOTE]
+   > If using Powershell or cmd, set the SYSCONFIG_TOOL to `sysconfig_cli.bat` instead of
+   > `sysconfig_cli.sh`.
 
 2. **Build the project**
 
