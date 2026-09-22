@@ -31,6 +31,16 @@ The sample exposes the following options (via `idf.py menuconfig`, under
 | `CONFIG_HUBBLE_DEVICE_KEY`   | `""`    | Hubble device cryptographic key, base64-encoded.                                     |
 | `CONFIG_HUBBLE_SAMPLE_DEBUG` | `n`     | Enable debug mode, schedule sat tx in 2 minutes instead of waiting for the next pass |
 
+## Advertising parameters
+
+The sample advertises with the following parameters by default. They can be modified.
+
+| Parameter | Value | Set by |
+| --- | --- | --- |
+| Beacon interval | 1000–1200 ms | `ADV_INTERVAL_MIN_MS` / `ADV_INTERVAL_MAX_MS` in [main/app_ble.c](main/app_ble.c) |
+| Provisioning interval (connectable) | 100–150 ms | NimBLE GAP fast interval `BLE_GAP_ADV_FAST_INTERVAL2_MIN` / `BLE_GAP_ADV_FAST_INTERVAL2_MAX` in [main/app_ble.c](main/app_ble.c) |
+| Tx power | 0 dBm | `CONFIG_BT_LE_DFT_TX_POWER_LEVEL_N0` in [sdkconfig.defaults](sdkconfig.defaults) |
+
 ## Setup Instructions
 
 ### 1. Install Dependencies

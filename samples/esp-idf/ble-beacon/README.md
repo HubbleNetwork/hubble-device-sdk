@@ -18,6 +18,15 @@ The sample requires a master key and the current Unix time to be provisioned
 into the device. This is done by running the `embed_key_time.py` script before
 building the application.
 
+## Advertising parameters
+
+The sample advertises with the following parameters by default. They can be modified.
+
+| Parameter | Value | Set by |
+| --- | --- | --- |
+| Beacon interval | 1000–1200 ms | `ADV_INTERVAL_MIN_MS` / `ADV_INTERVAL_MAX_MS` in [main/main.c](main/main.c) |
+| Tx power | 0 dBm | `CONFIG_BT_LE_DFT_TX_POWER_LEVEL_N0` in [sdkconfig.defaults](sdkconfig.defaults) |
+
 ## Provisioning
 
 The provisioning process embeds a master key and the current Unix time into the

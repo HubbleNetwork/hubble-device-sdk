@@ -39,8 +39,8 @@ static const char *BLE_TAG = "ble";
 #define HUBBLE_BLE_UUID_CONNECTABLE    0xFCA7
 #define HUBBLE_BLE_BUFFER_LEN          31U
 
-#define ADV_INTERVAL_MIN_MS            1000
-#define ADV_INTERVAL_MAX_MS            1200
+#define ADV_INTERVAL_MIN_MS            1000U
+#define ADV_INTERVAL_MAX_MS            1200U
 
 /* Period to update adv packets in microseconds (1 hour) */
 #define HUBBLE_ADV_PACKET_PERIOD       3600000000UL
