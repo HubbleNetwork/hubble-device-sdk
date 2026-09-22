@@ -145,6 +145,8 @@ the header search path.
    * - ``src/hubble.c``
      - Core SDK initialization and counter source (device uptime / Unix time)
        management.
+   * - ``src/hubble_crypto.c``
+     - Shared key derivation and sequence counter / nonce handling.
    * - ``src/hubble_ble.c``
      - BLE advertisement packet generation.
    * - ``src/crypto/mbedtls.c`` or ``src/crypto/psa.c``
@@ -231,8 +233,9 @@ Abstraction Layers
 
 Two abstraction layers must be implemented to port Hubble Device SDK:
 
-#. **System Abstraction** (``sys.h``) — Provides timing, logging, and optional
-   sequence counter functionality.
+#. **System Abstraction** (``sys.h``) — Provides timing, logging, locking,
+   random numbers (satellite only), and optional sequence counter
+   functionality.
 #. **Cryptographic Abstraction** (``crypto.h``) — Provides AES-CTR encryption,
    AES-CMAC authentication, and secure memory handling.
 
@@ -247,6 +250,8 @@ must implement the following functions:
 
 - ``hubble_uptime_get()``
 - ``hubble_log()``
+- ``hubble_lock_init()``, ``hubble_lock()``, and ``hubble_unlock()``
+- ``hubble_rand_get()`` — **satellite only** (``CONFIG_HUBBLE_SAT_NETWORK``)
 - (Optional) ``hubble_sequence_counter_get()``
 
 .. _bare_metal_uptime_get:
@@ -376,6 +381,101 @@ infrastructure.
 
        if (len > 0) {
            your_uart_write(buffer, offset + len);
+       }
+
+       return 0;
+   }
+
+hubble_lock_init, hubble_lock, hubble_unlock
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. code-block:: c
+
+   int hubble_lock_init(void);
+   void hubble_lock(void);
+   void hubble_unlock(void);
+
+These functions protect the SDK's shared state, such as the sequence
+counter and the nonce check. :c:func:`hubble_init` calls
+``hubble_lock_init()`` once before any locking happens. The SDK then calls
+``hubble_lock()`` and ``hubble_unlock()`` around its critical sections. The
+SDK has no default implementation, so every port must provide all three,
+even if they do nothing.
+
+**Requirements**
+
+- ``hubble_lock_init()`` returns ``0`` on success. A non-zero value makes
+  :c:func:`hubble_init` fail and return that value.
+- The lock must be **recursive**, because the same execution context can take
+  it more than once.
+- The lock must be able to **block**. The locked region includes the call to
+  ``hubble_sequence_counter_get()``, which your application may override to
+  read or write flash. So do **not** implement the lock by disabling interrupts
+  or with a spinlock.
+
+**Additional Context for Bare Metal Implementation**
+
+A typical bare metal application runs every SDK call from one context, such
+as the main super-loop. In that case nothing can contend for the lock, and
+empty functions are enough.
+
+If you call the SDK from more than one context, you must serialize those
+calls. For example, you might call it from the main loop and from a
+cooperative scheduler task. Back the lock with a recursive mutex from your
+platform or scheduler. Do not call the SDK from an interrupt handler.
+
+**Example: Single-Context (No-op) Implementation**
+
+.. code-block:: c
+
+   #include <hubble/port/sys.h>
+
+   int hubble_lock_init(void)
+   {
+       return 0;
+   }
+
+   void hubble_lock(void)
+   {
+   }
+
+   void hubble_unlock(void)
+   {
+   }
+
+hubble_rand_get
+^^^^^^^^^^^^^^^
+
+.. code-block:: c
+
+   int hubble_rand_get(uint8_t *buffer, size_t len);
+
+Fills ``buffer`` with ``len`` random bytes and returns ``0`` on success. The
+satellite module uses these bytes to choose a channel hopping sequence.
+
+.. note::
+
+   ``hubble_rand_get()`` is **only required when the satellite network is
+   enabled** (``CONFIG_HUBBLE_SAT_NETWORK``). The BLE path never calls it,
+   so a BLE-only port does not need to implement it.
+
+**Requirements**
+
+- The generator does **not** need to be cryptographically secure. A hardware
+  RNG, a TRNG peripheral, or a well-seeded pseudo-random generator is fine.
+- If it returns a non-zero value, the SDK logs a warning and uses the default
+  hopping sequence.
+
+**Example Implementation Pattern**
+
+.. code-block:: c
+
+   #include <hubble/port/sys.h>
+
+   int hubble_rand_get(uint8_t *buffer, size_t len)
+   {
+       for (size_t i = 0; i < len; i++) {
+           buffer[i] = (uint8_t)your_hw_rng_get();
        }
 
        return 0;
@@ -568,6 +668,32 @@ Below is a complete example of a minimal bare metal port:
        (void)format;
        return 0;
    }
+
+   /* Single execution context: no contention, so the lock is a no-op. */
+   int hubble_lock_init(void)
+   {
+       return 0;
+   }
+
+   void hubble_lock(void)
+   {
+   }
+
+   void hubble_unlock(void)
+   {
+   }
+
+   #ifdef CONFIG_HUBBLE_SAT_NETWORK
+   /* Only needed when the satellite network is enabled. */
+   int hubble_rand_get(uint8_t *buffer, size_t len)
+   {
+       for (size_t i = 0; i < len; i++) {
+           buffer[i] = (uint8_t)your_hw_rng_get();
+       }
+
+       return 0;
+   }
+   #endif
 
    /*
     * Note: hubble_sequence_counter_get() uses the SDK's default
