@@ -31,6 +31,10 @@
 #define SEC_PER_HOUR    (60ULL * 60ULL)
 #define HOUR_TO_US(_x)  ((_x) * SEC_PER_HOUR * USEC_PER_SEC)
 
+/* Advertising interval, in units of 0.625 ms. */
+#define ADV_INTERVAL_MIN 0x0640 /* 1000 ms */
+#define ADV_INTERVAL_MAX 0x0780 /* 1200 ms */
+
 #include "time.c"
 #include "key.c"
 
@@ -44,8 +48,8 @@ static esp_bd_addr_t local_addr;
 static uint8_t local_addr_type;
 
 static esp_ble_adv_params_t adv_params = {
-	.adv_int_min = 0x20, // 20ms
-	.adv_int_max = 0x20, // 20ms
+	.adv_int_min = ADV_INTERVAL_MIN,
+	.adv_int_max = ADV_INTERVAL_MAX,
 	.adv_type = ADV_TYPE_SCAN_IND,
 	.own_addr_type = BLE_ADDR_TYPE_RANDOM,
 	.channel_map = ADV_CHNL_ALL,
