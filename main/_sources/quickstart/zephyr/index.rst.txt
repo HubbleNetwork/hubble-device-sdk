@@ -128,6 +128,13 @@ following steps outline the process of creating a Zephyr workspace that uses the
             west packages pip --install
             pip install -r ~/hubblenetwork-workspace/zephyr/scripts/requirements.txt
 
+      #. Install the Zephyr SDK:
+
+         .. code-block:: bash
+
+            cd ~/hubblenetwork-workspace/zephyr
+            west sdk install
+
 
 nRF Connect SDK (NCS)
 +++++++++++++++++++++
