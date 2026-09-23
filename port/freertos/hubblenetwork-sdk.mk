@@ -15,7 +15,7 @@ HUBBLENETWORK_SDK_INCLUDE_DIR := $(THIS_DIR)/../../include
 HUBBLENETWORK_SDK_CONFIG ?= $(HUBBLENETWORK_SDK_PORT_DIR)/config.h
 
 # Extract config variables from config file
-CONFIG_VARS := $(shell awk '$$1 == "#define" && \
+CONFIG_VARS := $(shell awk '$$1 ~ /define$$/ && \
 	$$2 ~ /^CONFIG_HUBBLE_[A-Z0-9_]*$$/ \
 	{ print $$2 "=" ((NF > 2 && substr($$3, 1, 1) != "/") ? $$3 : 1) }' \
 	$(HUBBLENETWORK_SDK_CONFIG))
