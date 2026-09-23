@@ -53,12 +53,16 @@ __weak int hubble_log(enum hubble_log_level level, const char *format, ...)
 	return 0;
 }
 
+#ifdef CONFIG_HUBBLE_SAT_NETWORK
+
 int hubble_rand_get(uint8_t *buffer, size_t len)
 {
 	sys_rand_get(buffer, len);
 
 	return 0;
 }
+
+#endif /* CONFIG_HUBBLE_SAT_NETWORK */
 
 /* Recursive mutex: SMP-safe, blocking-capable, and statically initialized. */
 K_MUTEX_DEFINE(_hubble_lock);

@@ -72,6 +72,8 @@ uint64_t hubble_uptime_get(void)
 }
 #endif /* CONFIG_HUBBLE_UPTIME_CUSTOM */
 
+#ifdef CONFIG_HUBBLE_SAT_NETWORK
+
 HUBBLE_WEAK int hubble_rand_get(uint8_t *buffer, size_t len)
 {
 	static bool seeded;
@@ -96,6 +98,8 @@ HUBBLE_WEAK int hubble_rand_get(uint8_t *buffer, size_t len)
 	}
 	return 0;
 }
+
+#endif /* CONFIG_HUBBLE_SAT_NETWORK */
 
 HUBBLE_WEAK int hubble_log(enum hubble_log_level level, const char *format, ...)
 {

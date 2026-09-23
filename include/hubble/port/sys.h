@@ -124,6 +124,7 @@ void hubble_lock(void);
  */
 void hubble_unlock(void);
 
+#ifdef CONFIG_HUBBLE_SAT_NETWORK
 /**
  * @brief Fill a buffer with random bytes.
  *
@@ -142,6 +143,7 @@ void hubble_unlock(void);
  * @return 0 on success, negative error code on failure.
  */
 int hubble_rand_get(uint8_t *buffer, size_t len);
+#endif /* CONFIG_HUBBLE_SAT_NETWORK */
 
 #ifdef __cplusplus
 }

@@ -48,8 +48,12 @@ int hubble_log(enum hubble_log_level level, const char *format, ...)
 	return 0;
 }
 
+#ifdef CONFIG_HUBBLE_SAT_NETWORK
+
 int hubble_rand_get(uint8_t *buffer, size_t len)
 {
 	esp_fill_random(buffer, len);
 	return 0;
 }
+
+#endif /* CONFIG_HUBBLE_SAT_NETWORK */
