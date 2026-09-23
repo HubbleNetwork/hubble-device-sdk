@@ -185,7 +185,11 @@ import_key_error:
 
 void hubble_crypto_zeroize(void *buf, size_t len)
 {
-	memset(buf, 0, len);
+	volatile uint8_t *p = (volatile uint8_t *)buf;
+
+	while (len--) {
+		*p++ = 0;
+	}
 }
 
 int hubble_crypto_init(void)
