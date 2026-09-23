@@ -519,14 +519,17 @@ the header search path.</p>
 <td><p>Core SDK initialization and counter source (device uptime / Unix time)
 management.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">src/hubble_ble.c</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">src/hubble_crypto.c</span></code></p></td>
+<td><p>Shared key derivation and sequence counter / nonce handling.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">src/hubble_ble.c</span></code></p></td>
 <td><p>BLE advertisement packet generation.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">src/crypto/mbedtls.c</span></code> or <code class="docutils literal notranslate"><span class="pre">src/crypto/psa.c</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">src/crypto/mbedtls.c</span></code> or <code class="docutils literal notranslate"><span class="pre">src/crypto/psa.c</span></code></p></td>
 <td><p>Cryptographic implementation (choose one, or implement and port your
 own).</p></td>
 </tr>
-<tr class="row-odd"><td><p>Your port file(s)</p></td>
+<tr class="row-even"><td><p>Your port file(s)</p></td>
 <td><p>Platform-specific implementations of <code class="docutils literal notranslate"><span class="pre">sys.h</span></code> and optionally
 <code class="docutils literal notranslate"><span class="pre">crypto.h</span></code> (see <strong>Abstraction Layers</strong> below).</p></td>
 </tr>
@@ -591,8 +594,9 @@ daily rotation (<code class="docutils literal notranslate"><span class="pre">864
 <h2>Abstraction Layers<a class="headerlink" href="#abstraction-layers" title="Link to this heading"></a></h2>
 <p>Two abstraction layers must be implemented to port Hubble Device SDK:</p>
 <ol class="arabic simple">
-<li><p><strong>System Abstraction</strong> (<code class="docutils literal notranslate"><span class="pre">sys.h</span></code>) — Provides timing, logging, and optional
-sequence counter functionality.</p></li>
+<li><p><strong>System Abstraction</strong> (<code class="docutils literal notranslate"><span class="pre">sys.h</span></code>) — Provides timing, logging, locking,
+random numbers (satellite only), and optional sequence counter
+functionality.</p></li>
 <li><p><strong>Cryptographic Abstraction</strong> (<code class="docutils literal notranslate"><span class="pre">crypto.h</span></code>) — Provides AES-CTR encryption,
 AES-CMAC authentication, and secure memory handling.</p></li>
 </ol>
@@ -604,6 +608,8 @@ must implement the following functions:</p>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">hubble_uptime_get()</span></code></p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">hubble_log()</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">hubble_lock_init()</span></code>, <code class="docutils literal notranslate"><span class="pre">hubble_lock()</span></code>, and <code class="docutils literal notranslate"><span class="pre">hubble_unlock()</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">hubble_rand_get()</span></code> — <strong>satellite only</strong> (<code class="docutils literal notranslate"><span class="pre">CONFIG_HUBBLE_SAT_NETWORK</span></code>)</p></li>
 <li><p>(Optional) <code class="docutils literal notranslate"><span class="pre">hubble_sequence_counter_get()</span></code></p></li>
 </ul>
 <section id="hubble-uptime-get">
@@ -715,6 +721,90 @@ constraints).</p></li>
 
 <span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">len</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
 <span class="w">        </span><span class="n">your_uart_write</span><span class="p">(</span><span class="n">buffer</span><span class="p">,</span><span class="w"> </span><span class="n">offset</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">len</span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="hubble-lock-init-hubble-lock-hubble-unlock">
+<h4>hubble_lock_init, hubble_lock, hubble_unlock<a class="headerlink" href="#hubble-lock-init-hubble-lock-hubble-unlock" title="Link to this heading"></a></h4>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="kt">int</span><span class="w"> </span><span class="nf">hubble_lock_init</span><span class="p">(</span><span class="kt">void</span><span class="p">);</span>
+<span class="kt">void</span><span class="w"> </span><span class="nf">hubble_lock</span><span class="p">(</span><span class="kt">void</span><span class="p">);</span>
+<span class="kt">void</span><span class="w"> </span><span class="nf">hubble_unlock</span><span class="p">(</span><span class="kt">void</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>These functions protect the SDK’s shared state, such as the sequence
+counter and the nonce check. <code class="xref c c-func docutils literal notranslate"><span class="pre">hubble_init()</span></code> calls
+<code class="docutils literal notranslate"><span class="pre">hubble_lock_init()</span></code> once before any locking happens. The SDK then calls
+<code class="docutils literal notranslate"><span class="pre">hubble_lock()</span></code> and <code class="docutils literal notranslate"><span class="pre">hubble_unlock()</span></code> around its critical sections. The
+SDK has no default implementation, so every port must provide all three,
+even if they do nothing.</p>
+<p><strong>Requirements</strong></p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">hubble_lock_init()</span></code> returns <code class="docutils literal notranslate"><span class="pre">0</span></code> on success. A non-zero value makes
+<code class="xref c c-func docutils literal notranslate"><span class="pre">hubble_init()</span></code> fail and return that value.</p></li>
+<li><p>The lock must be <strong>recursive</strong>, because the same execution context can take
+it more than once.</p></li>
+<li><p>The lock must be able to <strong>block</strong>. The locked region includes the call to
+<code class="docutils literal notranslate"><span class="pre">hubble_sequence_counter_get()</span></code>, which your application may override to
+read or write flash. So do <strong>not</strong> implement the lock by disabling interrupts
+or with a spinlock.</p></li>
+</ul>
+<p><strong>Additional Context for Bare Metal Implementation</strong></p>
+<p>A typical bare metal application runs every SDK call from one context, such
+as the main super-loop. In that case nothing can contend for the lock, and
+empty functions are enough.</p>
+<p>If you call the SDK from more than one context, you must serialize those
+calls. For example, you might call it from the main loop and from a
+cooperative scheduler task. Back the lock with a recursive mutex from your
+platform or scheduler. Do not call the SDK from an interrupt handler.</p>
+<p><strong>Example: Single-Context (No-op) Implementation</strong></p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;hubble/port/sys.h&gt;</span>
+
+<span class="kt">int</span><span class="w"> </span><span class="nf">hubble_lock_init</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="kt">void</span><span class="w"> </span><span class="nf">hubble_lock</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="p">}</span>
+
+<span class="kt">void</span><span class="w"> </span><span class="nf">hubble_unlock</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="hubble-rand-get">
+<h4>hubble_rand_get<a class="headerlink" href="#hubble-rand-get" title="Link to this heading"></a></h4>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="kt">int</span><span class="w"> </span><span class="nf">hubble_rand_get</span><span class="p">(</span><span class="kt">uint8_t</span><span class="w"> </span><span class="o">*</span><span class="n">buffer</span><span class="p">,</span><span class="w"> </span><span class="kt">size_t</span><span class="w"> </span><span class="n">len</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>Fills <code class="docutils literal notranslate"><span class="pre">buffer</span></code> with <code class="docutils literal notranslate"><span class="pre">len</span></code> random bytes and returns <code class="docutils literal notranslate"><span class="pre">0</span></code> on success. The
+satellite module uses these bytes to choose a channel hopping sequence.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p><code class="docutils literal notranslate"><span class="pre">hubble_rand_get()</span></code> is <strong>only required when the satellite network is
+enabled</strong> (<code class="docutils literal notranslate"><span class="pre">CONFIG_HUBBLE_SAT_NETWORK</span></code>). The BLE path never calls it,
+so a BLE-only port does not need to implement it.</p>
+</div>
+<p><strong>Requirements</strong></p>
+<ul class="simple">
+<li><p>The generator does <strong>not</strong> need to be cryptographically secure. A hardware
+RNG, a TRNG peripheral, or a well-seeded pseudo-random generator is fine.</p></li>
+<li><p>If it returns a non-zero value, the SDK logs a warning and uses the default
+hopping sequence.</p></li>
+</ul>
+<p><strong>Example Implementation Pattern</strong></p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;hubble/port/sys.h&gt;</span>
+
+<span class="kt">int</span><span class="w"> </span><span class="nf">hubble_rand_get</span><span class="p">(</span><span class="kt">uint8_t</span><span class="w"> </span><span class="o">*</span><span class="n">buffer</span><span class="p">,</span><span class="w"> </span><span class="kt">size_t</span><span class="w"> </span><span class="n">len</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">size_t</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">len</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">buffer</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="kt">uint8_t</span><span class="p">)</span><span class="n">your_hw_rng_get</span><span class="p">();</span>
 <span class="w">    </span><span class="p">}</span>
 
 <span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
@@ -900,6 +990,32 @@ crypto peripherals directly), implement the Hubble Cryptographic Functions API
 <span class="w">    </span><span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="n">format</span><span class="p">;</span>
 <span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
 <span class="p">}</span>
+
+<span class="cm">/* Single execution context: no contention, so the lock is a no-op. */</span>
+<span class="kt">int</span><span class="w"> </span><span class="nf">hubble_lock_init</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="kt">void</span><span class="w"> </span><span class="nf">hubble_lock</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="p">}</span>
+
+<span class="kt">void</span><span class="w"> </span><span class="nf">hubble_unlock</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="p">}</span>
+
+<span class="cp">#ifdef CONFIG_HUBBLE_SAT_NETWORK</span>
+<span class="cm">/* Only needed when the satellite network is enabled. */</span>
+<span class="kt">int</span><span class="w"> </span><span class="nf">hubble_rand_get</span><span class="p">(</span><span class="kt">uint8_t</span><span class="w"> </span><span class="o">*</span><span class="n">buffer</span><span class="p">,</span><span class="w"> </span><span class="kt">size_t</span><span class="w"> </span><span class="n">len</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">size_t</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">len</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">buffer</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="kt">uint8_t</span><span class="p">)</span><span class="n">your_hw_rng_get</span><span class="p">();</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+<span class="cp">#endif</span>
 
 <span class="cm">/*</span>
 <span class="cm"> * Note: hubble_sequence_counter_get() uses the SDK's default</span>
