@@ -116,5 +116,5 @@ uint32_t hubble_ble_advertise_expiration_get(void)
 	uint64_t time_in_current_period = time_ms % rotation_period_ms;
 	uint64_t time_remaining = rotation_period_ms - time_in_current_period;
 
-	return HUBBLE_MIN(time_remaining, UINT32_MAX);
+	return (uint32_t)HUBBLE_MIN(time_remaining, UINT32_MAX);
 }
