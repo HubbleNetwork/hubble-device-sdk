@@ -822,7 +822,7 @@ int hubble_sat_next_pass_get(uint64_t t, const struct hubble_sat_device_pos *pos
 	struct hubble_sat_pass_info next_pass;
 	double lon_tol, alt = 0.0;
 	uint16_t transmission_period_s;
-	uint8_t sat_id = 0;
+	size_t sat_id = 0;
 	bool ascending = false;
 
 	/* Basic sanity check */
