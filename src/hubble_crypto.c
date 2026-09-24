@@ -281,7 +281,7 @@ static int _derived_key_get(enum hubble_key_label label, uint32_t counter,
 
 static int _derived_value_get(enum hubble_value_label label,
 			      uint32_t time_counter, uint16_t seq_no,
-			      uint8_t *output_value, uint32_t output_len)
+			      uint8_t *output_value, size_t output_len)
 {
 	int ret = 0;
 	uint8_t context[_CONTEXT_SIZE];
