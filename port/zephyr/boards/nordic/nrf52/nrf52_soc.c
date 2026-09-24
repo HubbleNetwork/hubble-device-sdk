@@ -184,6 +184,7 @@ int hubble_sat_soc_disable(void)
 int hubble_sat_soc_packet_send(const struct hubble_sat_packet_frames *packet)
 {
 	int8_t frame = -1;
+	int ret = 0;
 
 	k_sem_take(&_transmit_sem, K_FOREVER);
 
@@ -199,8 +200,12 @@ int hubble_sat_soc_packet_send(const struct hubble_sat_packet_frames *packet)
 			frame++;
 		}
 
-		hubble_nrf_lib_frequency_set(packet->frame[frame].channel,
-					     packet->frame[frame].data[data_pos]);
+		ret = hubble_nrf_lib_frequency_set(
+			packet->frame[frame].channel,
+			packet->frame[frame].data[data_pos]);
+		if (ret != 0) {
+			break;
+		}
 		k_sem_take(&_symbol_sem, K_FOREVER);
 	}
 
@@ -209,5 +214,5 @@ int hubble_sat_soc_packet_send(const struct hubble_sat_packet_frames *packet)
 
 	k_sem_give(&_transmit_sem);
 
-	return 0;
+	return ret;
 }
