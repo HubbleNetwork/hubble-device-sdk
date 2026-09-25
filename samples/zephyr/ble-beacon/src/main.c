@@ -33,6 +33,12 @@ LOG_MODULE_REGISTER(main, CONFIG_APP_LOG_LEVEL);
 #define HUBBLE_USER_BUFFER_LEN 31
 static uint8_t _hubble_user_buffer[HUBBLE_USER_BUFFER_LEN];
 
+/* Converts milliseconds to advertising interval units of 0.625 ms. */
+#define MS_TO_ADV_INTERVAL(_ms) ((_ms) * 1000U / 625U)
+
+#define ADV_INTERVAL_MIN_MS     1000U
+#define ADV_INTERVAL_MAX_MS     1200U
+
 #ifdef CONFIG_HUBBLE_BEACON_SAMPLE_ADDITIONAL_ADV
 static struct {
 	uint16_t uuid;
@@ -226,8 +232,9 @@ int main(void)
 
 		err = bt_le_adv_start(
 			BT_LE_ADV_PARAM(BT_LE_ADV_OPT_USE_NRPA,
-					BT_GAP_ADV_FAST_INT_MIN_2,
-					BT_GAP_ADV_FAST_INT_MAX_2, NULL),
+					MS_TO_ADV_INTERVAL(ADV_INTERVAL_MIN_MS),
+					MS_TO_ADV_INTERVAL(ADV_INTERVAL_MAX_MS),
+					NULL),
 			app_ad, ARRAY_SIZE(app_ad), NULL, 0);
 		if (err != 0) {
 			LOG_ERR("Bluetooth advertisement failed (err %d)", err);

@@ -10,6 +10,15 @@ timestamp, and then advertises user-provided data within a BLE packet. It
 provides a shell interface over the serial port to input the necessary
 configuration and data.
 
+## Advertising parameters
+
+The sample advertises with the following parameters by default. They can be modified.
+
+| Parameter | Value | Set by |
+| --- | --- | --- |
+| Beacon interval | 1000–1200 ms | `ADV_INTERVAL_MIN_MS` / `ADV_INTERVAL_MAX_MS` in [src/main.c](src/main.c) |
+| Tx power | 0 dBm | `CONFIG_BT_CTLR_TX_PWR_0` in [prj.conf](prj.conf) |
+
 ## Requirements
 
 - A serial terminal program (e.g., `minicom`, `screen`, PuTTY).

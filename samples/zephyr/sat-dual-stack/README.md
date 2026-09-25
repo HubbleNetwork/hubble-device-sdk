@@ -48,6 +48,16 @@ Options live under *"Hubble Network Dual Stack Sample options"* in `menuconfig`:
 | `CONFIG_HUBBLE_SAMPLE_DEBUG`              | `n`     | Schedule the satellite transmission 120 s after boot instead of waiting for the next pass.   |
 | `CONFIG_SAMPLE_PROVIDE_SAT_BOARD_SUPPORT` | `n`     | Provide mock satellite board APIs. Enable on boards that do not implement the real satellite radio.|
 
+## Advertising parameters
+
+The sample advertises with the following parameters by default. They can be modified.
+
+| Parameter | Value | Set by |
+| --- | --- | --- |
+| Beacon interval | 1000–1200 ms | `ADV_INTERVAL_MIN_MS` / `ADV_INTERVAL_MAX_MS` in [src/app_ble.c](src/app_ble.c) |
+| Provisioning interval (connectable) | 100–150 ms | GAP fast interval `BT_GAP_ADV_FAST_INT_MIN_2` / `BT_GAP_ADV_FAST_INT_MAX_2` in [src/app_ble.c](src/app_ble.c) |
+| Tx power | 0 dBm | `CONFIG_BT_CTLR_TX_PWR_0` in [prj.conf](prj.conf) |
+
 ## Building
 
 ```sh

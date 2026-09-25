@@ -64,6 +64,12 @@ extern const uint8_t master_key[];
 #define HUBBLE_USER_BUFFER_LEN 31
 static uint8_t hubble_buffer[HUBBLE_USER_BUFFER_LEN];
 
+/* Converts milliseconds to advertising interval units of 0.625 ms. */
+#define MS_TO_ADV_INTERVAL(_ms) ((_ms) * 1000U / 625U)
+
+#define ADV_INTERVAL_MIN_MS     1000U
+#define ADV_INTERVAL_MAX_MS     1200U
+
 /*
  * Manufacturer-specific data: a 2-byte identifier prefix followed by a 4-byte
  * counter. We reuse Hubble's 0xFCA6 identifier as the prefix. Both fields are
@@ -162,8 +168,9 @@ int main(void)
 		 */
 		err = bt_le_adv_start(
 			BT_LE_ADV_PARAM(BT_LE_ADV_OPT_USE_NRPA,
-					BT_GAP_ADV_FAST_INT_MIN_2,
-					BT_GAP_ADV_FAST_INT_MAX_2, NULL),
+					MS_TO_ADV_INTERVAL(ADV_INTERVAL_MIN_MS),
+					MS_TO_ADV_INTERVAL(ADV_INTERVAL_MAX_MS),
+					NULL),
 			adv_data, ARRAY_SIZE(adv_data), NULL, 0);
 		if (err != 0) {
 			LOG_ERR("Advertisement start failed (err %d)", err);

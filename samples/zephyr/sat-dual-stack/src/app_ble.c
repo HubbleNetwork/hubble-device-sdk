@@ -43,6 +43,12 @@ LOG_MODULE_REGISTER(app_ble, CONFIG_APP_LOG_LEVEL);
 /* Period to refresh the beacon advertisement payload (1 hour). */
 #define HUBBLE_ADV_REFRESH_PERIOD      K_HOURS(1)
 
+/* Converts milliseconds to advertising interval units of 0.625 ms. */
+#define MS_TO_ADV_INTERVAL(_ms)        ((_ms) * 1000U / 625U)
+
+#define ADV_INTERVAL_MIN_MS            1000U
+#define ADV_INTERVAL_MAX_MS            1200U
+
 /*
  *   Service:        0000fca7-0000-1000-8000-00805f9b34fb
  *   Characteristic: 00000005-fca7-4000-8000-00805f9b34fb
@@ -139,10 +145,11 @@ int ble_adv_start(void)
 	}
 	LOG_DBG("Beacon advertisement payload: %d bytes", _beacon_ad[1].data_len);
 
-	err = bt_le_adv_start(BT_LE_ADV_PARAM(BT_LE_ADV_OPT_USE_NRPA,
-					      BT_GAP_ADV_FAST_INT_MIN_2,
-					      BT_GAP_ADV_FAST_INT_MAX_2, NULL),
-			      _beacon_ad, ARRAY_SIZE(_beacon_ad), NULL, 0);
+	err = bt_le_adv_start(
+		BT_LE_ADV_PARAM(BT_LE_ADV_OPT_USE_NRPA,
+				MS_TO_ADV_INTERVAL(ADV_INTERVAL_MIN_MS),
+				MS_TO_ADV_INTERVAL(ADV_INTERVAL_MAX_MS), NULL),
+		_beacon_ad, ARRAY_SIZE(_beacon_ad), NULL, 0);
 	if (err != 0) {
 		LOG_ERR("Failed to start beacon adv (err=%d)", err);
 		return err;
