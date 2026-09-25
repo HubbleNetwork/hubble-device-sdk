@@ -138,6 +138,20 @@ static void _timer_setup(void)
 	nrfx_timer_init(&_timer0, &timer_cfg, NULL);
 }
 
+/* Call to guarantee the radio is disabled regardless of where the timers ended. */
+static void _radio_disable(void)
+{
+	if (nrf_radio_state_get(NRF_RADIO) == NRF_RADIO_STATE_DISABLED) {
+		return;
+	}
+
+	nrf_radio_task_trigger(NRF_RADIO, NRF_RADIO_TASK_DISABLE);
+
+	while (nrf_radio_state_get(NRF_RADIO) != NRF_RADIO_STATE_DISABLED) {
+		/* Do nothing */
+	}
+}
+
 static void _radio_isr(const void *arg)
 {
 	if (nrf_radio_event_check(NRF_RADIO, NRF_RADIO_EVENT_DISABLED)) {
@@ -234,6 +248,7 @@ int hubble_sat_soc_packet_send(const struct hubble_sat_packet_frames *packet)
 
 	_dppi_disable();
 	_timer_disable();
+	_radio_disable();
 
 	k_sem_give(&_transmit_sem);
 
