@@ -206,7 +206,10 @@ int hubble_sat_soc_cw_stop(void)
 {
 	nrf_radio_task_trigger(NRF_RADIO, NRF_RADIO_TASK_DISABLE);
 
-	while (!nrf_radio_event_check(NRF_RADIO, NRF_RADIO_EVENT_DISABLED)) {
+	/* Poll STATE rather than EVENTS_DISABLED: the SoC layer's radio ISR
+	 * consumes that event, and when it wins this loop never sees it.
+	 */
+	while (nrf_radio_state_get(NRF_RADIO) != NRF_RADIO_STATE_DISABLED) {
 		/* Do nothing */
 	}
 	nrf_radio_event_clear(NRF_RADIO, NRF_RADIO_EVENT_DISABLED);
