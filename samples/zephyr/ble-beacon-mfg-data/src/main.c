@@ -64,6 +64,10 @@ extern const uint8_t master_key[];
 #define HUBBLE_USER_BUFFER_LEN 31
 static uint8_t hubble_buffer[HUBBLE_USER_BUFFER_LEN];
 
+/* Advertising interval, in units of 0.625 ms. */
+#define ADV_INTERVAL_MIN    0x0640 /* 1000 ms */
+#define ADV_INTERVAL_MAX    0x0780 /* 1200 ms */
+
 /*
  * Manufacturer-specific data: a 2-byte identifier prefix followed by a 4-byte
  * counter. We reuse Hubble's 0xFCA6 identifier as the prefix. Both fields are
@@ -160,11 +164,10 @@ int main(void)
 		 * Address (NRPA); the actual address is derived by the Hubble
 		 * payload, so the advertised address rotates with the EID.
 		 */
-		err = bt_le_adv_start(
-			BT_LE_ADV_PARAM(BT_LE_ADV_OPT_USE_NRPA,
-					BT_GAP_ADV_FAST_INT_MIN_2,
-					BT_GAP_ADV_FAST_INT_MAX_2, NULL),
-			adv_data, ARRAY_SIZE(adv_data), NULL, 0);
+		err = bt_le_adv_start(BT_LE_ADV_PARAM(BT_LE_ADV_OPT_USE_NRPA,
+						      ADV_INTERVAL_MIN,
+						      ADV_INTERVAL_MAX, NULL),
+				      adv_data, ARRAY_SIZE(adv_data), NULL, 0);
 		if (err != 0) {
 			LOG_ERR("Advertisement start failed (err %d)", err);
 			goto end;

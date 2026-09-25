@@ -43,6 +43,10 @@ LOG_MODULE_REGISTER(app_ble, CONFIG_APP_LOG_LEVEL);
 /* Period to refresh the beacon advertisement payload (1 hour). */
 #define HUBBLE_ADV_REFRESH_PERIOD      K_HOURS(1)
 
+/* Advertising interval, in units of 0.625 ms. */
+#define ADV_INTERVAL_MIN               0x0640 /* 1000 ms */
+#define ADV_INTERVAL_MAX               0x0780 /* 1200 ms */
+
 /*
  *   Service:        0000fca7-0000-1000-8000-00805f9b34fb
  *   Characteristic: 00000005-fca7-4000-8000-00805f9b34fb
@@ -139,10 +143,10 @@ int ble_adv_start(void)
 	}
 	LOG_DBG("Beacon advertisement payload: %d bytes", _beacon_ad[1].data_len);
 
-	err = bt_le_adv_start(BT_LE_ADV_PARAM(BT_LE_ADV_OPT_USE_NRPA,
-					      BT_GAP_ADV_FAST_INT_MIN_2,
-					      BT_GAP_ADV_FAST_INT_MAX_2, NULL),
-			      _beacon_ad, ARRAY_SIZE(_beacon_ad), NULL, 0);
+	err = bt_le_adv_start(
+		BT_LE_ADV_PARAM(BT_LE_ADV_OPT_USE_NRPA, ADV_INTERVAL_MIN,
+				ADV_INTERVAL_MAX, NULL),
+		_beacon_ad, ARRAY_SIZE(_beacon_ad), NULL, 0);
 	if (err != 0) {
 		LOG_ERR("Failed to start beacon adv (err=%d)", err);
 		return err;
@@ -249,8 +253,7 @@ static int _start_provisioning_adv(void)
 
 	err = bt_le_adv_start(
 		BT_LE_ADV_PARAM(BT_LE_ADV_OPT_USE_NRPA | BT_LE_ADV_OPT_CONN,
-				BT_GAP_ADV_FAST_INT_MIN_2,
-				BT_GAP_ADV_FAST_INT_MAX_2, NULL),
+				ADV_INTERVAL_MIN, ADV_INTERVAL_MAX, NULL),
 		_prov_ad, ARRAY_SIZE(_prov_ad), NULL, 0);
 	if (err != 0) {
 		LOG_ERR("Failed to start provisioning adv (err=%d)", err);

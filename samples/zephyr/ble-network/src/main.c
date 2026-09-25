@@ -24,6 +24,10 @@ K_SEM_DEFINE(key_sem, 0, 1);
 #define HUBBLE_USER_BUFFER_LEN 31
 static uint8_t _hubble_user_buffer[HUBBLE_USER_BUFFER_LEN];
 
+/* Advertising interval, in units of 0.625 ms. */
+#define ADV_INTERVAL_MIN 0x0640 /* 1000 ms */
+#define ADV_INTERVAL_MAX 0x0780 /* 1200 ms */
+
 static uint8_t master_key[CONFIG_HUBBLE_KEY_SIZE];
 static uint64_t unix_time;
 static int sum;
@@ -196,10 +200,10 @@ int main(void)
 		return err;
 	}
 
-	err = bt_le_adv_start(BT_LE_ADV_PARAM(BT_LE_ADV_OPT_USE_NRPA,
-					      BT_GAP_ADV_FAST_INT_MIN_2,
-					      BT_GAP_ADV_FAST_INT_MAX_2, NULL),
-			      NULL, 0, NULL, 0);
+	err = bt_le_adv_start(
+		BT_LE_ADV_PARAM(BT_LE_ADV_OPT_USE_NRPA, ADV_INTERVAL_MIN,
+				ADV_INTERVAL_MAX, NULL),
+		NULL, 0, NULL, 0);
 	if (err != 0) {
 		LOG_ERR("Bluetooth advertisement failed (err %d)", err);
 		goto end;
