@@ -349,8 +349,8 @@ static void _start_connectable_adv(void)
 	struct ble_gap_adv_params adv_params = {
 		.conn_mode = BLE_GAP_CONN_MODE_UND,
 		.disc_mode = BLE_GAP_DISC_MODE_GEN,
-		.itvl_min = BLE_GAP_ADV_FAST_INTERVAL2_MIN,
-		.itvl_max = BLE_GAP_ADV_FAST_INTERVAL2_MAX,
+		.itvl_min = BLE_GAP_ADV_ITVL_MS(ADV_INTERVAL_MIN_MS),
+		.itvl_max = BLE_GAP_ADV_ITVL_MS(ADV_INTERVAL_MAX_MS),
 	};
 
 	static uint8_t svc_data[] = {
