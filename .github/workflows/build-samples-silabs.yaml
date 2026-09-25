@@ -1,0 +1,55 @@
+name: Build SiLabs FreeRTOS Samples
+
+on:
+  pull_request:
+    branches: ["**"]
+    paths:
+      - "include/**"
+      - "port/sisdk/**"
+      - "port/freertos/**"
+      - "src/**"
+      - "samples/freertos/silabs/**"
+      - ".github/workflows/build-samples-silabs.yaml"
+
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+  packages: read
+
+jobs:
+  build:
+    name: Build SiLabs Samples
+    runs-on: ubuntu-24.04
+    container:
+      image: ghcr.io/hubblenetwork/silabs-ci-docker:latest
+      credentials:
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+    # SLT and slc keep their state under /root/.silabs in the image, but
+    # GitHub runs container jobs with HOME=/github/home
+    env:
+      HOME: /root
+    steps:
+      - uses: actions/checkout@v5
+
+      # only need for the beacon sample, but simpler to do once here
+      - name: Generate key and time
+        run: |
+          echo -n "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=" > master.key
+          python3 tools/embed_key_time.py -b master.key -o samples/freertos/silabs/ble-beacon/src/
+
+      - name: Install Hubble SDK extension
+        run: |
+          sdk="$(readlink -f "$SISDK")"
+          mkdir -p "$sdk/extension"
+          ln -s "$GITHUB_WORKSPACE" "$sdk/extension/hubble-device-sdk"
+          slc configuration --sdk "$sdk"
+          slc signature trust --sdk "$sdk"
+          slc signature trust -extpath "$sdk/extension/hubble-device-sdk"
+
+      - name: Install Python dependencies
+        run: python3 -m pip install pyyaml
+
+      - name: Build all SiLabs samples
+        run: python3 tools/ci/freertos_sample_build.py --platform silabs samples/freertos/silabs

@@ -1,0 +1,54 @@
+id: hubble-device-sdk-component
+label: Hubble Device SDK Component
+package: hubble-device-sdk
+description: >
+  On-device SDK for connecting to Hubble's Terrestrial (Bluetooth Low Energy)
+  and Satellite Networks, built on a modular architecture that ports across
+  RTOSes and hardware.
+category: Hubble|BLE
+quality: production
+
+source:
+  - path: src/hubble.c
+  - path: src/hubble_crypto.c
+  - path: src/hubble_ble.c
+  - path: src/crypto/psa.c
+  - path: port/sisdk/hubble_sisdk.c
+  - path: port/freertos/hubble_freertos.c
+
+include:
+  - path: include
+    file_list:
+      - path: hubble/hubble.h
+      - path: hubble/ble.h
+      - path: hubble/toolchain.h
+      - path: hubble/version.h
+      - path: hubble/port/sys.h
+      - path: hubble/port/crypto.h
+      - path: hubble/port/sat_radio.h
+      - path: hubble/sat/packet.h
+  - path: src
+    file_list:
+      - path: hubble_priv.h
+      - path: utils/macros.h
+      - path: utils/hdcv.h
+
+config_file:
+  - path: port/sisdk/hubble_config.h
+
+toolchain_settings:
+    - option: gcc_compiler_option
+      value: "-imacros hubble_config.h"
+
+requires:
+  - name: app_log
+  - name: freertos
+  - name: psa_crypto_cmac
+  - name: psa_crypto_cipher_ctr
+
+documentation:
+  url: https://hubblenetwork.github.io/hubble-device-sdk/main/
+
+template_contribution:
+  - name: component_catalog
+    value: hubble_device_sdk

@@ -1,0 +1,6 @@
+sample:
+  name: ble-beacon
+
+builds:
+  - id: brd4187c
+    board: brd4187c

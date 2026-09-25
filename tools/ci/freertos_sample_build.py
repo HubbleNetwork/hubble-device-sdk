@@ -16,8 +16,10 @@ The sample.yaml format is as follows:
 
     builds:
       - id: <build identifier (string), required>
-        makefile: <path to makefile, required>
-        extra_args: <optional, list of extra arguments passed to make>
+        makefile: <ti: path to makefile, required>
+        board: <silabs: board passed to slc generate --with, required>
+        extra_args: <optional, list of extra arguments passed to make (ti)
+                     or slc generate (silabs)>
 """
 
 from __future__ import annotations
@@ -43,7 +45,10 @@ class Build:
     sample_name: str
     sample_dir: Path
     build_id: str
-    makefile: str
+    makefile: str = ""
+    slcp: Path | None = None
+    project_name: str = ""
+    board: str = ""
     extra_args: list[str] = field(default_factory=list)
 
     @property
@@ -62,12 +67,38 @@ class Sample:
     builds: list[Build] = field(default_factory=list)
 
 
-def parse_sample_yaml(yaml_path: Path) -> Sample:
+def find_slcp(sample_dir: Path) -> tuple[Path, str]:
+    """
+    Find the .slcp file in a sample directory and read its project name.
+    SLC names the generated makefile after it.
+
+    Args:
+        sample_dir: Sample directory to search.
+
+    Returns:
+        Tuple of (slcp path, project name).
+    """
+    slcps = sorted(sample_dir.glob("*.slcp"))
+    if len(slcps) != 1:
+        raise ValueError(f"{sample_dir}: expected one .slcp file, found {len(slcps)}")
+
+    with slcps[0].open() as f:
+        data = yaml.safe_load(f) or {}
+
+    project_name = data.get("project_name")
+    if not project_name:
+        raise ValueError(f"{slcps[0]}: missing 'project_name'")
+
+    return slcps[0], str(project_name)
+
+
+def parse_sample_yaml(yaml_path: Path, platform: str) -> Sample:
     """
     Parse a sample.yaml file and return a Sample object.
 
     Args:
         yaml_path: Path to the `sample.yaml` file.
+        platform: Target platform, `ti` or `silabs`.
 
     Returns:
         Sample object with the parsed configuration.
@@ -85,6 +116,10 @@ def parse_sample_yaml(yaml_path: Path) -> Sample:
     if not builds_raw:
         raise ValueError(f"{yaml_path}: 'builds' must be a non-empty list")
 
+    required_key = "makefile" if platform == "ti" else "board"
+    if platform == "silabs":
+        slcp, project_name = find_slcp(sample_dir)
+
     builds: list[Build] = []
     seen_ids: set[str] = set()
     for entry in builds_raw:
@@ -93,48 +128,58 @@ def parse_sample_yaml(yaml_path: Path) -> Sample:
             raise ValueError(f"{yaml_path}: each build entry must be a mapping")
         if "id" not in entry:
             raise ValueError(f"{yaml_path}: build entry missing 'id'")
-        if "makefile" not in entry:
-            raise ValueError(f"{yaml_path}: build entry '{entry['id']}' missing 'makefile'")
+        if required_key not in entry:
+            raise ValueError(f"{yaml_path}: build entry '{entry['id']}' missing '{required_key}'")
 
         build_id = entry["id"]
         if build_id in seen_ids:
             raise ValueError(f"{yaml_path}: duplicate build id '{build_id}'")
         seen_ids.add(build_id)
 
-        # Resolve the makefile relative to the sample dir and
-        # ensure it stays inside it
-        makefile_raw = str(entry["makefile"])
-        makefile_path = (sample_dir / makefile_raw).resolve()
-        if not makefile_path.is_relative_to(sample_dir.resolve()):
-            raise ValueError(f"{yaml_path}: makefile '{makefile_raw}' is not in sample directory")
-
-        if not makefile_path.is_file():
-            raise ValueError(f"{yaml_path}: makefile '{makefile_raw}' does not exist")
-
         extra_args = entry.get("extra_args") or []
         if not isinstance(extra_args, list):
             raise ValueError(f"{yaml_path}: 'extra_args' for '{build_id}' must be a list")
 
-        builds.append(
-            Build(
-                sample_name=name,
-                sample_dir=sample_dir,
-                build_id=build_id,
-                makefile=makefile_raw,
-                extra_args=[str(a) for a in extra_args],
-            )
+        build = Build(
+            sample_name=name,
+            sample_dir=sample_dir,
+            build_id=build_id,
+            extra_args=[str(a) for a in extra_args],
         )
+
+        if platform == "ti":
+            # Resolve the makefile relative to the sample dir and
+            # ensure it stays inside it
+            makefile_raw = str(entry["makefile"])
+            makefile_path = (sample_dir / makefile_raw).resolve()
+            if not makefile_path.is_relative_to(sample_dir.resolve()):
+                raise ValueError(
+                    f"{yaml_path}: makefile '{makefile_raw}' is not in sample directory"
+                )
+
+            if not makefile_path.is_file():
+                raise ValueError(f"{yaml_path}: makefile '{makefile_raw}' does not exist")
+
+            build.makefile = makefile_raw
+        else:
+            # silabs case
+            build.slcp = slcp
+            build.project_name = project_name
+            build.board = str(entry["board"])
+
+        builds.append(build)
 
     return Sample(name=name, sample_dir=sample_dir, builds=builds)
 
 
-def discover(root: Path) -> list[Sample]:
+def discover(root: Path, platform: str) -> list[Sample]:
     """
     Recursively search for sample.yaml files under the given root directory
     and return a list of Sample objects.
 
     Args:
         root: Directory to search for sample.yaml files.
+        platform: Target platform, `ti` or `silabs`.
 
     Raises:
         SystemExit: If no sample.yaml files are found, or if there is any error.
@@ -150,7 +195,7 @@ def discover(root: Path) -> list[Sample]:
     errors: list[str] = []
     for path in yamls:
         try:
-            samples.append(parse_sample_yaml(path))
+            samples.append(parse_sample_yaml(path, platform))
         except (yaml.YAMLError, ValueError) as e:
             errors.append(str(e))
 
@@ -200,19 +245,50 @@ def run_build(build: Build) -> tuple[bool, float, str]:
     start = time.monotonic()
     captured: list[str] = []
 
-    make_cmd = ["make", "-C", str(build.sample_dir), "-f", build.makefile]
-    make_cmd.extend(build.extra_args)
+    build_dir = build.sample_dir / "build"
 
-    status = run_command(make_cmd, captured=captured)
+    # TI case (no .slcp file)
+    if build.slcp is None:
+        make_cmd = ["make", "-C", str(build.sample_dir), "-f", build.makefile]
+        make_cmd.extend(build.extra_args)
+
+        status = run_command(make_cmd, captured=captured)
+    else:
+        # generate a makefile project with SLC, then build it
+        generate_cmd = [
+            os.environ.get("SLC", "slc"),
+            "generate",
+            "-tlcn",
+            "gcc",
+            "-o",
+            "makefile",
+            "-cp",
+            "-p",
+            str(build.slcp),
+            "-d",
+            str(build_dir),
+            "--with",
+            build.board,
+        ]
+        generate_cmd.extend(build.extra_args)
+
+        status = run_command(generate_cmd, captured=captured)
+        if status:
+            make_cmd = [
+                "make",
+                "-C",
+                str(build_dir),
+                "-f",
+                f"{build.project_name}.Makefile",
+                f"-j{os.cpu_count() or 1}",
+            ]
+            status = run_command(make_cmd, captured=captured)
 
     # clean up / remove build dir
-    cleanup_cmd = ["rm", "-rf", str(build.sample_dir / "build")]
+    cleanup_cmd = ["rm", "-rf", str(build_dir)]
     run_command(cleanup_cmd, captured=captured)
 
-    if not status:
-        return False, time.monotonic() - start, "".join(captured)
-
-    return True, time.monotonic() - start, "".join(captured)
+    return status, time.monotonic() - start, "".join(captured)
 
 
 def write_build_summary(
@@ -275,6 +351,9 @@ def main() -> int:
         description="Recursively build samples under a given directory"
     )
     parser.add_argument("path", type=Path, help="Directory to search for sample.yaml files")
+    parser.add_argument(
+        "--platform", choices=["ti", "silabs"], required=True, help="Target platform"
+    )
     args = parser.parse_args()
 
     root = args.path.resolve()
@@ -282,7 +361,11 @@ def main() -> int:
         print(f"error: {root} is not a directory", file=sys.stderr)
         return 2
 
-    samples = discover(root)
+    if args.platform == "silabs" and not os.environ.get("SISDK"):
+        print("error: SISDK environment variable is not set", file=sys.stderr)
+        return 2
+
+    samples = discover(root, args.platform)
     all_builds = [build for s in samples for build in s.builds]
     total = len(all_builds)
     print(f"Discovered {total} build(s) across {len(samples)} sample(s) under {root}\n")

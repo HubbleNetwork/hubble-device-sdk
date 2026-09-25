@@ -13,6 +13,7 @@ docs/_doxygen/
 .ruff_cache/
 **/__pycache__/
 dist/
+generated_sample_app/
 
 # generated files
 **/key.c
