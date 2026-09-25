@@ -79,8 +79,10 @@ extern RCL_CmdGenericTxTest rclPacketTxCmdGenericTxTest_ble_gen_0;
 static RCL_Client rcl_client;
 static RCL_Handle rcl_handle;
 
-static void _radio_cw_start(int16_t step, uint32_t abs_start, uint32_t duration_us)
+static int _radio_cw_start(int16_t step, uint32_t abs_start, uint32_t duration_us)
 {
+	RCL_CommandStatus status;
+
 	/* On time */
 	rclPacketTxCmdGenericTxTest_ble_custom.txPower.dBm = _sat_power;
 	rclPacketTxCmdGenericTxTest_ble_custom.rfFrequency =
@@ -95,11 +97,14 @@ static void _radio_cw_start(int16_t step, uint32_t abs_start, uint32_t duration_
 #if defined(USE_DMM_OVRDE)
 	DMMSch_RCL_Command_submit(rcl_handle,
 				  &rclPacketTxCmdGenericTxTest_ble_custom);
-	DMMSch_RCL_Command_pend(&rclPacketTxCmdGenericTxTest_ble_custom);
+	status = DMMSch_RCL_Command_pend(&rclPacketTxCmdGenericTxTest_ble_custom);
 #else
 	RCL_Command_submit(rcl_handle, &rclPacketTxCmdGenericTxTest_ble_custom);
-	RCL_Command_pend(&rclPacketTxCmdGenericTxTest_ble_custom);
+	status = RCL_Command_pend(&rclPacketTxCmdGenericTxTest_ble_custom);
 #endif
+
+	/* Everything at or above RCL_CommandStatus_Error is a failure; */
+	return (status >= RCL_CommandStatus_Error) ? -EIO : 0;
 }
 
 #if defined(USE_DMM_OVRDE)
@@ -250,6 +255,7 @@ int hubble_sat_board_packet_send(const struct hubble_sat_packet_frames *packet)
 {
 	uint32_t symbol_start;
 	int8_t frame = -1;
+	int ret = 0;
 
 	xSemaphoreTake(_transmit_sem, portMAX_DELAY);
 
@@ -267,12 +273,15 @@ int hubble_sat_board_packet_send(const struct hubble_sat_packet_frames *packet)
 		step = packet->frame[frame].data[data_pos] +
 		       HUBBLE_CHANNEL_OFFSET(packet->frame[frame].channel);
 
-		_radio_cw_start(step, symbol_start, HUBBLE_WAIT_SYMBOL_US);
+		ret = _radio_cw_start(step, symbol_start, HUBBLE_WAIT_SYMBOL_US);
+		if (ret != 0) {
+			break;
+		}
 		symbol_start += HUBBLE_SYMBOL_PERIOD;
 	}
 
 	xSemaphoreGive(_transmit_sem);
-	return 0;
+	return ret;
 }
 
 #ifdef CONFIG_HUBBLE_SAT_NETWORK_DTM_MODE
@@ -285,6 +294,7 @@ int hubble_sat_board_power_set(int8_t power)
 
 int hubble_sat_board_cw_start(uint8_t channel)
 {
+	RCL_CommandStatus status;
 	int16_t step = 32 + HUBBLE_CHANNEL_OFFSET(channel);
 	rclPacketTxCmdGenericTxTest_ble_custom.rfFrequency =
 		(uint32_t)(HUBBLE_BASE_FREQUENCY + step * TI_STEP_SIZE_HZ);
@@ -301,13 +311,13 @@ int hubble_sat_board_cw_start(uint8_t channel)
 
 	/* Submit command & pend on completion */
 	RCL_Command_submit(rcl_handle, &rclPacketTxCmdGenericTxTest_ble_custom);
-	RCL_Command_pend(&rclPacketTxCmdGenericTxTest_ble_custom);
+	status = RCL_Command_pend(&rclPacketTxCmdGenericTxTest_ble_custom);
 
 	/* Reset back to abs time in case the next ops is packet tx */
 	rclPacketTxCmdGenericTxTest_ble_custom.common.scheduling =
 		RCL_Schedule_AbsTime;
 
-	return 0;
+	return (status >= RCL_CommandStatus_Error) ? -EIO : 0;
 }
 
 int hubble_sat_board_cw_stop(void)
