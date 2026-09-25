@@ -149,16 +149,69 @@ In your ``main/CMakeLists.txt``, declare the required component dependencies:
 .. code-block:: cmake
 
    idf_component_register(SRCS ${YOUR_APP_SOURCES}
-                          PRIV_REQUIRES bt nvs_flash esp_timer hubblenetwork-sdk
+                          PRIV_REQUIRES bt mbedtls nvs_flash esp_timer hubblenetwork-sdk
                           INCLUDE_DIRS ".")
 
 ``bt`` and ``hubblenetwork-sdk`` are required for the dual-stack. ``nvs_flash``
 is required by NimBLE. ``esp_timer`` is used in the reference sample for pass
-scheduling, however, any timer peripheral works.
+scheduling, however, any timer peripheral works. ``mbedtls`` is only required
+if your application decodes a base64-encoded key at runtime, as described in
+:ref:`esp_idf_device_key`.
 
 
 .. include:: ../common/data-requirements.rst
    :start-after: hubble-integration-data-requirements
+
+
+.. _esp_idf_device_key:
+
+.. include:: ../common/handling-device-key.rst
+   :start-after: hubble-integration-device-key
+
+
+To supply the key from configuration, declare a string option in your
+component's ``Kconfig.projbuild`` and set it in ``sdkconfig.defaults`` or
+through ``idf.py menuconfig``:
+
+.. code-block:: kconfig
+
+   # Hubble Device Key
+   CONFIG_HUBBLE_DEVICE_KEY="your-device-key"
+
+Decode it before handing it to ``hubble_init()``. This is the case that
+requires ``mbedtls`` in your component's ``PRIV_REQUIRES``:
+
+.. code-block:: c
+
+   #include "mbedtls/base64.h"
+
+   static uint8_t _hubble_key[CONFIG_HUBBLE_KEY_SIZE];
+
+   /* ... */
+
+   if (strlen(CONFIG_HUBBLE_DEVICE_KEY) != 0) {
+       size_t outlen = 0;
+
+       ret = mbedtls_base64_decode(
+           _hubble_key, sizeof(_hubble_key), &outlen,
+           (const unsigned char *)CONFIG_HUBBLE_DEVICE_KEY,
+           strlen(CONFIG_HUBBLE_DEVICE_KEY));
+
+       if (ret != 0) {
+           ESP_LOGE(APP_TAG, "Invalid key provided!");
+           return;
+       }
+
+       if (outlen != sizeof(_hubble_key)) {
+           ESP_LOGE(APP_TAG, "Invalid key length provided!");
+           return;
+       }
+   }
+
+   /* unix_time_ms is obtained separately, as described above. */
+   ret = hubble_init(unix_time_ms, _hubble_key);
+
+See ``samples/esp-idf/sat-dual-stack`` for a complete example.
 
 
 .. include:: ../common/sdk-init.rst
