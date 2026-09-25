@@ -161,6 +161,8 @@ int hubble_sat_soc_enable(void)
 
 int hubble_sat_soc_disable(void)
 {
+	int ret;
+
 	(void)hubble_nrf_lib_disable();
 
 	irq_disable(DT_IRQN(RADIO_NODE));
@@ -173,7 +175,10 @@ int hubble_sat_soc_disable(void)
 	nrf_radio_shorts_set(NRF_RADIO, _radio_shorts);
 	nrf_radio_txpower_set(NRF_RADIO, _normal_power);
 
-	return onoff_release(_clock_mgr);
+	/* On success onoff_release() returns the previous state, not 0 */
+	ret = onoff_release(_clock_mgr);
+
+	return (ret < 0) ? ret : 0;
 }
 
 int hubble_sat_soc_packet_send(const struct hubble_sat_packet_frames *packet)
