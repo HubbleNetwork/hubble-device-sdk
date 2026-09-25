@@ -21,8 +21,18 @@
 #define HUBBLE_BLE_UUID_CONNECTABLE 0xFCA7
 #define HUBBLE_BLE_BUFFER_LEN       31U
 
-#define BEACON_ADV_INTERVAL_MIN     3200U /* 2000 ms */
-#define BEACON_ADV_INTERVAL_MAX     4000U /* 2500 ms */
+/* Converts milliseconds to advertising interval units of 0.625 ms. */
+#define MS_TO_ADV_INTERVAL(_ms)     ((_ms) * 1000U / 625U)
+
+#define ADV_INTERVAL_MIN_MS         1000U
+#define ADV_INTERVAL_MAX_MS         1200U
+
+/* Connectable advertising uses a faster interval so phones find it quickly. */
+#define CONN_ADV_INTERVAL_MIN_MS    100U
+#define CONN_ADV_INTERVAL_MAX_MS    150U
+
+/* Advertising Tx power in dBm. */
+#define ADV_TX_POWER_DBM            0
 
 /* Period to update adv packets in microseconds (1 hour) */
 #define HUBBLE_ADV_PACKET_PERIOD    3600000000UL
@@ -108,12 +118,12 @@ extern uint64_t unix_time_ms;
 static GapAdv_params_t _conn_adv_params = {
 	.eventProps = GAP_ADV_PROP_CONNECTABLE | GAP_ADV_PROP_SCANNABLE |
 		      GAP_ADV_PROP_LEGACY,
-	.primIntMin = 160,
-	.primIntMax = 160,
+	.primIntMin = MS_TO_ADV_INTERVAL(CONN_ADV_INTERVAL_MIN_MS),
+	.primIntMax = MS_TO_ADV_INTERVAL(CONN_ADV_INTERVAL_MAX_MS),
 	.primChanMap = GAP_ADV_CHAN_ALL,
 	.peerAddrType = PEER_ADDRTYPE_RANDOM_OR_RANDOM_ID,
 	.filterPolicy = GAP_ADV_AL_POLICY_ANY_REQ,
-	.txPower = GAP_ADV_TX_POWER_NO_PREFERENCE,
+	.txPower = ADV_TX_POWER_DBM,
 	.primPhy = GAP_ADV_PRIM_PHY_1_MBPS,
 	.secPhy = GAP_ADV_SEC_PHY_1_MBPS,
 	.sid = 0,
@@ -121,12 +131,12 @@ static GapAdv_params_t _conn_adv_params = {
 
 static GapAdv_params_t _beacon_adv_params = {
 	.eventProps = GAP_ADV_PROP_SCANNABLE | GAP_ADV_PROP_LEGACY,
-	.primIntMin = BEACON_ADV_INTERVAL_MIN,
-	.primIntMax = BEACON_ADV_INTERVAL_MAX,
+	.primIntMin = MS_TO_ADV_INTERVAL(ADV_INTERVAL_MIN_MS),
+	.primIntMax = MS_TO_ADV_INTERVAL(ADV_INTERVAL_MAX_MS),
 	.primChanMap = GAP_ADV_CHAN_ALL,
 	.peerAddrType = PEER_ADDRTYPE_RANDOM_OR_RANDOM_ID,
 	.filterPolicy = GAP_ADV_AL_POLICY_ANY_REQ,
-	.txPower = GAP_ADV_TX_POWER_NO_PREFERENCE,
+	.txPower = ADV_TX_POWER_DBM,
 	.primPhy = GAP_ADV_PRIM_PHY_1_MBPS,
 	.secPhy = GAP_ADV_SEC_PHY_1_MBPS,
 	.sid = 1,

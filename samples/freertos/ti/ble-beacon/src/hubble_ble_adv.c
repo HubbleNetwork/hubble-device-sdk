@@ -22,6 +22,15 @@
 /* Period to update adv packets in microseconds */
 #define HUBBLE_ADV_PACKET_PERIOD 180000000UL
 
+/* Converts milliseconds to advertising interval units of 0.625 ms. */
+#define MS_TO_ADV_INTERVAL(_ms)  ((_ms) * 1000U / 625U)
+
+#define ADV_INTERVAL_MIN_MS      1000U
+#define ADV_INTERVAL_MAX_MS      1200U
+
+/* Advertising Tx power in dBm. */
+#define ADV_TX_POWER_DBM         0
+
 static uint8 bleAdvHandle;
 static uint8_t advData[BLE_ADV_LEN] = {HUBBLE_BLE_ADV_HEADER};
 static ClockP_Handle clockHandle;
@@ -42,12 +51,12 @@ static SemaphoreP_Handle semaphoreHandle;
 
 static GapAdv_params_t advParams = {
 	.eventProps = GAP_ADV_PROP_LEGACY | GAP_ADV_PROP_SCANNABLE,
-	.primIntMin = 160,
-	.primIntMax = 160,
+	.primIntMin = MS_TO_ADV_INTERVAL(ADV_INTERVAL_MIN_MS),
+	.primIntMax = MS_TO_ADV_INTERVAL(ADV_INTERVAL_MAX_MS),
 	.primChanMap = GAP_ADV_CHAN_ALL,
 	.peerAddrType = PEER_ADDRTYPE_RANDOM_OR_RANDOM_ID,
 	.filterPolicy = GAP_ADV_AL_POLICY_ANY_REQ,
-	.txPower = GAP_ADV_TX_POWER_NO_PREFERENCE,
+	.txPower = ADV_TX_POWER_DBM,
 	.primPhy = GAP_ADV_PRIM_PHY_1_MBPS,
 	.secPhy = GAP_ADV_SEC_PHY_1_MBPS,
 	.sid = 0};

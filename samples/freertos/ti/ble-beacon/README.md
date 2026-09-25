@@ -23,6 +23,15 @@ sample.
 + FreeRTOS-based task management.
 + Modular and extensible codebase.
 
+### Advertising parameters
+
+The sample advertises with the following parameters by default. They can be modified.
+
+| Parameter | Value | Set by |
+| --- | --- | --- |
+| Beacon interval | 1000–1200 ms | `ADV_INTERVAL_MIN_MS` / `ADV_INTERVAL_MAX_MS` in [src/hubble_ble_adv.c](src/hubble_ble_adv.c) |
+| Tx power | 0 dBm | `ADV_TX_POWER_DBM` in [src/hubble_ble_adv.c](src/hubble_ble_adv.c) |
+
 ### Requirements
 
 To build and run this project, you will need:

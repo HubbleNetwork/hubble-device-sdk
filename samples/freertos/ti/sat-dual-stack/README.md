@@ -24,6 +24,16 @@ custom GATT provisioning service.
 - Dual-stack application running Hubble Terrestrial (BLE) Network and the Hubble Satellite Network.
 - GATT provisioning service that provides time and satellite orbital parameters over BLE.
 
+## Advertising parameters
+
+The sample advertises with the following parameters by default. They can be modified.
+
+| Parameter | Value | Set by |
+| --- | --- | --- |
+| Beacon interval | 1000–1200 ms | `ADV_INTERVAL_MIN_MS` / `ADV_INTERVAL_MAX_MS` in [src/app_ble.c](src/app_ble.c) |
+| Provisioning interval (connectable) | 100–150 ms | `CONN_ADV_INTERVAL_MIN_MS` / `CONN_ADV_INTERVAL_MAX_MS` in [src/app_ble.c](src/app_ble.c) |
+| Tx power | 0 dBm | `ADV_TX_POWER_DBM` in [src/app_ble.c](src/app_ble.c) |
+
 ## Requirements
 
 To build and run this project, you will need:
