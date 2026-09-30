@@ -293,7 +293,12 @@ int hubble_sat_packet_get(struct hubble_sat_packet *packet, const void *payload,
 	}
 
 	ret = _packet_payload_size_get(length);
-	_CHECK_RET(ret);
+	if (ret < 0) {
+		HUBBLE_LOG_WARNING("Invalid satellite payload size %zu bytes "
+				   "(valid sizes: 0, 4, 9, 13)",
+				   length);
+		return ret;
+	}
 
 	payload_len = ret;
 	/* Packet payload now. */
