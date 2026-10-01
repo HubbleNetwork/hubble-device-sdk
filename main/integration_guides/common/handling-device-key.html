@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Initializing the Hubble Device SDK &mdash; Hubble Device SDK Documentation</title>
+  <title>Handling the Hubble Device Key &mdash; Hubble Device SDK Documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
@@ -16,7 +16,7 @@
 
   
     <link rel="shortcut icon" href="../../_static/hubble.png"/>
-    <link rel="canonical" href="https://HubbleNetwork.github.io/hubble-device-sdk/main/integration_guides/common/sdk-init.html" />
+    <link rel="canonical" href="https://HubbleNetwork.github.io/hubble-device-sdk/main/integration_guides/common/handling-device-key.html" />
       <script src="../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
       <script src="../../_static/documentation_options.js?v=2709fde1"></script>
@@ -358,7 +358,7 @@
 
   <li><a href="../../index.html">Docs</a> &raquo;</li>
   
-  <li>Initializing the Hubble Device SDK</li>
+  <li>Handling the Hubble Device Key</li>
 
 
   <li class="wy-breadcrumbs-aside">
@@ -374,42 +374,74 @@
   
            <div itemprop="articleBody">
              
-  <section id="initializing-the-hubble-device-sdk">
-<h1>Initializing the Hubble Device SDK<a class="headerlink" href="#initializing-the-hubble-device-sdk" title="Link to this heading"></a></h1>
-<p>Once time, location, and orbital parameters are available, initialize the SDK
-before calling any other Hubble API:</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="cm">/*</span>
-<span class="cm"> * At this point unix_time_ms, device_pos, and orb_params are assumed to be</span>
-<span class="cm"> * valid. Either baked into firmware or received via BLE provisioning.</span>
-<span class="cm"> */</span>
-<span class="n">err</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">hubble_init</span><span class="p">(</span><span class="n">unix_time_ms</span><span class="p">,</span><span class="w"> </span><span class="n">master_key</span><span class="p">);</span>
-<span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">err</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="n">LOG_ERR</span><span class="p">(</span><span class="s">"Failed to initialize Hubble Device SDK (err %d)"</span><span class="p">,</span><span class="w"> </span><span class="n">err</span><span class="p">);</span>
-<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">err</span><span class="p">;</span>
-<span class="p">}</span>
-
-<span class="n">err</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">hubble_sat_satellites_set</span><span class="p">(</span><span class="n">orb_params</span><span class="p">,</span><span class="w"> </span><span class="n">orb_params_count</span><span class="p">);</span>
-<span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">err</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="n">LOG_ERR</span><span class="p">(</span><span class="s">"Failed to set orbital parameters (err %d)"</span><span class="p">,</span><span class="w"> </span><span class="n">err</span><span class="p">);</span>
-<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">err</span><span class="p">;</span>
-<span class="p">}</span>
+  <section id="handling-the-hubble-device-key">
+<h1>Handling the Hubble Device Key<a class="headerlink" href="#handling-the-hubble-device-key" title="Link to this heading"></a></h1>
+<p>Every device authenticates to the Hubble Network with a cryptographic key
+issued by the Hubble Platform API. The key is either AES-128 or AES-256, and
+its size must match the size the SDK was built for
+(<code class="docutils literal notranslate"><span class="pre">CONFIG_HUBBLE_NETWORK_KEY_128</span></code> or <code class="docutils literal notranslate"><span class="pre">CONFIG_HUBBLE_NETWORK_KEY_256</span></code>,
+exposed in bytes as <code class="docutils literal notranslate"><span class="pre">CONFIG_HUBBLE_KEY_SIZE</span></code>). Requesting a key of one size
+and building for the other fails at initialization.</p>
+<p>The key reaches the SDK through <code class="docutils literal notranslate"><span class="pre">hubble_init()</span></code>:</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="kt">int</span><span class="w"> </span><span class="nf">hubble_init</span><span class="p">(</span><span class="kt">uint64_t</span><span class="w"> </span><span class="n">initial_time</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="o">*</span><span class="n">key</span><span class="p">);</span>
 </pre></div>
 </div>
-<p><code class="xref c c-func docutils literal notranslate"><span class="pre">hubble_init()</span></code> takes the current Unix time in milliseconds and a
-pointer to the master key. <code class="xref c c-func docutils literal notranslate"><span class="pre">hubble_sat_satellites_set()</span></code> registers the
-orbital parameters array with the SDK.</p>
-<div class="admonition warning">
-<p class="admonition-title">Warning</p>
-<ul class="simple">
-<li><p><strong>The key buffer MUST remain valid for the lifetime of SDK usage.</strong> The
-SDK stores the pointer directly and does not copy the key. Do not use a
-stack or temporary buffer.</p></li>
-<li><p><strong>Unix time must be non-zero.</strong> Passing <code class="docutils literal notranslate"><span class="pre">0</span></code> in
-<code class="docutils literal notranslate"><span class="pre">CONFIG_HUBBLE_COUNTER_SOURCE_UNIX_TIME</span></code> mode returns an error.</p></li>
-<li><p><strong>The orbital parameters array MUST remain valid</strong> for as long as pass
-prediction is used. The SDK stores a pointer and does not copy the array.</p></li>
-</ul>
+<div class="admonition important">
+<p class="admonition-title">Important</p>
+<p>The SDK stores the pointer you hand it and does <strong>not</strong> copy the key
+material. The buffer must stay valid for as long as the SDK is in use, so
+it cannot be a stack or otherwise temporary buffer. Give it static storage
+duration.</p>
 </div>
+<p>Passing <code class="docutils literal notranslate"><span class="pre">NULL</span></code> defers the key; supply it later with <code class="docutils literal notranslate"><span class="pre">hubble_key_set()</span></code>
+before requesting any advertisement.</p>
+<p>There are two common ways to get a key onto a device. Not every platform
+supports both, and some offer further options; see the platform-specific notes
+that follow.</p>
+<section id="embedding-the-key-at-build-time">
+<h2>Embedding the Key at Build Time<a class="headerlink" href="#embedding-the-key-at-build-time" title="Link to this heading"></a></h2>
+<p>This is the recommended method for production applications. It is the simplest
+option to automate in a build, and the only one that provisions the initial
+time in the same step. The key material still lives in the firmware image, so
+treat the image as a secret.</p>
+<p>To embed the key at build time, point <code class="docutils literal notranslate"><span class="pre">embed_key_time.py</span></code> at &lt;your_src_dir&gt;/:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>tools/embed_key_time.py<span class="w"> </span>-b<span class="w"> </span>/path/to/key<span class="w"> </span>-o<span class="w"> </span>&lt;your_src_dir&gt;/
+</pre></div>
+</div>
+<p>This writes <code class="docutils literal notranslate"><span class="pre">&lt;your_src_dir&gt;/key.c</span></code> and <code class="docutils literal notranslate"><span class="pre">&lt;your_src_dir&gt;/time.c</span></code>, defining <code class="docutils literal notranslate"><span class="pre">master_key</span></code> and
+<code class="docutils literal notranslate"><span class="pre">unix_time</span></code>. Both symbols are declared <code class="docutils literal notranslate"><span class="pre">static</span></code>, so the generated <code class="docutils literal notranslate"><span class="pre">.c</span></code>
+files are meant to be included into the translation unit that uses them rather
+than compiled separately. Include them into the translation unit that calls
+<code class="docutils literal notranslate"><span class="pre">hubble_init()</span></code>:</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="cp">#include</span><span class="w"> </span><span class="cpf">"key.c"</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">"time.c"</span>
+
+<span class="cm">/* ... */</span>
+
+<span class="n">err</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">hubble_init</span><span class="p">(</span><span class="n">unix_time</span><span class="p">,</span><span class="w"> </span><span class="n">master_key</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>See any of the <code class="docutils literal notranslate"><span class="pre">ble-beacon</span></code> samples for a complete example.</p>
+</section>
+<section id="supplying-the-key-from-project-configuration">
+<h2>Supplying the Key from Project Configuration<a class="headerlink" href="#supplying-the-key-from-project-configuration" title="Link to this heading"></a></h2>
+<p>Use this for debugging and testing only. Production applications should embed
+the key at build time instead.</p>
+<p>Rather than generating source, the application can carry the key as a
+base64-encoded string in its own build configuration and decode it at runtime
+before calling <code class="docutils literal notranslate"><span class="pre">hubble_init()</span></code>. Decode into a buffer with static storage
+duration, and verify that the decoded length matches <code class="docutils literal notranslate"><span class="pre">CONFIG_HUBBLE_KEY_SIZE</span></code>
+before using it.</p>
+<p>This supplies only the key. The initial time passed to <code class="docutils literal notranslate"><span class="pre">hubble_init()</span></code> has to
+be obtained separately, by whatever means suits the device: a real-time clock,
+a network time source, or provisioning from a companion application.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The SDK does not define a configuration option for the key. Declare one in
+your own application and name it to suit your project; the option names
+used in the platform notes that follow are illustrative.</p>
+</div>
+</section>
 </section>
 
 
