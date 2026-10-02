@@ -1550,3 +1550,9 @@ html.writer-html5 .rst-content dl.field-list>dd {
         border-radius: 0 0.3rem 0.3rem 0;
     }
 }
+
+/* Space between a tutorial image and the next step */
+.rst-content img.step-image {
+    margin-top: 0.5em;
+    margin-bottom: 1em;
+}

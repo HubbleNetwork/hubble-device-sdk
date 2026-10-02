@@ -32,4 +32,4 @@ jobs:
         run: pip install pyyaml
 
       - name: Build all TI samples
-        run: python3 tools/ci/ti_build.py samples/freertos/ti
+        run: python3 tools/ci/freertos_sample_build.py --platform ti samples/freertos/ti
