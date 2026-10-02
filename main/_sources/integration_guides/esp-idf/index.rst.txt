@@ -17,8 +17,28 @@ By the end of this guide you will know how to:
 Supported Devices and SDK Version
 **********************************
 
-The Hubble Device SDK currently supports **ESP-IDF v6.0**. If you require
-support for a different version, `contact us <mailto:support@hubble.com>`_.
+ESP-IDF Compatibility
+=====================
+
+The following ESP-IDF versions have been validated with each Hubble Device
+SDK release. If you require support for a different version,
+`contact us <mailto:support@hubble.com>`_.
+
+.. list-table::
+   :widths: 40 60
+   :header-rows: 1
+
+   * - Hubble Device SDK
+     - ESP-IDF
+   * - latest (main)
+     - v6.1
+   * - v3.1.0
+     - v6.0, v6.1
+   * - v3.0.0
+     - v6.0
+
+Supported Devices
+=================
 
 .. list-table::
    :widths: 40 60
@@ -43,9 +63,9 @@ SDK Setup
 Install ESP-IDF
 ===============
 
-Follow the `ESP-IDF Getting Started guide`_ to install ESP-IDF v6.0 and all
-required dependencies. Once installed, source the export script to set up the
-environment:
+Follow the `ESP-IDF Getting Started guide`_ to install a supported ESP-IDF
+version (see `ESP-IDF Compatibility`_) and all required dependencies. Once
+installed, source the export script to set up the environment:
 
 .. code-block:: bash
 
@@ -80,12 +100,15 @@ See ``samples/esp-idf/sat-dual-stack/CMakeLists.txt`` for a complete reference.
 Fetch the Satellite PHY Blob (ESP32-C6)
 ========================================
 
-.. important::
+.. note::
 
-   The Satellite Network module requires a PHY library blob from Espressif
-   that is currently in Early Access (EA). The ``libphy`` shipped with
-   ESP-IDF does **not** include this API yet and must be swapped in manually
-   before building.
+   This step is only required for **ESP-IDF v6.0**. Starting with
+   ESP-IDF v6.1, the PHY API used by the Satellite Network module is
+   included upstream, and no blob swap is needed.
+
+On ESP-IDF v6.0, the shipped ``libphy`` does not include the PHY API
+required by the Satellite Network module. Swap in the Early Access (EA)
+blob from Espressif before building:
 
 #. Download the Espressif PHY blob:
 
@@ -97,9 +120,6 @@ Fetch the Satellite PHY Blob (ESP32-C6)
 
       unzip "libphy_C6_20260317_c83212e.zip"
       cp *.a $IDF_PATH/components/esp_phy/lib/esp32c6/
-
-This step is temporary. Once Espressif ships the API upstream, the blob swap
-will no longer be needed.
 
 
 .. _esp_idf_sat_project_config:
@@ -389,9 +409,11 @@ Build fails with missing PHY symbols
 
 **Symptom:** Linker error referencing undefined symbols.
 
-**Cause:** The EA PHY blob was not swapped into the ESP-IDF installation.
+**Cause:** On ESP-IDF v6.0, the EA PHY blob was not swapped into the ESP-IDF
+installation.
 
-**Fix:** Follow the :ref:`esp_idf_sat_phy_blob` steps in the SDK Setup section.
+**Fix:** Upgrade to ESP-IDF v6.1 or later, or follow the
+:ref:`esp_idf_sat_phy_blob` steps in the SDK Setup section.
 
 NimBLE fails to initialize
 ===========================

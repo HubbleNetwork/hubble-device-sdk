@@ -392,8 +392,36 @@ transmissions.</p></li>
 </ul>
 <section id="supported-devices-and-sdk-version">
 <h2>Supported Devices and SDK Version<a class="headerlink" href="#supported-devices-and-sdk-version" title="Link to this heading"></a></h2>
-<p>The Hubble Device SDK currently supports <strong>ESP-IDF v6.0</strong>. If you require
-support for a different version, <a class="reference external" href="mailto:support&#37;&#52;&#48;hubble&#46;com">contact us</a>.</p>
+<section id="esp-idf-compatibility">
+<h3>ESP-IDF Compatibility<a class="headerlink" href="#esp-idf-compatibility" title="Link to this heading"></a></h3>
+<p>The following ESP-IDF versions have been validated with each Hubble Device
+SDK release. If you require support for a different version,
+<a class="reference external" href="mailto:support&#37;&#52;&#48;hubble&#46;com">contact us</a>.</p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 40.0%" />
+<col style="width: 60.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Hubble Device SDK</p></th>
+<th class="head"><p>ESP-IDF</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>latest (main)</p></td>
+<td><p>v6.1</p></td>
+</tr>
+<tr class="row-odd"><td><p>v3.1.0</p></td>
+<td><p>v6.0, v6.1</p></td>
+</tr>
+<tr class="row-even"><td><p>v3.0.0</p></td>
+<td><p>v6.0</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="supported-devices">
+<h3>Supported Devices<a class="headerlink" href="#supported-devices" title="Link to this heading"></a></h3>
 <table class="docutils align-default">
 <colgroup>
 <col style="width: 40.0%" />
@@ -410,6 +438,7 @@ support for a different version, <a class="reference external" href="mailto:supp
 </tr>
 </tbody>
 </table>
+</section>
 </section>
 <section id="prerequisites">
 <h2>Prerequisites<a class="headerlink" href="#prerequisites" title="Link to this heading"></a></h2>
@@ -444,9 +473,9 @@ orbital parameters for pass prediction.</p>
 <h2>SDK Setup<a class="headerlink" href="#sdk-setup" title="Link to this heading"></a></h2>
 <section id="install-esp-idf">
 <h3>Install ESP-IDF<a class="headerlink" href="#install-esp-idf" title="Link to this heading"></a></h3>
-<p>Follow the <a class="reference external" href="https://docs.espressif.com/projects/esp-idf/en/latest/esp32c6/get-started/index.html">ESP-IDF Getting Started guide</a> to install ESP-IDF v6.0 and all
-required dependencies. Once installed, source the export script to set up the
-environment:</p>
+<p>Follow the <a class="reference external" href="https://docs.espressif.com/projects/esp-idf/en/latest/esp32c6/get-started/index.html">ESP-IDF Getting Started guide</a> to install a supported ESP-IDF
+version (see <a class="reference internal" href="#esp-idf-compatibility">ESP-IDF Compatibility</a>) and all required dependencies. Once
+installed, source the export script to set up the environment:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>.<span class="w"> </span><span class="nv">$IDF_PATH</span>/export.sh
 </pre></div>
 </div>
@@ -472,13 +501,15 @@ in your application’s <code class="docutils literal notranslate"><span class="
 </section>
 <section id="fetch-the-satellite-phy-blob-esp32-c6">
 <span id="esp-idf-sat-phy-blob"></span><h3>Fetch the Satellite PHY Blob (ESP32-C6)<a class="headerlink" href="#fetch-the-satellite-phy-blob-esp32-c6" title="Link to this heading"></a></h3>
-<div class="admonition important">
-<p class="admonition-title">Important</p>
-<p>The Satellite Network module requires a PHY library blob from Espressif
-that is currently in Early Access (EA). The <code class="docutils literal notranslate"><span class="pre">libphy</span></code> shipped with
-ESP-IDF does <strong>not</strong> include this API yet and must be swapped in manually
-before building.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This step is only required for <strong>ESP-IDF v6.0</strong>. Starting with
+ESP-IDF v6.1, the PHY API used by the Satellite Network module is
+included upstream, and no blob swap is needed.</p>
 </div>
+<p>On ESP-IDF v6.0, the shipped <code class="docutils literal notranslate"><span class="pre">libphy</span></code> does not include the PHY API
+required by the Satellite Network module. Swap in the Early Access (EA)
+blob from Espressif before building:</p>
 <ol class="arabic">
 <li><p>Download the Espressif PHY blob:</p>
 <p><a class="reference external" href="https://dl.espressif.com/AE/libphy_C6_20260317_c83212e%20(2).zip">libphy_C6_20260317_c83212e.zip</a></p>
@@ -490,8 +521,6 @@ cp<span class="w"> </span>*.a<span class="w"> </span><span class="nv">$IDF_PATH<
 </div>
 </li>
 </ol>
-<p>This step is temporary. Once Espressif ships the API upstream, the blob swap
-will no longer be needed.</p>
 </section>
 </section>
 <section id="project-configuration">
@@ -939,8 +968,10 @@ orbits before returning.</p>
 <section id="build-fails-with-missing-phy-symbols">
 <h3>Build fails with missing PHY symbols<a class="headerlink" href="#build-fails-with-missing-phy-symbols" title="Link to this heading"></a></h3>
 <p><strong>Symptom:</strong> Linker error referencing undefined symbols.</p>
-<p><strong>Cause:</strong> The EA PHY blob was not swapped into the ESP-IDF installation.</p>
-<p><strong>Fix:</strong> Follow the <a class="reference internal" href="#esp-idf-sat-phy-blob"><span class="std std-ref">Fetch the Satellite PHY Blob (ESP32-C6)</span></a> steps in the SDK Setup section.</p>
+<p><strong>Cause:</strong> On ESP-IDF v6.0, the EA PHY blob was not swapped into the ESP-IDF
+installation.</p>
+<p><strong>Fix:</strong> Upgrade to ESP-IDF v6.1 or later, or follow the
+<a class="reference internal" href="#esp-idf-sat-phy-blob"><span class="std std-ref">Fetch the Satellite PHY Blob (ESP32-C6)</span></a> steps in the SDK Setup section.</p>
 </section>
 <section id="nimble-fails-to-initialize">
 <h3>NimBLE fails to initialize<a class="headerlink" href="#nimble-fails-to-initialize" title="Link to this heading"></a></h3>

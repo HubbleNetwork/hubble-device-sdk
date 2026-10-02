@@ -420,7 +420,7 @@ entry is needed in your <code class="docutils literal notranslate"><span class="
 <p>To declare the dependency by hand instead of running <code class="docutils literal notranslate"><span class="pre">add-dependency</span></code>, add it
 to <code class="docutils literal notranslate"><span class="pre">main/idf_component.yml</span></code>:</p>
 <div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">dependencies</span><span class="p">:</span>
-<span class="w">  </span><span class="nt">hubblenetwork/hubble-device-sdk</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">^3.0.0</span>
+<span class="w">  </span><span class="nt">hubblenetwork/hubble-device-sdk</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">^3.1.0</span>
 </pre></div>
 </div>
 <div class="admonition note">
@@ -483,13 +483,16 @@ CONFIG_BT_BLE_42_FEATURES_SUPPORTED=y
 </section>
 <section id="satellite-network-on-esp32-c6-required-phy-blob">
 <h2>Satellite Network on ESP32-C6: Required PHY Blob<a class="headerlink" href="#satellite-network-on-esp32-c6-required-phy-blob" title="Link to this heading"></a></h2>
-<div class="admonition important">
-<p class="admonition-title">Important</p>
-<p>The Satellite Network module requires a PHY library blob from Espressif
-that is currently in Early Access (EA). The <code class="docutils literal notranslate"><span class="pre">libphy</span></code> shipped with ESP-IDF
-does <strong>not</strong> include this API yet, so the blob must be swapped in manually
-before building any Satellite Network application on the ESP32-C6.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This step is only required for <strong>ESP-IDF v6.0</strong>. Starting with
+ESP-IDF v6.1, the PHY API used by the Satellite Network module is
+included upstream, and no blob swap is needed.</p>
 </div>
+<p>On ESP-IDF v6.0, the shipped <code class="docutils literal notranslate"><span class="pre">libphy</span></code> does not include the PHY API
+required by the Satellite Network module. Swap in the Early Access (EA)
+blob from Espressif before building any Satellite Network application on
+the ESP32-C6:</p>
 <ol class="arabic">
 <li><p>Download the Espressif PHY blob:</p>
 <p><a class="reference external" href="https://dl.espressif.com/AE/libphy_C6_20260317_c83212e%20(2).zip">libphy_C6_20260317_c83212e.zip</a></p>
@@ -502,8 +505,6 @@ cp<span class="w"> </span>*.a<span class="w"> </span><span class="nv">$IDF_PATH<
 </div>
 </li>
 </ol>
-<p>This step is temporary. Once Espressif ships the API upstream, the SDK
-will consume it directly and the blob swap will no longer be needed.</p>
 </section>
 </section>
 
