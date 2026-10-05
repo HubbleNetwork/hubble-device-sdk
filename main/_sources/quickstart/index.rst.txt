@@ -24,5 +24,6 @@ Satellite Network modules, and build and flash a sample.
    zephyr/index
    freertos/index
    ti/index
+   silabs/index
    esp-idf/index
    bare-metal/index
