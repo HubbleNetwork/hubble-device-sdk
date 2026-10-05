@@ -23,7 +23,7 @@ Prerequisites
   installed and exported in the current shell (e.g. ``source ~/esp/esp-idf/export.sh``).
 - A supported ESP32 target. The BLE Network module works on any ESP32 chip
   with a Bluetooth® Low Energy controller supported by ESP-IDF. The Satellite
-  Network module currently targets the **ESP32-C6**.
+  Network module currently targets the **ESP32-C6** and **ESP32-S31**.
 - Device ``key`` (generated when you register a new device to your organization
   through the Hubble Cloud API).
 
@@ -117,28 +117,38 @@ standard BLE controller bits:
    CONFIG_BT_BLE_42_FEATURES_SUPPORTED=y
 
 
-Satellite Network on ESP32-C6: Required PHY Blob
-************************************************
+Satellite Network: Required PHY Blob
+************************************
 
-.. note::
+Depending on the SoC and ESP-IDF version, the shipped ``libphy`` may not
+include the PHY API required by the Satellite Network module. In that case,
+swap in the Early Access (EA) blob from Espressif before building any
+Satellite Network application:
 
-   This step is only required for **ESP-IDF v6.0**. Starting with
-   ESP-IDF v6.1, the PHY API used by the Satellite Network module is
-   included upstream, and no blob swap is needed.
+.. list-table::
+   :widths: 20 35 25 20
+   :header-rows: 1
 
-On ESP-IDF v6.0, the shipped ``libphy`` does not include the PHY API
-required by the Satellite Network module. Swap in the Early Access (EA)
-blob from Espressif before building any Satellite Network application on
-the ESP32-C6:
+   * - SoC
+     - PHY blob
+     - Required for version
+     - ``IDF_TARGET``
+   * - ESP32-C6
+     - `libphy_C6_20260317_c83212e.zip <https://dl.espressif.com/AE/libphy_C6_20260317_c83212e%20(2).zip>`_
+     - ESP-IDF < v6.1
+     - ``esp32c6``
+   * - ESP32-S31
+     - `libphy_S31_20260728_e963440.zip <https://dl.espressif.com/AE/libphy_S31_20260728_e963440.zip>`_
+     - All ESP-IDF
+     - ``esp32s31``
 
-#. Download the Espressif PHY blob:
-
-   `libphy_C6_20260317_c83212e.zip <https://dl.espressif.com/AE/libphy_C6_20260317_c83212e%20(2).zip>`_
+#. Download the PHY blob for your SoC from the table above.
 
 #. Unzip the archive and copy the extracted ``*.a`` files over the matching
-   files in your ESP-IDF installation:
+   files in your ESP-IDF installation, replacing ``<IDF_TARGET>`` with your
+   target:
 
    .. code-block:: bash
 
-      unzip "libphy_C6_20260317_c83212e.zip"
-      cp *.a $IDF_PATH/components/esp_phy/lib/esp32c6/
+      unzip "<blob>.zip"
+      cp *.a $IDF_PATH/components/esp_phy/lib/<IDF_TARGET>/
