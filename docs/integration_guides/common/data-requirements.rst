@@ -36,7 +36,9 @@ hard-coded directly in firmware:
 
 For mobile devices, location can be obtained from an onboard GPS module if
 present, or provisioned at runtime from a companion app. For example,
-delivered over BLE from a phone/gateway that has GPS access.
+delivered over BLE from a phone/gateway that has GPS access. The
+:ref:`hubble_satellite_companion_tool` is a host-side reference for this flow:
+it provisions time, location and orbital parameters over BLE in one step.
 
 Orbital Parameters
 ==================

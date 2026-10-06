@@ -142,7 +142,8 @@ for the SDK to predict when it can be reached from the device location.
 Provision these values from a trusted source such as a companion application,
 BLE provisioning flow, manufacturing data, or another backend channel.
 
-The dual-stack samples provision orbital parameters over BLE. The provisioning
+The dual-stack samples provision orbital parameters over BLE, from the
+:ref:`hubble_satellite_companion_tool` running on a host. The provisioning
 payload maps directly to ``struct hubble_sat_orbital_params`` fields:
 
 .. code-block:: c
@@ -269,7 +270,8 @@ then stops BLE and transmits over the satellite radio during the pass window.
 Typical workflow:
 
 1. Start BLE provisioning.
-2. Receive Unix time, device location, and satellite orbital parameters.
+2. Receive Unix time, device location, and satellite orbital parameters. The
+   samples receive them from the :ref:`hubble_satellite_companion_tool`.
 3. Initialize the Hubble Device SDK with the provisioned Unix time and key.
 4. Register orbital parameters with :c:func:`hubble_sat_satellites_set`.
 5. Compute the next pass with :c:func:`hubble_sat_next_pass_get`.
@@ -381,3 +383,4 @@ full satellite API is documented in the :ref:`hubble_sat_api` reference.
    reliability
    clock-drift
    board-support
+   companion-tool
