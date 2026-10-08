@@ -182,7 +182,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../../quickstart/esp-idf/index.html#prerequisites">Prerequisites</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../quickstart/esp-idf/index.html#adding-hubble-network-to-an-esp-idf-project">Adding Hubble Network to an ESP-IDF Project</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../quickstart/esp-idf/index.html#enabling-hubble-modules">Enabling Hubble Modules</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../quickstart/esp-idf/index.html#satellite-network-on-esp32-c6-required-phy-blob">Satellite Network on ESP32-C6: Required PHY Blob</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../quickstart/esp-idf/index.html#satellite-network-required-phy-blob">Satellite Network: Required PHY Blob</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../../quickstart/bare-metal/index.html">Bare Metal</a><ul>
@@ -432,17 +432,24 @@ SDK release. If you require support for a different version,
 <h3>Supported Devices<a class="headerlink" href="#supported-devices" title="Link to this heading"></a></h3>
 <table class="docutils align-default">
 <colgroup>
-<col style="width: 40.0%" />
-<col style="width: 60.0%" />
+<col style="width: 25.0%" />
+<col style="width: 25.0%" />
+<col style="width: 50.0%" />
 </colgroup>
 <thead>
 <tr class="row-odd"><th class="head"><p>SoC</p></th>
+<th class="head"><p><code class="docutils literal notranslate"><span class="pre">IDF_TARGET</span></code></p></th>
 <th class="head"><p>Notes</p></th>
 </tr>
 </thead>
 <tbody>
 <tr class="row-even"><td><p>ESP32-C6</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">esp32c6</span></code></p></td>
 <td><p>RISC-V, 20 dBm integrated PA</p></td>
+</tr>
+<tr class="row-odd"><td><p>ESP32-S31</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">esp32s31</span></code></p></td>
+<td><p>Dual-core RISC-V, 20 dBm integrated PA</p></td>
 </tr>
 </tbody>
 </table>
@@ -507,24 +514,44 @@ in your application’s <code class="docutils literal notranslate"><span class="
 </div>
 <p>See <code class="docutils literal notranslate"><span class="pre">samples/esp-idf/sat-dual-stack/CMakeLists.txt</span></code> for a complete reference.</p>
 </section>
-<section id="fetch-the-satellite-phy-blob-esp32-c6">
-<span id="esp-idf-sat-phy-blob"></span><h3>Fetch the Satellite PHY Blob (ESP32-C6)<a class="headerlink" href="#fetch-the-satellite-phy-blob-esp32-c6" title="Link to this heading"></a></h3>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>This step is only required for <strong>ESP-IDF v6.0</strong>. Starting with
-ESP-IDF v6.1, the PHY API used by the Satellite Network module is
-included upstream, and no blob swap is needed.</p>
-</div>
-<p>On ESP-IDF v6.0, the shipped <code class="docutils literal notranslate"><span class="pre">libphy</span></code> does not include the PHY API
-required by the Satellite Network module. Swap in the Early Access (EA)
-blob from Espressif before building:</p>
+<section id="fetch-the-satellite-phy-blob">
+<span id="esp-idf-sat-phy-blob"></span><h3>Fetch the Satellite PHY Blob<a class="headerlink" href="#fetch-the-satellite-phy-blob" title="Link to this heading"></a></h3>
+<p>Depending on the SoC and ESP-IDF version, the shipped <code class="docutils literal notranslate"><span class="pre">libphy</span></code> may not
+include the PHY API required by the Satellite Network module. In that case,
+swap in the Early Access (EA) blob from Espressif before building:</p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 20.0%" />
+<col style="width: 35.0%" />
+<col style="width: 25.0%" />
+<col style="width: 20.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>SoC</p></th>
+<th class="head"><p>PHY blob</p></th>
+<th class="head"><p>Required for version</p></th>
+<th class="head"><p><code class="docutils literal notranslate"><span class="pre">IDF_TARGET</span></code></p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>ESP32-C6</p></td>
+<td><p><a class="reference external" href="https://dl.espressif.com/AE/libphy_C6_20260317_c83212e%20(2).zip">libphy_C6_20260317_c83212e.zip</a></p></td>
+<td><p>ESP-IDF &lt; v6.1</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">esp32c6</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>ESP32-S31</p></td>
+<td><p><a class="reference external" href="https://dl.espressif.com/AE/libphy_S31_20260728_e963440.zip">libphy_S31_20260728_e963440.zip</a></p></td>
+<td><p>All ESP-IDF</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">esp32s31</span></code></p></td>
+</tr>
+</tbody>
+</table>
 <ol class="arabic">
-<li><p>Download the Espressif PHY blob:</p>
-<p><a class="reference external" href="https://dl.espressif.com/AE/libphy_C6_20260317_c83212e%20(2).zip">libphy_C6_20260317_c83212e.zip</a></p>
-</li>
-<li><p>Unzip and copy the extracted <code class="docutils literal notranslate"><span class="pre">*.a</span></code> files into your ESP-IDF installation:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>unzip<span class="w"> </span><span class="s2">"libphy_C6_20260317_c83212e.zip"</span>
-cp<span class="w"> </span>*.a<span class="w"> </span><span class="nv">$IDF_PATH</span>/components/esp_phy/lib/esp32c6/
+<li><p>Download the PHY blob for your SoC from the table above.</p></li>
+<li><p>Unzip it and copy the extracted <code class="docutils literal notranslate"><span class="pre">*.a</span></code> files into your ESP-IDF
+installation, replacing <code class="docutils literal notranslate"><span class="pre">&lt;IDF_TARGET&gt;</span></code> with your target:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>unzip<span class="w"> </span><span class="s2">"&lt;blob&gt;.zip"</span>
+cp<span class="w"> </span>*.a<span class="w"> </span><span class="nv">$IDF_PATH</span>/components/esp_phy/lib/&lt;IDF_TARGET&gt;/
 </pre></div>
 </div>
 </li>
@@ -877,8 +904,9 @@ their effect on power consumption.</p>
 </section>
 <section id="building-and-flashing">
 <h2>Building and Flashing<a class="headerlink" href="#building-and-flashing" title="Link to this heading"></a></h2>
-<p>Set the target, build, flash, and open the serial monitor:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>idf.py<span class="w"> </span>set-target<span class="w"> </span>esp32c6
+<p>Set the target, build, flash, and open the serial monitor. Replace
+<code class="docutils literal notranslate"><span class="pre">&lt;IDF_TARGET&gt;</span></code> with the value for your SoC from <a class="reference internal" href="#supported-devices">Supported Devices</a>:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>idf.py<span class="w"> </span>set-target<span class="w"> </span>&lt;IDF_TARGET&gt;
 idf.py<span class="w"> </span>build<span class="w"> </span>flash<span class="w"> </span>monitor
 </pre></div>
 </div>
@@ -976,10 +1004,9 @@ orbits before returning.</p>
 <section id="build-fails-with-missing-phy-symbols">
 <h3>Build fails with missing PHY symbols<a class="headerlink" href="#build-fails-with-missing-phy-symbols" title="Link to this heading"></a></h3>
 <p><strong>Symptom:</strong> Linker error referencing undefined symbols.</p>
-<p><strong>Cause:</strong> On ESP-IDF v6.0, the EA PHY blob was not swapped into the ESP-IDF
-installation.</p>
-<p><strong>Fix:</strong> Upgrade to ESP-IDF v6.1 or later, or follow the
-<a class="reference internal" href="#esp-idf-sat-phy-blob"><span class="std std-ref">Fetch the Satellite PHY Blob (ESP32-C6)</span></a> steps in the SDK Setup section.</p>
+<p><strong>Cause:</strong> The EA PHY blob required for your SoC and ESP-IDF version was not
+swapped into the ESP-IDF installation.</p>
+<p><strong>Fix:</strong> Follow the <a class="reference internal" href="#esp-idf-sat-phy-blob"><span class="std std-ref">Fetch the Satellite PHY Blob</span></a> steps in the SDK Setup section.</p>
 </section>
 <section id="nimble-fails-to-initialize">
 <h3>NimBLE fails to initialize<a class="headerlink" href="#nimble-fails-to-initialize" title="Link to this heading"></a></h3>

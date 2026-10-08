@@ -41,13 +41,18 @@ Supported Devices
 =================
 
 .. list-table::
-   :widths: 40 60
+   :widths: 25 25 50
    :header-rows: 1
 
    * - SoC
+     - ``IDF_TARGET``
      - Notes
    * - ESP32-C6
+     - ``esp32c6``
      - RISC-V, 20 dBm integrated PA
+   * - ESP32-S31
+     - ``esp32s31``
+     - Dual-core RISC-V, 20 dBm integrated PA
 
 
 .. include:: ../common/prerequisites.rst
@@ -97,29 +102,39 @@ See ``samples/esp-idf/sat-dual-stack/CMakeLists.txt`` for a complete reference.
 
 .. _esp_idf_sat_phy_blob:
 
-Fetch the Satellite PHY Blob (ESP32-C6)
-========================================
+Fetch the Satellite PHY Blob
+============================
 
-.. note::
+Depending on the SoC and ESP-IDF version, the shipped ``libphy`` may not
+include the PHY API required by the Satellite Network module. In that case,
+swap in the Early Access (EA) blob from Espressif before building:
 
-   This step is only required for **ESP-IDF v6.0**. Starting with
-   ESP-IDF v6.1, the PHY API used by the Satellite Network module is
-   included upstream, and no blob swap is needed.
+.. list-table::
+   :widths: 20 35 25 20
+   :header-rows: 1
 
-On ESP-IDF v6.0, the shipped ``libphy`` does not include the PHY API
-required by the Satellite Network module. Swap in the Early Access (EA)
-blob from Espressif before building:
+   * - SoC
+     - PHY blob
+     - Required for version
+     - ``IDF_TARGET``
+   * - ESP32-C6
+     - `libphy_C6_20260317_c83212e.zip`_
+     - ESP-IDF < v6.1
+     - ``esp32c6``
+   * - ESP32-S31
+     - `libphy_S31_20260728_e963440.zip`_
+     - All ESP-IDF
+     - ``esp32s31``
 
-#. Download the Espressif PHY blob:
+#. Download the PHY blob for your SoC from the table above.
 
-   `libphy_C6_20260317_c83212e.zip`_
-
-#. Unzip and copy the extracted ``*.a`` files into your ESP-IDF installation:
+#. Unzip it and copy the extracted ``*.a`` files into your ESP-IDF
+   installation, replacing ``<IDF_TARGET>`` with your target:
 
    .. code-block:: bash
 
-      unzip "libphy_C6_20260317_c83212e.zip"
-      cp *.a $IDF_PATH/components/esp_phy/lib/esp32c6/
+      unzip "<blob>.zip"
+      cp *.a $IDF_PATH/components/esp_phy/lib/<IDF_TARGET>/
 
 
 .. _esp_idf_sat_project_config:
@@ -328,11 +343,12 @@ their effect on power consumption.
 Building and Flashing
 *********************
 
-Set the target, build, flash, and open the serial monitor:
+Set the target, build, flash, and open the serial monitor. Replace
+``<IDF_TARGET>`` with the value for your SoC from `Supported Devices`_:
 
 .. code-block:: bash
 
-   idf.py set-target esp32c6
+   idf.py set-target <IDF_TARGET>
    idf.py build flash monitor
 
 
@@ -409,11 +425,10 @@ Build fails with missing PHY symbols
 
 **Symptom:** Linker error referencing undefined symbols.
 
-**Cause:** On ESP-IDF v6.0, the EA PHY blob was not swapped into the ESP-IDF
-installation.
+**Cause:** The EA PHY blob required for your SoC and ESP-IDF version was not
+swapped into the ESP-IDF installation.
 
-**Fix:** Upgrade to ESP-IDF v6.1 or later, or follow the
-:ref:`esp_idf_sat_phy_blob` steps in the SDK Setup section.
+**Fix:** Follow the :ref:`esp_idf_sat_phy_blob` steps in the SDK Setup section.
 
 NimBLE fails to initialize
 ===========================
@@ -447,3 +462,4 @@ Further Reading
 .. _Espressif's IoT Development Framework: https://docs.espressif.com/projects/esp-idf/en/latest/esp32c6/index.html
 .. _ESP-IDF Getting Started guide: https://docs.espressif.com/projects/esp-idf/en/latest/esp32c6/get-started/index.html
 .. _libphy_C6_20260317_c83212e.zip: https://dl.espressif.com/AE/libphy_C6_20260317_c83212e%20(2).zip
+.. _libphy_S31_20260728_e963440.zip: https://dl.espressif.com/AE/libphy_S31_20260728_e963440.zip

@@ -134,15 +134,17 @@ sources. To add a new EFR32 SoC variant, add a generated radio configuration
 directory and extend ``port/zephyr/boards/silabs/efr32/CMakeLists.txt`` with the
 new SoC selection.
 
-ESP32-C6 on ESP-IDF
-===================
+Espressif ESP32 on ESP-IDF
+==========================
 
 The ESP-IDF satellite component currently selects board support when
-``IDF_TARGET`` is ``esp32c6``. The implementation lives in
-``port/esp-idf/hubblenetwork-sdk/boards/esp32c6/radio.c`` and implements the
+``IDF_TARGET`` is ``esp32c6`` or ``esp32s31``. The implementation lives in
+``port/esp-idf/hubblenetwork-sdk/boards/espressif/radio.c`` and implements the
 same ``hubble_sat_board_*`` API used by the FreeRTOS satellite port.
 
-To support another ESP-IDF target, add a new directory under
+To support another ESP-IDF target that is close to an existing one, add its
+``CONFIG_IDF_TARGET_*`` radio parameters to ``esp_sat_radio_config.h``. If the
+implementation differs significantly, add a new directory under
 ``port/esp-idf/hubblenetwork-sdk/boards`` and update the component
 ``CMakeLists.txt`` to select the include directory and source files for the new
 ``IDF_TARGET``.

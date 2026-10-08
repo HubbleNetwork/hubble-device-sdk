@@ -182,7 +182,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../quickstart/esp-idf/index.html#prerequisites">Prerequisites</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../quickstart/esp-idf/index.html#adding-hubble-network-to-an-esp-idf-project">Adding Hubble Network to an ESP-IDF Project</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../quickstart/esp-idf/index.html#enabling-hubble-modules">Enabling Hubble Modules</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../quickstart/esp-idf/index.html#satellite-network-on-esp32-c6-required-phy-blob">Satellite Network on ESP32-C6: Required PHY Blob</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../quickstart/esp-idf/index.html#satellite-network-required-phy-blob">Satellite Network: Required PHY Blob</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../quickstart/bare-metal/index.html">Bare Metal</a><ul>
@@ -506,13 +506,15 @@ sources. To add a new EFR32 SoC variant, add a generated radio configuration
 directory and extend <code class="docutils literal notranslate"><span class="pre">port/zephyr/boards/silabs/efr32/CMakeLists.txt</span></code> with the
 new SoC selection.</p>
 </section>
-<section id="esp32-c6-on-esp-idf">
-<h3>ESP32-C6 on ESP-IDF<a class="headerlink" href="#esp32-c6-on-esp-idf" title="Link to this heading"></a></h3>
+<section id="espressif-esp32-on-esp-idf">
+<h3>Espressif ESP32 on ESP-IDF<a class="headerlink" href="#espressif-esp32-on-esp-idf" title="Link to this heading"></a></h3>
 <p>The ESP-IDF satellite component currently selects board support when
-<code class="docutils literal notranslate"><span class="pre">IDF_TARGET</span></code> is <code class="docutils literal notranslate"><span class="pre">esp32c6</span></code>. The implementation lives in
-<code class="docutils literal notranslate"><span class="pre">port/esp-idf/hubblenetwork-sdk/boards/esp32c6/radio.c</span></code> and implements the
+<code class="docutils literal notranslate"><span class="pre">IDF_TARGET</span></code> is <code class="docutils literal notranslate"><span class="pre">esp32c6</span></code> or <code class="docutils literal notranslate"><span class="pre">esp32s31</span></code>. The implementation lives in
+<code class="docutils literal notranslate"><span class="pre">port/esp-idf/hubblenetwork-sdk/boards/espressif/radio.c</span></code> and implements the
 same <code class="docutils literal notranslate"><span class="pre">hubble_sat_board_*</span></code> API used by the FreeRTOS satellite port.</p>
-<p>To support another ESP-IDF target, add a new directory under
+<p>To support another ESP-IDF target that is close to an existing one, add its
+<code class="docutils literal notranslate"><span class="pre">CONFIG_IDF_TARGET_*</span></code> radio parameters to <code class="docutils literal notranslate"><span class="pre">esp_sat_radio_config.h</span></code>. If the
+implementation differs significantly, add a new directory under
 <code class="docutils literal notranslate"><span class="pre">port/esp-idf/hubblenetwork-sdk/boards</span></code> and update the component
 <code class="docutils literal notranslate"><span class="pre">CMakeLists.txt</span></code> to select the include directory and source files for the new
 <code class="docutils literal notranslate"><span class="pre">IDF_TARGET</span></code>.</p>
