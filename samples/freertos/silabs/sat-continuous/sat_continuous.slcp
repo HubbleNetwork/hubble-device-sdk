@@ -1,0 +1,55 @@
+project_name: sat_continuous
+package: hubble-device-sdk
+quality: production
+label: Hubble Device SDK - Satellite Continuous Sample App
+description: >
+  Continuously transmits Hubble Network satellite packets.
+
+category: Hubble|Satellite
+
+sdk_extension:
+  - id: hubble-device-sdk
+    vendor: hubble-network
+    version: 3.1.0
+
+component:
+  - id: hubble-device-sdk-sat
+    from: hubble-device-sdk
+  - id: freertos
+  - id: app_assert
+  - id: app_log
+  - id: mpu
+  - id: sl_main
+  - id: clock_manager
+  - id: device_init
+  - id: mbedtls_base64
+
+source:
+  - path: src/app.c
+
+config_file:
+  - path: config/sat_cont_config.h
+
+readme:
+  - path: README.md
+
+ui_hints:
+  highlight:
+    - path: README.md
+
+configuration:
+  - name: SISDK_HUBBLE_COUNTER_SOURCE
+    value: "1"
+  - name: SISDK_HUBBLE_NETWORK_SECURITY_ENFORCE_NONCE_CHECK
+    value: "0"
+  - name: SL_BOARD_ENABLE_VCOM
+    value: "1"
+  - name: SL_IOSTREAM_EUSART_VCOM_CONVERT_BY_DEFAULT_LF_TO_CRLF
+    value: "1"
+
+  # Work around for when disconnecting from VCOM,
+  # the app hangs waiting for log to output.
+  # Another way is to disable log, but since this is
+  # a sample, log is kept on.
+  - name: SL_IOSTREAM_EUSART_VCOM_FLOW_CONTROL_TYPE
+    value: SL_IOSTREAM_EUSART_UART_FLOW_CTRL_NONE
