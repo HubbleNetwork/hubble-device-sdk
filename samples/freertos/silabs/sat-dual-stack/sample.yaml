@@ -1,0 +1,8 @@
+sample:
+  name: sat-dual-stack
+
+builds:
+  - id: xg24-brd4187c
+    board: brd4187c
+  - id: xg26-brd4121a
+    board: brd4121a
