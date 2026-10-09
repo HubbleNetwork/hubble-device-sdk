@@ -20,4 +20,5 @@ prediction, reliability modes, and clock drift — see the
 
    ncs/index
    ti/index
+   silabs/index
    esp-idf/index
