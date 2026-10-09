@@ -7,7 +7,7 @@ This sample demonstrates running the **Hubble Terrestrial (BLE) Network** and th
 
 The application:
 
-1. Provisions the device over a BLE GATT service (Unix epoch time, satellite
+1. Provisions the device over a BLE GATT service (Unix time, satellite
    orbital parameters and device location).
 2. Schedules a timer for the next satellite pass using the SDK's pass
    prediction APIs.
@@ -17,6 +17,8 @@ The application:
 ## Requirements
 
 - A cryptographic key provided by Hubble Network.
+- A Hubble API token, for the provisioning script. See the
+  [Hubble Platform API documentation](https://hubble.com/docs/api-specification/hubble-platform-api#generate-an-api-key).
 - A board with Bluetooth LE support. Satellite-capable boards transmit for
   real; other boards mock the satellite radio (see
   `CONFIG_SAMPLE_PROVIDE_SAT_BOARD_SUPPORT`).
@@ -83,58 +85,41 @@ west flash
 
 ## Provisioning
 
-On boot the device starts a connectable advertisement named **"Hubble-Zephyr"**
-(UUID `0xFCA7`) and waits for provisioning. A companion app, or provided script,
-connects and writes, to the provisioning characteristic, a 2-byte command header
-followed by a payload:
+On boot, the device starts a connectable BLE advertisement named **"Hubble-Zephyr"**
+and waits for provisioning data. Use `dual-stack-companion.py` to push the current Unix time,
+device location, and orbital parameters for the target satellites.
 
-| Command                | Header (bytes) | Payload                                              |
-| ---------------------- | -------------- | ---------------------------------------------------- |
-| Set UTC time           | `0x01 0x02`    | `uint64_t` Unix time in milliseconds (little-endian) |
-| Add orbital parameters | `0x01 0x03`    | 76-byte packed `hubble_sat_orbital_params`           |
-| Set device location    | `0x01 0x04`    | 16 bytes for latitude(double) and longitude(double)  |
+See [companion tool documentation](https://github.com/HubbleNetwork/hubble-device-sdk/blob/main/docs/satellite/companion-tool.rst)
+for more information and instruction.
 
-The orbital-parameters payload is packed as:
-
-```text
-offset  size  field
-  0      8    t0            (uint64)
-  8      8    n0            (double)
- 16      8    ndot          (double)
- 24      8    raan0         (double)
- 32      8    raandot       (double)
- 40      8    aop0          (double)
- 48      8    aopdot        (double)
- 56      8    inclination   (double)
- 64      8    eccentricity  (double)
- 72      4    satellite_id  (uint32)
-```
-
-Up to 6 satellites may be provisioned. Once the time is set and the peer
-disconnects, the device initializes the Hubble stack and enters the
-beacon / satellite-pass loop.
-
-Install the Python dependencies for the *dual-stack-companion.py* provisioning
-script:
+Install Python dependencies for the *dual-stack-companion.py* provisioning script:
 
 ```bash
 pip install -r tools/requirements-companion.txt
 ```
 
-Then set your Hubble API token and run the script:
+### Windows
 
-```bash
+```ps1
+$env:HUBBLE_API_TOKEN = "<your-hubble-api-token>"
+
+python tools/dual-stack-companion.py
+```
+
+### Linux & macOS
+
+```sh
 export HUBBLE_API_TOKEN=<your-hubble-api-token>
 
 python tools/dual-stack-companion.py
 ```
 
-By default the device location is determined via IP geolocation. To provision an
-explicit location, pass the latitude and longitude (in degrees) with `--location`:
+A successful run ends with `Provisioned device successfully`.
 
-```bash
-python tools/dual-stack-companion.py --location <lat> <lon>
-```
+> [!NOTE]
+> The device keeps the time, location and orbital parameters in RAM. It does not persist.
+> Run the provisioning script again after every power cycle or reset.
+
 
 ## Program Flow
 

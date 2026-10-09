@@ -5,6 +5,8 @@ This sample demonstrates how to run **BLE and the Hubble Satellite Network** on 
 ## Requirements
 
 - Cryptographic key provided by Hubble Network
+- A Hubble API token, for the provisioning script. See the
+  [Hubble Platform API documentation](https://hubble.com/docs/api-specification/hubble-platform-api#generate-an-api-key).
 - [ESP-IDF](https://docs.espressif.com/projects/esp-idf/en/latest/esp32/get-started/index.html)
 - ESP32-C6 or ESP32-S31 hardware
 - Satellite PHY Blob (requirement depends on SoC and ESP-IDF version - see
@@ -47,7 +49,7 @@ for your OS. Use the following command to export any necessary temporary environ
 Install Python dependencies for the *dual-stack-companion.py* provisioning script:
 
 ```sh
-pip install -r ../../../../tools/requirements-companion.txt
+pip install -r ../../../tools/requirements-companion.txt
 ```
 
 ### Windows
@@ -104,16 +106,19 @@ idf.py build flash monitor
 
 ### 3. Provision the Device
 
-On first boot, the device starts a connectable BLE advertisement named **"Hubble-ESP"**
-and waits for provisioning data. Use *dual-stack-companion.py* to push the current Unix Epoch time,
-device location, and orbital parameters data for the target satellites:
+On boot, the device starts a connectable BLE advertisement named **"Hubble-ESP"**
+and waits for provisioning data. Use `dual-stack-companion.py` to push the current Unix time,
+device location, and orbital parameters for the target satellites.
+
+See [companion tool documentation](https://github.com/HubbleNetwork/hubble-device-sdk/blob/main/docs/satellite/companion-tool.rst)
+for more information and instruction.
 
 ### Windows
 
 ```ps1
 $env:HUBBLE_API_TOKEN = "<your-hubble-api-token>"
 
-python ../../../../tools/dual-stack-companion.py
+python ../../../tools/dual-stack-companion.py
 ```
 
 ### Linux & macOS
@@ -121,18 +126,15 @@ python ../../../../tools/dual-stack-companion.py
 ```sh
 export HUBBLE_API_TOKEN=<your-hubble-api-token>
 
-python ../../../../tools/dual-stack-companion.py
+python ../../../tools/dual-stack-companion.py
 ```
 
-By default the device location is determined via IP geolocation. To provision an
-explicit location, pass the latitude and longitude (in degrees) with `--location`:
+A successful run ends with `Provisioned device successfully`.
 
-```sh
-python ../../../../tools/dual-stack-companion.py --location <lat> <lon>
-```
+> [!NOTE]
+> The device keeps the time, location and orbital parameters in RAM. It does not persist.
+> Run the provisioning script again after every power cycle or reset.
 
-Once provisioning completes, the device automatically transitions into its
-satellite-pass scheduling loop and starts advertising the Hubble beacon.
 
 ## Program Flow
 

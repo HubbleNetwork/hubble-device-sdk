@@ -44,6 +44,8 @@ To build and run this project, you will need:
 - The [TI SimpleLink Low Power F3 SDK](https://www.ti.com/tool/download/SIMPLELINK-LOWPOWER-F3-SDK) (`9.20.00.81` or newer).
 - The [TI ARM-CLANG toolchain](https://www.ti.com/tool/CCSTUDIO).
 - The [HubbleNetwork SDK](https://github.com/HubbleNetwork/hubble-device-sdk) cloned locally.
+- A Hubble API token, for the provisioning script. See the
+  [Hubble Platform API documentation](https://hubble.com/docs/api-specification/hubble-platform-api#generate-an-api-key).
 
 ## Setup Instructions
 
@@ -136,25 +138,35 @@ device using your preferred flashing tool (UniFlash, CCS, JLink, etc.).
 
 ### 5. Provision the Device
 
-On first boot, the device starts a connectable BLE advertisement named **"Hubble-TI"**
-and waits for provisioning data. Use *dual-stack-companion.py* to push the current UTC time, the
-device location, and the ephemeris data for the target satellites:
+On boot, the device starts a connectable BLE advertisement named **"Hubble-TI"**
+and waits for provisioning data. Use `dual-stack-companion.py` to push the current Unix time,
+device location, and orbital parameters for the target satellites.
 
-```bash
+See [companion tool documentation](https://github.com/HubbleNetwork/hubble-device-sdk/blob/main/docs/satellite/companion-tool.rst)
+for more information and instruction.
+
+### Windows
+
+```ps1
+$env:HUBBLE_API_TOKEN = "<your-hubble-api-token>"
+
+python ../../../../tools/dual-stack-companion.py
+```
+
+### Linux & macOS
+
+```sh
 export HUBBLE_API_TOKEN=<your-hubble-api-token>
 
 python ../../../../tools/dual-stack-companion.py
 ```
 
-By default the device location is determined via IP geolocation. To provision an
-explicit location, pass the latitude and longitude (in degrees) with `--location`:
+A successful run ends with `Provisioned device successfully`.
 
-```bash
-python ../../../../tools/dual-stack-companion.py --location <lat> <lon>
-```
+> [!NOTE]
+> The device keeps the time, location and orbital parameters in RAM. It does not persist.
+> Run the provisioning script again after every power cycle or reset.
 
-Once provisioning completes, the device automatically transitions into its
-satellite-pass scheduling loop and starts advertising the Hubble beacon.
 
 ### 6. View Log
 
@@ -191,7 +203,7 @@ The diagram below shows the full application life-cycle:
                        v
        +-------------------------------+   no
        |  Provisioned?                 |-----------+
-       |  (UTC time + orbital params)  |           |
+       |  (Unix time + orbital params) |           |
        +-------------------------------+           v
                        |       +-------------------------------------+
                        |       | Connectable advertising "Hubble-TI" |
