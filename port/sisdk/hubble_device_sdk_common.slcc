@@ -1,17 +1,17 @@
-id: hubble-device-sdk-component
-label: Hubble Device SDK Component
+id: hubble-device-sdk-common
+label: Hubble Device SDK Common
 package: hubble-device-sdk
 description: >
-  On-device SDK for connecting to Hubble's Terrestrial (Bluetooth Low Energy)
-  and Satellite Networks, built on a modular architecture that ports across
-  RTOSes and hardware.
-category: Hubble|BLE
+  Core of the Hubble Device SDK, shared by the BLE and Satellite components.
+category: Hubble
 quality: production
+
+provides:
+  - name: hubble-device-sdk-common
 
 source:
   - path: src/hubble.c
   - path: src/hubble_crypto.c
-  - path: src/hubble_ble.c
   - path: src/crypto/psa.c
   - path: port/sisdk/hubble_sisdk.c
   - path: port/freertos/hubble_freertos.c
@@ -20,7 +20,6 @@ include:
   - path: include
     file_list:
       - path: hubble/hubble.h
-      - path: hubble/ble.h
       - path: hubble/toolchain.h
       - path: hubble/version.h
       - path: hubble/port/sys.h
@@ -51,4 +50,4 @@ documentation:
 
 template_contribution:
   - name: component_catalog
-    value: hubble_device_sdk
+    value: hubble_device_sdk_common

@@ -1,0 +1,32 @@
+id: hubble-device-sdk-ble
+label: Hubble Device SDK Terrestrial (BLE)
+package: hubble-device-sdk
+description: >
+  Hubble Terrestrial (Bluetooth Low Energy) Network.
+category: Hubble|BLE
+quality: production
+
+provides:
+  - name: hubble-device-sdk-ble
+
+source:
+  - path: src/hubble_ble.c
+
+include:
+  - path: include
+    file_list:
+      - path: hubble/ble.h
+
+define:
+  - name: CONFIG_HUBBLE_BLE_NETWORK
+    value: 1
+
+requires:
+  - name: hubble-device-sdk-common
+
+documentation:
+  url: https://hubblenetwork.github.io/hubble-device-sdk/main/
+
+template_contribution:
+  - name: component_catalog
+    value: hubble_device_sdk_ble

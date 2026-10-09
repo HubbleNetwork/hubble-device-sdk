@@ -1,0 +1,82 @@
+id: hubble-device-sdk-sat
+label: Hubble Device SDK Satellite
+package: hubble-device-sdk
+description: >
+  Hubble Satellite Network support.
+category: Hubble|Satellite
+quality: production
+
+provides:
+  - name: hubble-device-sdk-sat
+  - name: a_radio_config
+
+source:
+  - path: src/hubble_sat.c
+  - path: src/hubble_sat_pass_prediction.c
+  - path: src/hubble_sat_packet.c
+  - path: src/reed_solomon_encoder.c
+  - path: src/utils/bitarray.c
+  - path: port/freertos/hubble_sat_freertos.c
+  - path: port/sisdk/boards/efr32/radio.c
+
+include:
+  - path: include
+    file_list:
+      - path: hubble/sat.h
+      - path: hubble/sat/dtm.h
+      - path: hubble/sat/pass_prediction.h
+  - path: src
+    file_list:
+      - path: reed_solomon_encoder.h
+      - path: utils/bitarray.h
+  - path: port/freertos
+    file_list:
+      - path: sat_board.h
+
+config_file:
+  - path: port/sisdk/hubble_sat_config.h
+
+  # TODO: find a better way to organize common files between ports
+  - path: port/zephyr/boards/silabs/efr32/xg24/radio_settings.radioconf
+    file_id: radio_configuration_settings
+    directory: rail
+    condition:
+      - device_generic_family_efr32xg24
+
+  - path: port/zephyr/boards/silabs/efr32/xg26/radio_settings.radioconf
+    file_id: radio_configuration_settings
+    directory: rail
+    condition:
+      - device_generic_family_efr32xg26
+
+toolchain_settings:
+  - option: gcc_compiler_option
+    value: "-imacros hubble_sat_config.h"
+
+define:
+  - name: CONFIG_HUBBLE_SAT_NETWORK
+    value: 1
+
+requires:
+  - name: hubble-device-sdk-common
+  - name: freertos
+  - name: rail_lib
+
+  # For Sat only feature
+  - name: rail_lib_singleprotocol
+    unless:
+      - bluetooth_stack
+
+  # For dual stack feature
+  - name: rail_lib_multiprotocol
+    condition:
+      - bluetooth_stack
+
+  - name: sl_rail_util_pa
+
+documentation:
+  url: https://hubblenetwork.github.io/hubble-device-sdk/main/
+
+template_contribution:
+  - name: component_catalog
+    value: hubble_device_sdk_sat

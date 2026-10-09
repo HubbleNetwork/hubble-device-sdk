@@ -117,7 +117,6 @@
 #endif
 
 /* Lock configs for this port */
-#define CONFIG_HUBBLE_BLE_NETWORK             1
 #define CONFIG_HUBBLE_NETWORK_CRYPTO_PSA      1
 #define CONFIG_HUBBLE_EID_ROTATION_PERIOD_SEC 86400
 

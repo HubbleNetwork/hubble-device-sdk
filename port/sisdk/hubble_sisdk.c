@@ -33,6 +33,11 @@ int hubble_log(enum hubble_log_level level, const char *format, ...)
 	status = sl_iostream_vprintf(app_log_iostream, format, args);
 	va_end(args);
 
+	/* SDK log messages have no trailing newline */
+	if (status == SL_STATUS_OK) {
+		status = sl_iostream_write(app_log_iostream, "\n", 1);
+	}
+
 	return (status == SL_STATUS_OK) ? 0 : -EIO;
 #else
 	(void)level;

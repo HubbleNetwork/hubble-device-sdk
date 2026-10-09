@@ -12,7 +12,7 @@ sdk_extension:
     version: 3.1.0
 
 component:
-  - id: hubble-device-sdk-component
+  - id: hubble-device-sdk-ble
     from: hubble-device-sdk
   - id: freertos
   - id: memory_manager
