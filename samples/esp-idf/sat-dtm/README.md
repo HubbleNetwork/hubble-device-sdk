@@ -1,15 +1,17 @@
 # Hubble Network Satellite Direct Test Mode (DTM) Sample on ESP-IDF
 
-This sample puts an esp32 in DTM for satellite RF testing.
+This sample puts an ESP32 in DTM for satellite RF testing.
 
 ## Requirements
 
+- [ESP-IDF](https://docs.espressif.com/projects/esp-idf/en/latest/esp32/get-started/index.html).
+- ESP32-C6 or ESP32-S31 hardware.
 - A serial terminal program (e.g., `minicom`, `screen`, PuTTY) or `idf.py monitor`.
-- [ESP-IDF](https://docs.espressif.com/projects/esp-idf/en/latest/esp32/get-started/index.html)
-- ESP32-C6 or ESP32-S31 hardware
 - Satellite PHY Blob (requirement depends on SoC and ESP-IDF version - see
-  [here](https://github.com/HubbleNetwork/hubble-device-sdk/blob/main/docs/integration_guides/esp-idf/index.rst#fetch-the-satellite-phy-blob))
+  [here](../../../docs/integration_guides/esp-idf/index.rst#fetch-the-satellite-phy-blob)).
 - A spectrum analyzer or test setup if you want to observe the transmissions.
+
+A Hubble key is not needed for this application.
 
 ## Overview
 
@@ -21,7 +23,7 @@ The sample initializes the Hubble Device SDK and starts an interactive shell ove
 serial console.
 
 > [!NOTE]
-> All commands should be ran from the sample folder containing this file:
+> All commands in this README are run from the sample folder containing this file:
 > `<SDK path>/samples/esp-idf/sat-dtm`
 
 ## Environment Setup
@@ -45,9 +47,15 @@ ESP-IDF does not support MSys, which is used by Git Bash. You must use PowerShel
 source ~/esp/esp-idf/export.sh
 ```
 
-## Pre-build
+### Satellite PHY Blob
 
-Set the target chip.
+If a satellite PHY blob is needed, based on your board and ESP-IDF version, follow
+[these steps](../../../docs/integration_guides/esp-idf/index.rst#fetch-the-satellite-phy-blob) to install it.
+
+### Set target chip
+
+Set the target chip. This is needed once per build directory, and again after
+editing `sdkconfig.defaults`.
 
 ```sh
 idf.py set-target <chip>
@@ -58,41 +66,48 @@ e.g.
 idf.py set-target esp32c6
 ```
 
-## Build
+## Build and Flash
+
+Build, flash, and open a serial logger. These steps can be done individually.
 
 ```sh
 idf.py build flash monitor
 ```
 
-## Running the Sample
+If more than one board is connected, pick the port with `-p <PORT>`. Exit the
+monitor with `Ctrl+]`.
+
+## Test
 
 After flashing, connect to your device's serial port using a terminal emulator
 (e.g., at 115200 baud), or use `idf.py monitor`.
 
 You will see a prompt like this:
 
-```
+```text
 hubble>
 ```
 
 Type `help` for the list of available commands.
 
-## Shell Commands
+Connect to your spectrum analyzer for testing.
+
+### Shell Commands
 
 This sample adds the following commands to the ESP-IDF console:
 
-| Command                 | Description                                                                  | Arguments                    |
-| :---------------------- | :--------------------------------------------------------------------------- | :--------------------------- |
-| `power`                 | Set the radio TX power in dBm.                                               | `<power_dbm>`                |
-| `channel`               | Set the frequency channel.                                                   | `<0..18>`                    |
-| `payload`               | Set the payload length in bytes, or `-1` for single-frame mode (16 symbols). | `-1`, `0`, `4`, `9`, or `13` |
-| `transmit`              | Transmit a single packet on the current channel.                             | None                         |
-| `transmit_continuously` | Transmit packets repeatedly at a fixed interval.                             | `<interval_ms>`              |
-| `transmit_sweep`        | Like `transmit_continuously`, hopping through channels.                      | `<interval_ms>`              |
-| `wave`                  | Emit an unmodulated carrier wave on the current channel.                     | None                         |
-| `stop`                  | Stop any ongoing transmission or carrier wave.                               | None                         |
+| Command | Description | Arguments |
+| --- | --- | --- |
+| `power` | Set the radio TX power in dBm. Defaults to 20. | `<0..20>` |
+| `channel` | Set the frequency channel. | `<0..18>` |
+| `payload` | Set the payload length in bytes, or `-1` for single-frame mode (16 symbols). | `-1`, `0`, `4`, `9`, or `13` |
+| `transmit` | Transmit a single packet on the current channel. | None |
+| `transmit_continuously` | Transmit packets repeatedly at a fixed interval. | `<interval_ms>` |
+| `transmit_sweep` | Like `transmit_continuously`, hopping through channels. | `<interval_ms>` |
+| `wave` | Emit an unmodulated carrier wave on the current channel. | None |
+| `stop` | Stop any ongoing transmission or carrier wave. | None |
 
-### Notes
+#### Notes
 
 - `power`, `channel`, and `payload` set state that is applied to subsequent
   transmissions. Set them before issuing a `transmit*` or `wave` command.
@@ -101,9 +116,9 @@ This sample adds the following commands to the ESP-IDF console:
 - Only one transmission can run at a time. Use `stop` to end the current
   transmission or carrier wave before starting a new one.
 
-## Example Session
+### Example Session
 
-```
+```text
 hubble> power 20
 hubble> channel 5
 hubble> payload 9
