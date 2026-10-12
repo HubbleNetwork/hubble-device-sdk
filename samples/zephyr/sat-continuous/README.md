@@ -4,19 +4,62 @@ This sample continuously builds Hubble satellite packets and transmits them in a
 loop. Use it as a starting point for satellite (space) connectivity on a
 supported radio.
 
-The sample uses the **device uptime** counter source
-(`CONFIG_HUBBLE_COUNTER_SOURCE_DEVICE_UPTIME`), so it does not need UTC time
-provisioned: the EID counter used for encryption starts at 0 and advances with
-device uptime. Only the master key has to be embedded before building.
-
 ## Requirements
 
-- A cryptographic key provided by Hubble Network.
-- A supported satellite-capable board (see [Supported boards](#supported-boards)).
-- For Nordic and Silicon Labs targets: the prebuilt radio blob (see
-  [Radio blobs](#radio-blobs)).
+- A [Hubble device key](https://hubble.com/docs/guides/cloud-integration/register-devices).
+- A [Hubble API token](https://hubble.com/docs/api-specification/hubble-platform-api#generate-an-api-key),
+  (optional), for testing with [pyhubblenetwork](https://hubble.com/docs/guides/cli) commands.
+- A [Zephyr west workspace](../../../docs/quickstart/zephyr/index.rst) that includes the Hubble Device SDK.
+- A supported satellite-capable board. The satellite link needs [at least +20 dBm](../../../docs/integration_guides/common/prerequisites.rst).
+  - `nrf54l15dk/nrf54l15/cpuapp` (Nordic nRF54L15, needs an external amplifier)
+  - `nrf21540dk/nrf52840` (Nordic nRF52840 + FEM)
+  - `thingy53/nrf5340/cpunet` (Nordic nRF5340 net core + FEM)
+  - `xg24_rb4187c` (Silicon Labs xG24)
+  - `xg26_rb4121a` (Silicon Labs xG26)
+  - `xiao_mg24` (Seeed XIAO MG24)
+- A computer that meets the
+  [pyhubblenetwork requirements](https://hubble.com/docs/guides/cli#requirements).
+- [pyhubblenetwork](https://hubble.com/docs/guides/cli) (optional), for testing.
+- [Satellite PHY Blob](#satellite-phy-blob).
+- A software defined radio (SDR) for validation (suggested, but not required).
 
-## Radio blobs
+## Overview
+
+Once running, the device initializes the Hubble Device SDK and then enters a
+loop that builds and transmits a satellite packet every
+`CONFIG_SAMPLE_SAT_TX_INTERVAL_SECONDS` seconds.
+
+> [!NOTE]
+> All commands in this README are run from the sample folder containing this file:
+> `<SDK path>/samples/zephyr/sat-continuous`
+
+## Environment Setup
+
+First, set up the environment. This step assumes you've set up a west workspace
+that includes the Hubble Device SDK. If you haven't, follow the [Zephyr quick start](../../../docs/quickstart/zephyr/index.rst).
+Use the following command to activate the workspace's Python virtual environment.
+
+### Windows
+
+```ps1
+<path_to_west_workspace>\.venv\Scripts\Activate.ps1
+```
+
+### Linux & macOS
+
+```sh
+source <path_to_west_workspace>/.venv/bin/activate
+```
+
+### Python Dependencies
+
+Install the [pyhubblenetwork](https://hubble.com/docs/guides/cli) tool for testing:
+
+```sh
+pip install pyhubblenetwork
+```
+
+### Satellite PHY Blob
 
 The satellite radio implementation for Nordic SoCs ships as a prebuilt static
 library (a "blob") rather than source. These are **not** fetched by
@@ -32,78 +75,68 @@ the module's `zephyr/blobs/` directory. If the blob for your target is missing,
 the build fails to link the satellite radio. Run `west blobs list
 hubblenetwork-sdk` to see what is available and whether it has been fetched.
 
-Silicon Labs targets (`xg24_rb4187c`, `xiao_mg24`) use the in-tree Gecko custom
-radio PHY (`CONFIG_SOC_GECKO_CUSTOM_RADIO_PHY`), but that PHY links against
-Silicon Labs' RAIL library, which is itself distributed as a blob. Fetch it once
-before building for those boards:
+Silicon Labs boards use the in-tree Gecko custom radio PHY
+(`CONFIG_SOC_GECKO_CUSTOM_RADIO_PHY`), but that PHY links against Silicon Labs'
+RAIL library, which is itself distributed as a blob. Fetch it once before
+building for those boards:
 
 ```sh
 west blobs fetch hal_silabs
 ```
 
-## Building and running
+## Configurations
 
-Pass your base64 master key (the string Hubble gave you, already base64) on the
-build command line with `-DCONFIG_SAMPLE_HUBBLE_KEY`. The string is embedded in the firmware
-and decoded into the master key on startup using Zephyr's `base64_decode`, so
-there is no pre-build script and no generated source.
+This sample exposes the following options (via `west build -t menuconfig`, under
+"Hubble Network Satellite Sample options"):
 
-```sh
-west blobs fetch hubblenetwork-sdk    # once, for Nordic targets
-west build -b nrf54l15dk/nrf54l15/cpuapp . -- -DCONFIG_SAMPLE_HUBBLE_KEY=\"<your base64 key>\"
-west flash
-```
-
-After flashing, the device builds a satellite packet and transmits it every
-`CONFIG_SAMPLE_SAT_TX_INTERVAL_SECONDS` seconds (10 by default).
-
-> [!WARNING]
-> The decoded key length must match `CONFIG_HUBBLE_KEY_SIZE` (32 bytes for a
-> 256-bit key, 16 for 128-bit). Make sure that your generated secret key from
-> [Hubble API](https://hubble.com/docs/api-specification/register-new-devices)
-> is using the same key size and counter source (DEVICE_UPTIME) as the sample.
-> A wrong-size key is rejected at startup with a logged error and the sample exits;
-> if `-DCONFIG_SAMPLE_HUBBLE_KEY` is omitted the firmware uses an all-zero placeholder
-> (with a warning) so it still builds and
-> runs in CI.
-
-> [!TIP]
-> `-DCONFIG_SAMPLE_HUBBLE_KEY` is cached in the build directory, so subsequent incremental
-> `west build` runs reuse it without repeating the flag. Pass it again (or use
-> `-p always`) to change the key.
-
-## Supported boards
+| Option | Default | Description |
+| --- | --- | --- |
+| `CONFIG_SAMPLE_HUBBLE_KEY` | `""` | Hubble device cryptographic key, base64-encoded. |
+| `CONFIG_SAMPLE_SAT_TX_INTERVAL_SECONDS` | `10` | Seconds the sample sleeps between consecutive satellite transmissions. |
+| `CONFIG_SAMPLE_PROVIDE_SAT_BOARD_SUPPORT` | `n` | Mock the board radio APIs, so the sample builds on targets without a satellite radio (e.g. `native_sim`). |
 
 Boards that need extra devicetree tweaks supply a `boards/<board>.overlay` (for
 example `boards/thingy53_nrf5340_cpunet.overlay`, which hooks the FEM up to the
 radio).
 
-Build with `-DCONFIG_SAMPLE_PROVIDE_SAT_BOARD_SUPPORT=y` to have the sample mock
-the board radio APIs instead, so it still builds on targets without one (e.g.
-`native_sim`).
+> [!NOTE]
+> `prj.conf` disables `CONFIG_HUBBLE_NETWORK_SECURITY_ENFORCE_NONCE_CHECK`, which
+> persists the sequence counter to NVS and rejects reused or decreasing counters.
+> This sample transmits continuously and needs no NVS.
 
-| Board | Notes |
-|-------|-------|
-| `nrf54l15dk/nrf54l15/cpuapp` | Nordic nRF54L15 — needs the nRF54 blob |
-| `nrf21540dk/nrf52840` | Nordic nRF52840 + FEM — needs the nRF52 blob |
-| `thingy53/nrf5340/cpunet` | Nordic nRF5340 net core — needs the nRF53 blob |
-| `xg24_rb4187c` | Silicon Labs xG24 — uses the Gecko custom radio PHY |
-| `xiao_mg24` | Seeed XIAO MG24 — uses the Gecko custom radio PHY |
+## Build-time Provisioning
 
-## Configuration
+Set `CONFIG_SAMPLE_HUBBLE_KEY` to your Hubble device key, in base64. The key
+must be registered as **AES-256** with the **Device uptime** counter source; see
+[Register devices](https://hubble.com/docs/guides/cloud-integration/register-devices).
+Add this config in your build command below.
 
-- `-DCONFIG_SAMPLE_HUBBLE_KEY`: the base64-encoded Hubble master key, embedded at build time
-  and decoded on the device at startup (see
-  [Building and running](#building-and-running)).
-- `CONFIG_HUBBLE_COUNTER_SOURCE_DEVICE_UPTIME`: use the device uptime counter
-  source for EID/encryption so no UTC time provisioning is required (enabled in
-  `prj.conf`).
-- `CONFIG_HUBBLE_NETWORK_SECURITY_ENFORCE_NONCE_CHECK`: nonce-reuse enforcement,
-  which persists the sequence counter to NVS and rejects reused/decreasing
-  counters. Disabled (`n`) in `prj.conf` for this sample, which transmits
-  continuously and needs no NVS.
-- `CONFIG_SAMPLE_SAT_TX_INTERVAL_SECONDS`: seconds the sample sleeps between
-  consecutive satellite transmissions (default `10`).
-- `CONFIG_SAMPLE_PROVIDE_SAT_BOARD_SUPPORT`: when `n` (default), the board provides real
-  satellite radio support; when `y`, the sample mocks the board radio
-  APIs.
+## Build and Flash
+
+Build for your board, passing your device key. Add `-p` for a pristine build.
+
+```sh
+west build -b <board> -- -DCONFIG_SAMPLE_HUBBLE_KEY=\"<your base64 device key>\"
+```
+
+e.g.
+```sh
+west build -b nrf54l15dk/nrf54l15/cpuapp -- -DCONFIG_SAMPLE_HUBBLE_KEY=\"<your base64 device key>\"
+```
+
+Flash the board:
+
+```sh
+west flash
+```
+
+## Test
+
+Capture the packets with an SDR and decode them with your device key. See
+[RF Verification with an SDR](../../../docs/integration_guides/common/next-steps.rst#rf-verification-with-an-sdr).
+
+```sh
+hubblenetwork sat scan --key "<your base64 device key>"
+```
+
+Correctly decoded packets will stream to the console.
