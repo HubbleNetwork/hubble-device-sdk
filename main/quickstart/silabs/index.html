@@ -236,6 +236,22 @@
 <li class="toctree-l3"><a class="reference internal" href="../../integration_guides/ti/index.html#next-steps">Next Steps</a></li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="../../integration_guides/silabs/index.html">SiLabs (FreeRTOS) Integration Guide</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../integration_guides/silabs/index.html#supported-devices-and-sdk-version">Supported Devices and SDK Version</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../integration_guides/silabs/index.html#prerequisites">Prerequisites</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../integration_guides/silabs/index.html#create-your-hubble-account">Create your Hubble Account</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../integration_guides/silabs/index.html#sdk-setup">SDK Setup</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../integration_guides/silabs/index.html#project-configuration">Project Configuration</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../integration_guides/silabs/index.html#preparing-for-satellite-transmission">Preparing for Satellite Transmission</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../integration_guides/silabs/index.html#handling-the-hubble-device-key">Handling the Hubble Device Key</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../integration_guides/silabs/index.html#initializing-the-hubble-device-sdk">Initializing the Hubble Device SDK</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../integration_guides/silabs/index.html#the-pass-prediction-loop">The Pass Prediction Loop</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../integration_guides/silabs/index.html#building-and-flashing">Building and Flashing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../integration_guides/silabs/index.html#verifying-the-application">Verifying the Application</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../integration_guides/silabs/index.html#troubleshooting">Troubleshooting</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../integration_guides/silabs/index.html#next-steps">Next Steps</a></li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="../../integration_guides/esp-idf/index.html">ESP-IDF Integration Guide</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../../integration_guides/esp-idf/index.html#supported-devices-and-sdk-version">Supported Devices and SDK Version</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../integration_guides/esp-idf/index.html#prerequisites">Prerequisites</a></li>
@@ -397,10 +413,11 @@
 (<code class="docutils literal notranslate"><span class="pre">hubble-network.hubble-device-sdk</span></code>). Projects add it through their
 <code class="docutils literal notranslate"><span class="pre">.slcp</span></code> file, and the SLC tooling pulls in the SDK sources, include paths,
 and configuration.</p>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>Only the Hubble Terrestrial (BLE) Network is currently supported on
-Simplicity SDK FreeRTOS.</p>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p>This page covers Simplicity SDK setup and adding the Hubble components.
+For a complete, end-to-end <strong>satellite dual-stack</strong> application on SiLabs
+FreeRTOS, see the <a class="reference internal" href="../../integration_guides/silabs/index.html#silabs-freertos-integration-guide"><span class="std std-ref">SiLabs (FreeRTOS) Integration Guide</span></a>.</p>
 </div>
 <section id="prerequisites">
 <h2>Prerequisites<a class="headerlink" href="#prerequisites" title="Link to this heading"></a></h2>
@@ -408,8 +425,8 @@ Simplicity SDK FreeRTOS.</p>
 <div aria-label="Tabbed content" class="closeable" role="tablist"><button aria-controls="panel-0-0-0" aria-selected="true" class="sphinx-tabs-tab" id="tab-0-0-0" name="0-0" role="tab" tabindex="0">Simplicity Studio</button><button aria-controls="panel-0-0-1" aria-selected="false" class="sphinx-tabs-tab" id="tab-0-0-1" name="0-1" role="tab" tabindex="-1">Command line</button></div><div aria-labelledby="tab-0-0-0" class="sphinx-tabs-panel" id="panel-0-0-0" name="0-0" role="tabpanel" tabindex="0"><ul class="simple">
 <li><p><a class="reference external" href="https://www.silabs.com/developer-tools/simplicity-studio">Simplicity Studio 6</a>
 with the Simplicity SDK installed.</p></li>
-<li><p>The <code class="docutils literal notranslate"><span class="pre">slc-cli</span></code> tool, which is still needed to install the extension
-(see <a class="reference internal" href="#silabs-install-extension"><span class="std std-ref">Installing the Extension</span></a>).</p></li>
+<li><p>The <code class="docutils literal notranslate"><span class="pre">slc-cli</span></code> tool, which is still needed to generate the sample
+project (see <a class="reference internal" href="#silabs-quick-start-build"><span class="std std-ref">Building and Running Your First Application</span></a>).</p></li>
 </ul>
 </div><div aria-labelledby="tab-0-0-1" class="sphinx-tabs-panel" hidden="true" id="panel-0-0-1" name="0-1" role="tabpanel" tabindex="0"><p><a class="reference external" href="https://github.com/SiliconLabs/simplicity_sdk">Simplicity SDK</a>,
 <code class="docutils literal notranslate"><span class="pre">slc-cli</span></code>, the Arm GNU toolchain (<code class="docutils literal notranslate"><span class="pre">gcc-arm-none-eabi</span></code>), and
@@ -417,7 +434,10 @@ Simplicity Commander (<code class="docutils literal notranslate"><span class="pr
 <a class="reference external" href="https://docs.silabs.com/simplicity-installer-slt/latest/slt-getting-started-slt-cli/first-time-installation-setup">Silicon Labs Tool (SLT)</a>.</p>
 </div></div>
 <ul class="simple">
-<li><p>A Silicon Labs board with Bluetooth® Low Energy support.</p></li>
+<li><p>For the Hubble Terrestrial (BLE) Network: a Silicon Labs board with
+Bluetooth® Low Energy support.</p></li>
+<li><p>For the Hubble Satellite Network: a satellite-capable board (see
+<a class="reference internal" href="../../integration_guides/silabs/index.html#silabs-freertos-supported-devices"><span class="std std-ref">Supported Devices and SDK Version</span></a>).</p></li>
 <li><p>The Hubble Device SDK cloned or added as a submodule.</p></li>
 <li><p>Device <code class="docutils literal notranslate"><span class="pre">key</span></code> (generated when you register a new device to your organization
 through the Hubble Cloud API).</p></li>
@@ -437,35 +457,47 @@ for where Simplicity Studio and SLT install these tools.</p>
 </section>
 <section id="installing-the-extension">
 <span id="silabs-install-extension"></span><h2>Installing the Extension<a class="headerlink" href="#installing-the-extension" title="Link to this heading"></a></h2>
-<p>SLC discovers extensions under the Simplicity SDK’s <code class="docutils literal notranslate"><span class="pre">extension</span></code> directory.
-Link the Hubble Device SDK there and register both the SDK and the extension
+<div class="sphinx-tabs docutils container">
+<div aria-label="Tabbed content" class="closeable" role="tablist"><button aria-controls="panel-1-1-0" aria-selected="true" class="sphinx-tabs-tab" id="tab-1-1-0" name="1-0" role="tab" tabindex="0">Simplicity Studio</button><button aria-controls="panel-1-1-1" aria-selected="false" class="sphinx-tabs-tab" id="tab-1-1-1" name="1-1" role="tab" tabindex="-1">Command line</button></div><div aria-labelledby="tab-1-1-0" class="sphinx-tabs-panel" id="panel-1-1-0" name="1-0" role="tabpanel" tabindex="0"><ol class="arabic simple">
+<li><p>Go to <strong>Settings</strong> → <strong>SDKs</strong> and select the Simplicity SDK version
+you want to use.</p></li>
+<li><p>Click <strong>Add Extension</strong>, then <strong>Browse</strong> to the directory where you
+cloned the Hubble Device SDK, and click <strong>Finish</strong>.</p></li>
+<li><p>In the <strong>Verify SDK Extensions</strong> dialog, click <strong>Trust</strong>.</p></li>
+</ol>
+</div><div aria-labelledby="tab-1-1-1" class="sphinx-tabs-panel" hidden="true" id="panel-1-1-1" name="1-1" role="tabpanel" tabindex="0"><p>SLC discovers extensions under the Simplicity SDK’s <code class="docutils literal notranslate"><span class="pre">extension</span></code>
+directory. Link the Hubble Device SDK there and register the extension
 as trusted:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>mkdir<span class="w"> </span>-p<span class="w"> </span><span class="nv">$SISDK</span>/extension
 ln<span class="w"> </span>-s<span class="w"> </span><span class="nv">$HUBBLE_SDK</span><span class="w"> </span><span class="nv">$SISDK</span>/extension/hubble-device-sdk
 
-<span class="nv">$SLC</span><span class="w"> </span>configuration<span class="w"> </span>--sdk<span class="w"> </span><span class="nv">$SISDK</span>
-<span class="nv">$SLC</span><span class="w"> </span>signature<span class="w"> </span>trust<span class="w"> </span>--sdk<span class="w"> </span><span class="nv">$SISDK</span>
 <span class="nv">$SLC</span><span class="w"> </span>signature<span class="w"> </span>trust<span class="w"> </span>-extpath<span class="w"> </span><span class="nv">$SISDK</span>/extension/hubble-device-sdk
 </pre></div>
 </div>
+</div></div>
 </section>
 <section id="adding-hubble-network-to-a-project">
 <h2>Adding Hubble Network to a Project<a class="headerlink" href="#adding-hubble-network-to-a-project" title="Link to this heading"></a></h2>
 <div class="sphinx-tabs docutils container">
-<div aria-label="Tabbed content" class="closeable" role="tablist"><button aria-controls="panel-1-1-0" aria-selected="true" class="sphinx-tabs-tab" id="tab-1-1-0" name="1-0" role="tab" tabindex="0">Simplicity Studio</button><button aria-controls="panel-1-1-1" aria-selected="false" class="sphinx-tabs-tab" id="tab-1-1-1" name="1-1" role="tab" tabindex="-1">Command line</button></div><div aria-labelledby="tab-1-1-0" class="sphinx-tabs-panel" id="panel-1-1-0" name="1-0" role="tabpanel" tabindex="0"><ol class="arabic">
+<div aria-label="Tabbed content" class="closeable" role="tablist"><button aria-controls="panel-2-2-0" aria-selected="true" class="sphinx-tabs-tab" id="tab-2-2-0" name="2-0" role="tab" tabindex="0">Simplicity Studio</button><button aria-controls="panel-2-2-1" aria-selected="false" class="sphinx-tabs-tab" id="tab-2-2-1" name="2-1" role="tab" tabindex="-1">Command line</button></div><div aria-labelledby="tab-2-2-0" class="sphinx-tabs-panel" id="panel-2-2-0" name="2-0" role="tabpanel" tabindex="0"><ol class="arabic">
 <li><p>Open your project’s <code class="docutils literal notranslate"><span class="pre">.slcp</span></code> file to launch the Project Configurator.</p>
 <img alt="Opening the project's .slcp file in Simplicity Studio" class="align-center step-image" src="../../_images/QuickStart_Silabs_OpenProject.webp" />
 </li>
 <li><p>Go to <strong>Software Components</strong> and search for <strong>Hubble</strong>.</p>
 <img alt="Searching for Hubble in Software Components" class="align-center step-image" src="../../_images/QuickStart_Silabs_SoftwareComponents.webp" />
 </li>
-<li><p>Select <strong>Hubble Device SDK Component</strong> (under <strong>Hubble</strong> → <strong>BLE</strong>)
-and click <strong>Install</strong>.</p>
+<li><p>Select the component for the network you want and click <strong>Install</strong>.
+Install both for a dual-stack application:</p>
+<ul class="simple">
+<li><p><strong>Hubble Device SDK Terrestrial (BLE)</strong> (under <strong>Hubble</strong> → <strong>BLE</strong>)</p></li>
+<li><p><strong>Hubble Device SDK Satellite</strong> (under <strong>Hubble</strong> → <strong>Satellite</strong>)</p></li>
+</ul>
 <img alt="Installing the Hubble Device SDK Component" class="align-center step-image" src="../../_images/QuickStart_Silabs_Install.webp" />
 </li>
 </ol>
-</div><div aria-labelledby="tab-1-1-1" class="sphinx-tabs-panel" hidden="true" id="panel-1-1-1" name="1-1" role="tabpanel" tabindex="0"><p>Declare the extension in your project’s <code class="docutils literal notranslate"><span class="pre">.slcp</span></code> file and add the
-Hubble component:</p>
+</div><div aria-labelledby="tab-2-2-1" class="sphinx-tabs-panel" hidden="true" id="panel-2-2-1" name="2-1" role="tabpanel" tabindex="0"><p>Declare the extension in your project’s <code class="docutils literal notranslate"><span class="pre">.slcp</span></code> file and add the
+Hubble component for the network you want. Add both for a dual-stack
+application:</p>
 <div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">sdk_extension</span><span class="p">:</span>
 <span class="w">  </span><span class="c1"># change '3.1.0' to the version of the Hubble Device SDK you installed</span>
 <span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">hubble-device-sdk</span>
@@ -473,7 +505,9 @@ Hubble component:</p>
 <span class="w">    </span><span class="nt">version</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">3.1.0</span>
 
 <span class="nt">component</span><span class="p">:</span>
-<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">hubble-device-sdk-component</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">hubble-device-sdk-ble</span>
+<span class="w">    </span><span class="nt">from</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">hubble-device-sdk</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">hubble-device-sdk-sat</span>
 <span class="w">    </span><span class="nt">from</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">hubble-device-sdk</span>
 </pre></div>
 </div>
@@ -481,14 +515,19 @@ Hubble component:</p>
 </section>
 <section id="configuration">
 <h2>Configuration<a class="headerlink" href="#configuration" title="Link to this heading"></a></h2>
-<p>The SDK is configured through <code class="docutils literal notranslate"><span class="pre">hubble_config.h</span></code>. See
-<code class="docutils literal notranslate"><span class="pre">$HUBBLE_SDK/port/sisdk/hubble_config.h</span></code> for the available options and
-their defaults.</p>
+<p>The SDK is configured through <code class="docutils literal notranslate"><span class="pre">hubble_config.h</span></code> (common options) and
+<code class="docutils literal notranslate"><span class="pre">hubble_sat_config.h</span></code> (satellite options). See <code class="docutils literal notranslate"><span class="pre">$HUBBLE_SDK/port/sisdk/</span></code>
+for the available options and their defaults.</p>
 <div class="sphinx-tabs docutils container">
-<div aria-label="Tabbed content" class="closeable" role="tablist"><button aria-controls="panel-2-2-0" aria-selected="true" class="sphinx-tabs-tab" id="tab-2-2-0" name="2-0" role="tab" tabindex="0">Simplicity Studio</button><button aria-controls="panel-2-2-1" aria-selected="false" class="sphinx-tabs-tab" id="tab-2-2-1" name="2-1" role="tab" tabindex="-1">Command line</button></div><div aria-labelledby="tab-2-2-0" class="sphinx-tabs-panel" id="panel-2-2-0" name="2-0" role="tabpanel" tabindex="0"><p>In the Project Configurator, open <strong>Software Components</strong>, select
-<strong>Hubble Device SDK Component</strong>, and click <strong>Configure</strong>.</p>
+<div aria-label="Tabbed content" class="closeable" role="tablist"><button aria-controls="panel-3-3-0" aria-selected="true" class="sphinx-tabs-tab" id="tab-3-3-0" name="3-0" role="tab" tabindex="0">Simplicity Studio</button><button aria-controls="panel-3-3-1" aria-selected="false" class="sphinx-tabs-tab" id="tab-3-3-1" name="3-1" role="tab" tabindex="-1">Command line</button></div><div aria-labelledby="tab-3-3-0" class="sphinx-tabs-panel" id="panel-3-3-0" name="3-0" role="tabpanel" tabindex="0"><p>In the Project Configurator, open <strong>Software Components</strong>, select the
+component and click <strong>Configure</strong>:</p>
+<ul class="simple">
+<li><p><strong>Hubble Device SDK Common</strong> (under <strong>Hubble</strong>) for the common options.</p></li>
+<li><p><strong>Hubble Device SDK Satellite</strong> (under <strong>Hubble</strong> → <strong>Satellite</strong>) for
+the satellite options.</p></li>
+</ul>
 <img alt="Configuring the Hubble Device SDK Component" class="align-center step-image" src="../../_images/QuickStart_Silabs_Configure.webp" />
-</div><div aria-labelledby="tab-2-2-1" class="sphinx-tabs-panel" hidden="true" id="panel-2-2-1" name="2-1" role="tabpanel" tabindex="0"><p>Set the options you want to change in your project’s <code class="docutils literal notranslate"><span class="pre">.slcp</span></code> file,
+</div><div aria-labelledby="tab-3-3-1" class="sphinx-tabs-panel" hidden="true" id="panel-3-3-1" name="3-1" role="tabpanel" tabindex="0"><p>Set the options you want to change in your project’s <code class="docutils literal notranslate"><span class="pre">.slcp</span></code> file,
 e.g. to provide your own sequence counter:</p>
 <div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">configuration</span><span class="p">:</span>
 <span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">SISDK_HUBBLE_NETWORK_SEQUENCE_NONCE_CUSTOM</span>
@@ -498,7 +537,7 @@ e.g. to provide your own sequence counter:</p>
 </div></div>
 </section>
 <section id="building-and-running-your-first-application">
-<h2>Building and Running Your First Application<a class="headerlink" href="#building-and-running-your-first-application" title="Link to this heading"></a></h2>
+<span id="silabs-quick-start-build"></span><h2>Building and Running Your First Application<a class="headerlink" href="#building-and-running-your-first-application" title="Link to this heading"></a></h2>
 <p>The following steps build and flash the <code class="docutils literal notranslate"><span class="pre">ble-beacon</span></code> sample. Replace
 <code class="docutils literal notranslate"><span class="pre">brd4187c</span></code> with your target board.</p>
 <p>Embed the device key and the current time into the sample sources:</p>
@@ -507,16 +546,16 @@ e.g. to provide your own sequence counter:</p>
 </pre></div>
 </div>
 <div class="sphinx-tabs docutils container">
-<div aria-label="Tabbed content" class="closeable" role="tablist"><button aria-controls="panel-3-3-0" aria-selected="true" class="sphinx-tabs-tab" id="tab-3-3-0" name="3-0" role="tab" tabindex="0">Simplicity Studio</button><button aria-controls="panel-3-3-1" aria-selected="false" class="sphinx-tabs-tab" id="tab-3-3-1" name="3-1" role="tab" tabindex="-1">Command line</button></div><div aria-labelledby="tab-3-3-0" class="sphinx-tabs-panel" id="panel-3-3-0" name="3-0" role="tabpanel" tabindex="0"><p>Generate a Simplicity Studio project:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nv">$SLC</span><span class="w"> </span>generate<span class="w"> </span>-tlcn<span class="w"> </span>gcc<span class="w"> </span>-np<span class="w"> </span>-p<span class="w"> </span>ble_beacon.slcp<span class="w"> </span><span class="se">\</span>
+<div aria-label="Tabbed content" class="closeable" role="tablist"><button aria-controls="panel-4-4-0" aria-selected="true" class="sphinx-tabs-tab" id="tab-4-4-0" name="4-0" role="tab" tabindex="0">Simplicity Studio</button><button aria-controls="panel-4-4-1" aria-selected="false" class="sphinx-tabs-tab" id="tab-4-4-1" name="4-1" role="tab" tabindex="-1">Command line</button></div><div aria-labelledby="tab-4-4-0" class="sphinx-tabs-panel" id="panel-4-4-0" name="4-0" role="tabpanel" tabindex="0"><p>Generate a Simplicity Studio project:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nv">$SLC</span><span class="w"> </span>generate<span class="w"> </span>--sdk<span class="w"> </span><span class="nv">$SISDK</span><span class="w"> </span>-tlcn<span class="w"> </span>gcc<span class="w"> </span>-np<span class="w"> </span>-p<span class="w"> </span>ble_beacon.slcp<span class="w"> </span><span class="se">\</span>
 <span class="w">    </span>-d<span class="w"> </span>/path/to/workspace/ble-beacon<span class="w"> </span>--with<span class="w"> </span>brd4187c
 </pre></div>
 </div>
 <p>Then in Simplicity Studio go to <strong>PROJECTS</strong> → <strong>Open Project(s)</strong>,
 select the generated <code class="docutils literal notranslate"><span class="pre">ble-beacon</span></code> directory, and build and flash as
 usual.</p>
-</div><div aria-labelledby="tab-3-3-1" class="sphinx-tabs-panel" hidden="true" id="panel-3-3-1" name="3-1" role="tabpanel" tabindex="0"><p>Build the application:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nv">$SLC</span><span class="w"> </span>generate<span class="w"> </span>-tlcn<span class="w"> </span>gcc<span class="w"> </span>-o<span class="w"> </span>makefile<span class="w"> </span>-cp<span class="w"> </span>-p<span class="w"> </span>ble_beacon.slcp<span class="w"> </span><span class="se">\</span>
+</div><div aria-labelledby="tab-4-4-1" class="sphinx-tabs-panel" hidden="true" id="panel-4-4-1" name="4-1" role="tabpanel" tabindex="0"><p>Build the application:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nv">$SLC</span><span class="w"> </span>generate<span class="w"> </span>--sdk<span class="w"> </span><span class="nv">$SISDK</span><span class="w"> </span>-tlcn<span class="w"> </span>gcc<span class="w"> </span>-o<span class="w"> </span>makefile<span class="w"> </span>-cp<span class="w"> </span>-p<span class="w"> </span>ble_beacon.slcp<span class="w"> </span><span class="se">\</span>
 <span class="w">    </span>-d<span class="w"> </span>generated_sample_app<span class="w"> </span>--with<span class="w"> </span>brd4187c
 <span class="nb">cd</span><span class="w"> </span>generated_sample_app
 make<span class="w"> </span>-f<span class="w"> </span>ble_beacon.Makefile

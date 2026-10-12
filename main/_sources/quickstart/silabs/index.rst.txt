@@ -10,10 +10,11 @@ This guide explains how to integrate the Hubble Device SDK into a
 ``.slcp`` file, and the SLC tooling pulls in the SDK sources, include paths,
 and configuration.
 
-.. note::
+.. seealso::
 
-   Only the Hubble Terrestrial (BLE) Network is currently supported on
-   Simplicity SDK FreeRTOS.
+   This page covers Simplicity SDK setup and adding the Hubble components.
+   For a complete, end-to-end **satellite dual-stack** application on SiLabs
+   FreeRTOS, see the :ref:`silabs_freertos_integration_guide`.
 
 Prerequisites
 *************
@@ -24,8 +25,8 @@ Prerequisites
 
       - `Simplicity Studio 6 <https://www.silabs.com/developer-tools/simplicity-studio>`_
         with the Simplicity SDK installed.
-      - The ``slc-cli`` tool, which is still needed to install the extension
-        (see :ref:`silabs_install_extension`).
+      - The ``slc-cli`` tool, which is still needed to generate the sample
+        project (see :ref:`silabs_quick_start_build`).
 
    .. tab:: Command line
 
@@ -34,7 +35,10 @@ Prerequisites
       Simplicity Commander (``commander``), installed with the
       `Silicon Labs Tool (SLT) <https://docs.silabs.com/simplicity-installer-slt/latest/slt-getting-started-slt-cli/first-time-installation-setup>`_.
 
-- A Silicon Labs board with Bluetooth® Low Energy support.
+- For the Hubble Terrestrial (BLE) Network: a Silicon Labs board with
+  Bluetooth® Low Energy support.
+- For the Hubble Satellite Network: a satellite-capable board (see
+  :ref:`silabs_freertos_supported_devices`).
 - The Hubble Device SDK cloned or added as a submodule.
 - Device ``key`` (generated when you register a new device to your organization
   through the Hubble Cloud API).
@@ -59,18 +63,28 @@ Set the following environment variables before continuing, e.g.:
 Installing the Extension
 ************************
 
-SLC discovers extensions under the Simplicity SDK's ``extension`` directory.
-Link the Hubble Device SDK there and register both the SDK and the extension
-as trusted:
+.. tabs::
 
-.. code-block:: bash
+   .. tab:: Simplicity Studio
 
-   mkdir -p $SISDK/extension
-   ln -s $HUBBLE_SDK $SISDK/extension/hubble-device-sdk
+      #. Go to **Settings** → **SDKs** and select the Simplicity SDK version
+         you want to use.
+      #. Click **Add Extension**, then **Browse** to the directory where you
+         cloned the Hubble Device SDK, and click **Finish**.
+      #. In the **Verify SDK Extensions** dialog, click **Trust**.
 
-   $SLC configuration --sdk $SISDK
-   $SLC signature trust --sdk $SISDK
-   $SLC signature trust -extpath $SISDK/extension/hubble-device-sdk
+   .. tab:: Command line
+
+      SLC discovers extensions under the Simplicity SDK's ``extension``
+      directory. Link the Hubble Device SDK there and register the extension
+      as trusted:
+
+      .. code-block:: bash
+
+         mkdir -p $SISDK/extension
+         ln -s $HUBBLE_SDK $SISDK/extension/hubble-device-sdk
+
+         $SLC signature trust -extpath $SISDK/extension/hubble-device-sdk
 
 
 Adding Hubble Network to a Project
@@ -94,8 +108,11 @@ Adding Hubble Network to a Project
             :align: center
             :class: step-image
 
-      3. Select **Hubble Device SDK Component** (under **Hubble** → **BLE**)
-         and click **Install**.
+      3. Select the component for the network you want and click **Install**.
+         Install both for a dual-stack application:
+
+         - **Hubble Device SDK Terrestrial (BLE)** (under **Hubble** → **BLE**)
+         - **Hubble Device SDK Satellite** (under **Hubble** → **Satellite**)
 
          .. image:: img/QuickStart_Silabs_Install.webp
             :alt: Installing the Hubble Device SDK Component
@@ -105,7 +122,8 @@ Adding Hubble Network to a Project
    .. tab:: Command line
 
       Declare the extension in your project's ``.slcp`` file and add the
-      Hubble component:
+      Hubble component for the network you want. Add both for a dual-stack
+      application:
 
       .. code-block:: yaml
 
@@ -116,23 +134,29 @@ Adding Hubble Network to a Project
              version: 3.1.0
 
          component:
-           - id: hubble-device-sdk-component
+           - id: hubble-device-sdk-ble
+             from: hubble-device-sdk
+           - id: hubble-device-sdk-sat
              from: hubble-device-sdk
 
 
 Configuration
 *************
 
-The SDK is configured through ``hubble_config.h``. See
-``$HUBBLE_SDK/port/sisdk/hubble_config.h`` for the available options and
-their defaults.
+The SDK is configured through ``hubble_config.h`` (common options) and
+``hubble_sat_config.h`` (satellite options). See ``$HUBBLE_SDK/port/sisdk/``
+for the available options and their defaults.
 
 .. tabs::
 
    .. tab:: Simplicity Studio
 
-      In the Project Configurator, open **Software Components**, select
-      **Hubble Device SDK Component**, and click **Configure**.
+      In the Project Configurator, open **Software Components**, select the
+      component and click **Configure**:
+
+      - **Hubble Device SDK Common** (under **Hubble**) for the common options.
+      - **Hubble Device SDK Satellite** (under **Hubble** → **Satellite**) for
+        the satellite options.
 
       .. image:: img/QuickStart_Silabs_Configure.webp
          :alt: Configuring the Hubble Device SDK Component
@@ -150,6 +174,8 @@ their defaults.
            - name: SISDK_HUBBLE_NETWORK_SEQUENCE_NONCE_CUSTOM
              value: "1"
 
+
+.. _silabs_quick_start_build:
 
 Building and Running Your First Application
 *******************************************
@@ -172,7 +198,7 @@ Embed the device key and the current time into the sample sources:
 
       .. code-block:: bash
 
-         $SLC generate -tlcn gcc -np -p ble_beacon.slcp \
+         $SLC generate --sdk $SISDK -tlcn gcc -np -p ble_beacon.slcp \
              -d /path/to/workspace/ble-beacon --with brd4187c
 
       Then in Simplicity Studio go to **PROJECTS** → **Open Project(s)**,
@@ -185,7 +211,7 @@ Embed the device key and the current time into the sample sources:
 
       .. code-block:: bash
 
-         $SLC generate -tlcn gcc -o makefile -cp -p ble_beacon.slcp \
+         $SLC generate --sdk $SISDK -tlcn gcc -o makefile -cp -p ble_beacon.slcp \
              -d generated_sample_app --with brd4187c
          cd generated_sample_app
          make -f ble_beacon.Makefile
