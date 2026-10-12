@@ -351,6 +351,8 @@ pass CI checks before merging. CI checks include:
 - Keep API documentation synchronized with code changes
 - Include code examples in documentation when helpful
 - Update `README.md` if project structure or setup changes
+- Write sample READMEs from [samples/README_TEMPLATE.md](samples/README_TEMPLATE.md),
+  following the conventions at its top
 
 ## Questions?
 
