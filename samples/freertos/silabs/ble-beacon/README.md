@@ -5,12 +5,35 @@ create a BLE beacon that advertises its presence.
 
 ## Requirements
 
-- Cryptographic key provided by Hubble Network
+- A [Hubble device key](https://hubble.com/docs/guides/cloud-integration/register-devices).
+- A [Hubble API token](https://hubble.com/docs/api-specification/hubble-platform-api#generate-an-api-key),
+  (optional), for testing with [pyhubblenetwork](https://hubble.com/docs/guides/cli) commands.
 - Simplicity SDK, SLC CLI, the GCC toolchain and Simplicity Commander, see
-  [Install Dependencies](#install-dependencies)
+  [Environment Setup](#environment-setup).
 - An EFR32 development board that supports BLE. This sample has been tested on BRD4187C (EFR32MG24).
+- A computer with Bluetooth LE that meets the
+  [pyhubblenetwork requirements](https://hubble.com/docs/guides/cli#requirements).
+- [pyhubblenetwork](https://hubble.com/docs/guides/cli) (optional), for testing.
+- The Hubble Connect app for
+  [iOS](https://apps.apple.com/us/app/hubble-connect/id6751236191) or
+  [Android](https://play.google.com/store/apps/details?id=com.hubble.connect)
+  (optional), for the backend test.
 
-## Install Dependencies
+## Overview
+
+The beacon advertises data that can be picked up by the Hubble Network. The
+advertised data is generated using the `hubble_ble_advertise_get()` function
+from the Hubble BLE library, and is handed to the Bluetooth stack as
+non-connectable legacy advertisements.
+
+The application uses a non-resolvable private address managed by the stack, so
+the device is not trackable across advertisement rotations.
+
+> [!NOTE]
+> All commands in this README are run from the sample folder containing this file:
+> `<SDK path>/samples/freertos/silabs/ble-beacon`
+
+## Environment Setup
 
 Install the [Silicon Labs Tool (SLT)](https://docs.silabs.com/simplicity-installer-slt/latest/slt-cli/install-slt),
 then use it to install the Simplicity SDK and the tools this sample needs:
@@ -44,52 +67,7 @@ export COMMANDER=/path/to/commander
 | `SLC` | The `slc` executable, `$($SLT where slc-cli)/slc` |
 | `COMMANDER` | The `commander` executable. On macOS, `$($SLT where commander)/Contents/MacOS/commander` |
 
-## Overview
-
-The beacon advertises data that can be picked up by the Hubble Network. The
-advertised data is generated using the `hubble_ble_advertise_get()` function
-from the Hubble BLE library, and is handed to the Bluetooth stack as
-non-connectable legacy advertisements.
-
-The application uses a non-resolvable private address managed by the stack, so
-the device is not trackable across advertisement rotations.
-
-### Advertising parameters
-
-The sample advertises with the following parameters by default. They can be modified.
-
-| Parameter | Value | Set by |
-| --- | --- | --- |
-| Beacon interval | 1000-1200 ms | `ADV_INTERVAL_MIN_MS` / `ADV_INTERVAL_MAX_MS` in [src/app.c](src/app.c) |
-| Tx power | 0 dBm | `ADV_TX_POWER_DDBM` (0.1 dBm units) in [src/app.c](src/app.c) |
-
-## Provisioning
-
-The provisioning process embeds a master key and the current Unix time into the
-firmware. This is a necessary step before generating, building and flashing the
-application.
-
-The `embed_key_time.py` script takes the key file and embeds it along with the
-current timestamp into the source code (`src/key.c` and `src/time.c`).
-
-**For a raw key file:**
-
-```sh
-$HUBBLE_SDK/tools/embed_key_time.py master.key -o src/
-```
-
-**For a base64-encoded key file:**
-
-Use the `-b` or `--base64` flag:
-
-```sh
-$HUBBLE_SDK/tools/embed_key_time.py -b master.key -o src/
-```
-
-> [!NOTE]
-> Both files (`key.c` and `time.c`) must exist before the project is generated.
-
-## Installing the SDK extension
+### Installing the SDK Extension
 
 The Hubble Device SDK is consumed as a Simplicity SDK extension. SLC discovers
 extensions under the SDK's `extension` directory, so link this repository there
@@ -104,7 +82,50 @@ $SLC signature trust --sdk $SISDK
 $SLC signature trust -extpath $SISDK/extension/hubble-device-sdk
 ```
 
-## Building and Running
+### Python Dependencies
+
+Install the [pyhubblenetwork](https://hubble.com/docs/guides/cli) tool for testing:
+
+```sh
+pip install pyhubblenetwork
+```
+
+## BLE Advertising Parameters
+
+The sample advertises with the following parameters by default. To change one,
+edit the macro or option in the *Set by* column and rebuild.
+
+| Parameter | Value | Set by |
+| --- | --- | --- |
+| Beacon interval | 1000–1200 ms | `ADV_INTERVAL_MIN_MS` / `ADV_INTERVAL_MAX_MS` in [src/app.c](src/app.c) |
+| Tx power | 0 dBm | `ADV_TX_POWER_DDBM` (0.1 dBm units) in [src/app.c](src/app.c) |
+
+## Build-time Provisioning
+
+Create a file, `master.key`, and paste your Hubble device key into it. The key
+must be registered as **AES-256** with the **Unix time** counter source; see
+[Register devices](https://hubble.com/docs/guides/cloud-integration/register-devices).
+
+The `embed_key_time.py` script takes the key file and embeds it along with the
+current timestamp into the source code (`src/key.c` and `src/time.c`).
+
+**For a raw key file:**
+
+```sh
+python ../../../../tools/embed_key_time.py master.key -o src/
+```
+
+**For a base64-encoded key file:**
+
+Use the `-b` or `--base64` flag:
+
+```sh
+python ../../../../tools/embed_key_time.py -b master.key -o src/
+```
+
+After running the script, the key and timestamp will be compiled into the application.
+
+## Build and Flash
 
 ### Simplicity Studio
 
@@ -158,16 +179,28 @@ $COMMANDER flash build/debug/ble_beacon.s37
 After flashing, the device will start advertising as a Hubble BLE beacon, and
 log to the virtual COM port at 115200 baud.
 
-## Testing
+## Test
 
-The `scan.py` tool can be used to test the BLE beacon. The script scans for
-BLE devices, and when it finds a Hubble Network beacon, it attempts to decode
-the advertisement data using the provided master key. You need to provide
-the same master key that was provisioned into the device.
+### Local BLE Scanning
+
+The `hubblenetwork ble scan` tool can be used to test the BLE beacon.
+It scans for a device advertising with the given key and attempts to
+decode its payload.
+
+Pass the same key that was provisioned into the device, as base64:
 
 ```sh
-$HUBBLE_SDK/tools/scan.py -k "your_b64_key"
+hubblenetwork ble scan --key "<your base64 device key>"
 ```
+
+Correctly decoded packets will stream to the console.
+
+### Backend Test
+
+Download the Hubble Connect app to your smartphone and sign in, then keep the
+phone near the device with the app open. The phone acts as a scanner: the
+device appears in the app, and its packets appear on
+[Hubble Dash](https://dash.hubble.com/dashboard).
 
 ## Troubleshooting
 
