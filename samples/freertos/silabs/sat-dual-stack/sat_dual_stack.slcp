@@ -1,0 +1,86 @@
+project_name: sat_dual_stack
+package: hubble-device-sdk
+quality: experimental
+label: Hubble Device SDK - Satellite Dual Stack Sample App
+description: >
+  Demonstrating Hubble Dual Stack (BLE and Satellite) capabilities.
+  The app beacons on the Hubble Terrestrial Network and transmits to
+  the Satellite Network during satellite passes.
+
+category: Hubble|Satellite
+
+sdk_extension:
+  - id: hubble-device-sdk
+    vendor: hubble-network
+    version: 3.1.0
+
+component:
+  - id: hubble-device-sdk-ble
+    from: hubble-device-sdk
+  - id: hubble-device-sdk-sat
+    from: hubble-device-sdk
+  - id: freertos
+  - id: memory_manager
+  - id: bluetooth_stack
+  - id: gatt_configuration
+  - id: bluetooth_feature_gatt_server
+  - id: bluetooth_feature_connection
+  - id: bluetooth_feature_connection_role_peripheral
+  - id: bluetooth_feature_legacy_advertiser
+  - id: bluetooth_feature_sm
+  - id: bluetooth_feature_system
+  - id: mbedtls_base64
+  - id: app_assert
+  - id: app_log
+  - id: mpu
+  - id: sl_main
+  - id: clock_manager
+  - id: device_init
+
+  # Needed for the sample's debug logs (e.g. %llu, %zu).
+  # Optional: if the application logs do not need these
+  # specifiers, can drop it to save code size.
+  - id: printf
+
+source:
+  - path: src/app.c
+  - path: src/app_ble.c
+
+include:
+  - path: src
+    file_list:
+      - path: app_ble.h
+
+config_file:
+  - path: config/sat_dual_stack_config.h
+  - override:
+      component: gatt_configuration
+      file_id: gatt_configuration_file_id
+    path: config/btconf/gatt_configuration.btconf
+    directory: btconf
+
+readme:
+  - path: README.md
+
+configuration:
+  - name: SL_STACK_SIZE
+    value: "2000"
+  - name: SL_BT_CONFIG_USER_ADVERTISERS
+    value: "2"
+  - name: configTIMER_TASK_STACK_DEPTH
+    value: "240"
+  - name: SL_PSA_KEY_USER_SLOT_COUNT
+    value: "0"
+    condition:
+      - psa_crypto
+  - name: SL_BOARD_ENABLE_VCOM
+    value: "1"
+  - name: SL_IOSTREAM_EUSART_VCOM_CONVERT_BY_DEFAULT_LF_TO_CRLF
+    value: "1"
+
+  # Work around for when disconnecting from VCOM,
+  # the app hangs waiting for log to output.
+  # Another way is to disable log, but since this is
+  # a sample, log is kept on.
+  - name: SL_IOSTREAM_EUSART_VCOM_FLOW_CONTROL_TYPE
+    value: SL_IOSTREAM_EUSART_UART_FLOW_CTRL_NONE
