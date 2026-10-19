@@ -73,6 +73,11 @@ uint16_t hubble_sequence_counter_get(void)
 bool hubble_internal_nonce_values_check(uint32_t time_counter, uint16_t seq_no)
 {
 #ifdef CONFIG_HUBBLE_NETWORK_SECURITY_ENFORCE_NONCE_CHECK
+	static bool _check_initialized;
+	/* Set when the start of the current time counter period happens,
+	 * so sequence numbers below the daily reference are invalid.
+	 */
+	static bool _check_wrap_allowed;
 	static bool _check_seq_no_wrapped;
 	static uint32_t _check_time_counter;
 	static uint16_t _check_seq_no;
@@ -86,32 +91,48 @@ bool hubble_internal_nonce_values_check(uint32_t time_counter, uint16_t seq_no)
 	 * We just need to update our daily reference for checking for
 	 * sequence wrapper.
 	 */
-	if ((_check_time_counter == 0U) || (_check_time_counter != time_counter)) {
+	if (!_check_initialized || (_check_time_counter != time_counter)) {
+#ifdef CONFIG_HUBBLE_COUNTER_SOURCE_DEVICE_UPTIME
+		/* Uptime is monotonic, every change is a step forward. */
+		bool forward = true;
+#else
+		bool forward = time_counter > _check_time_counter;
+#endif
+
+		/* After a boot, or when time moved backwards, the device
+		 * joins the period midway: values below the reference may
+		 * already have been used, so a wrap must not be accepted.
+		 */
+		_check_wrap_allowed = _check_initialized && forward;
 		_check_seq_daily_reference_no = seq_no;
 		_check_seq_no_wrapped = false;
 		_check_time_counter = time_counter;
 		_check_seq_no = seq_no;
+		_check_initialized = true;
 		return true;
 	}
 
-	/* We need to check if the sequence number is the same or
-	 * if it wrapped we need to ensure that this is not bigger
-	 * than the first value used with the current time counter.
-	 */
-	if ((_check_seq_no == seq_no) ||
-	    (_check_seq_no_wrapped && (seq_no >= _check_seq_daily_reference_no))) {
+	if (_check_seq_no == seq_no) {
 		return false;
 	}
 
-	/* At this point the sequence is not the same but we need to check if it just wrapped. */
-	if (_check_seq_no > seq_no) {
-		_check_seq_no_wrapped = true;
-		/* That is the first sequence number after wrapping, lets ensure
-		 * that it is not bigger than the daily reference.
+	if (seq_no < _check_seq_no) {
+		/* A second wrap within the same time counter means every
+		 * value has been used.
 		 */
-		if (seq_no >= _check_seq_daily_reference_no) {
+		if (_check_seq_no_wrapped) {
 			return false;
 		}
+		_check_seq_no_wrapped = true;
+	}
+
+	/* After wrapping, only values below the first one used with the
+	 * current time counter are still unused, and only if that first
+	 * value was really the start of the period.
+	 */
+	if (_check_seq_no_wrapped &&
+	    (!_check_wrap_allowed || (seq_no >= _check_seq_daily_reference_no))) {
+		return false;
 	}
 
 	_check_seq_no = seq_no;

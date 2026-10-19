@@ -37,6 +37,10 @@ const void *hubble_internal_key_get(void);
  * When the time counter changes, any sequence number is accepted and becomes
  * the new daily reference. Within the same time counter period, the function
  * ensures sequence numbers are not reused, including after wrap-around.
+ * Wrapping below the daily reference is only accepted when the time counter
+ * advanced while the SDK was running: after a boot, or when the time counter
+ * moved backwards, lower values may already have been used, so the sequence
+ * must not wrap until the next time counter period.
  *
  * @param time_counter Time-based counter value.
  * @param seq_no       Sequence number to validate.
