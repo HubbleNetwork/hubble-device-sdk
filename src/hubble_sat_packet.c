@@ -343,11 +343,11 @@ int hubble_sat_packet_get(struct hubble_sat_packet *packet, const void *payload,
 	ret = _encode(&bit_array, symbols, HUBBLE_PACKET_MAX_SIZE);
 	_CHECK_RET(ret);
 
-	/* generate error control symbols */
-	rse_gf_generate();
 	ecc = _packet_payload_ecc_get(length);
 	_CHECK_RET(ecc);
 
+	hubble_lock();
+	rse_gf_generate();
 	rse_poly_generate(ecc / 2);
 	rs_symbols = rse_rs_encode(symbols, ret, ecc / 2);
 
@@ -355,6 +355,8 @@ int hubble_sat_packet_get(struct hubble_sat_packet *packet, const void *payload,
 	 * due lfsr7 state.
 	 */
 	memcpy(&symbols[ret], rs_symbols, ecc * sizeof(int));
+	hubble_unlock();
+
 	packet->length = payload_len + ecc;
 
 	for (size_t i = 0; i < packet->length; i++) {
@@ -377,7 +379,7 @@ int hubble_sat_packet_frames_get(const struct hubble_sat_packet *packet,
 
 #define _CHECK_RET(_ret)                                                       \
 	if (_ret < 0) {                                                        \
-		return _ret;                                                   \
+		goto _unlock;                                                  \
 	}
 
 	if ((packet == NULL) || (frames == NULL)) {
@@ -388,9 +390,13 @@ int hubble_sat_packet_frames_get(const struct hubble_sat_packet *packet,
 	 * before mutating any channel-hopping state or touching the output.
 	 */
 	ret = _packet_phy_size_get(packet->length);
-	_CHECK_RET(ret);
+	if (ret < 0) {
+		return ret;
+	}
 
 	phy_len = (uint8_t)ret;
+
+	hubble_lock();
 
 	hop_sequence = _hopping_sequence;
 	channel = _channel_get();
@@ -448,7 +454,8 @@ int hubble_sat_packet_frames_get(const struct hubble_sat_packet *packet,
 	if (packet->length == HUBBLE_SAT_DTM_PACKET_ONE_FRAME_ONLY_LEN) {
 		frames->total_number_of_symbols =
 			HUBBLE_PACKET_FRAME_PAYLOAD_MAX_SIZE;
-		return 0;
+		ret = 0;
+		goto _unlock;
 	}
 
 #endif /* CONFIG_HUBBLE_SAT_NETWORK_DTM_MODE */
@@ -475,9 +482,12 @@ int hubble_sat_packet_frames_get(const struct hubble_sat_packet *packet,
 	}
 	frames->total_number_of_symbols =
 		frame_pos + (frames_size * HUBBLE_PACKET_FRAME_PAYLOAD_MAX_SIZE);
+	ret = 0;
 
+_unlock:
+	hubble_unlock();
 
 #undef _CHECK_RET
 
-	return 0;
+	return ret;
 }
