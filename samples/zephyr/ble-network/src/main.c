@@ -70,16 +70,6 @@ static void bypass_cb(const struct shell *sh, uint8_t *recv, size_t len,
 #undef CHAR_CAN
 #undef CHAR_DC1
 
-	if (sum > sizeof(master_key)) {
-		shell_print(sh, "Given key is too big !");
-		shell_set_bypass(sh, NULL, NULL);
-		if (hubble_key_set((void *)master_key) != 0) {
-			LOG_WRN("Failed to set the encryption key");
-		}
-
-		return;
-	}
-
 	if (escape) {
 		shell_print(sh, "Number of bytes read: %d", sum);
 		shell_set_bypass(sh, NULL, NULL);
@@ -87,6 +77,17 @@ static void bypass_cb(const struct shell *sh, uint8_t *recv, size_t len,
 			LOG_WRN("Failed to set the encryption key");
 		}
 		k_sem_give(&key_sem);
+
+		return;
+	}
+
+	/* The key buffer is full, drop everything else. */
+	if (sum >= sizeof(master_key)) {
+		shell_print(sh, "Given key is too big !");
+		shell_set_bypass(sh, NULL, NULL);
+		if (hubble_key_set((void *)master_key) != 0) {
+			LOG_WRN("Failed to set the encryption key");
+		}
 
 		return;
 	}
