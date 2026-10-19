@@ -11,27 +11,76 @@
 #include <zephyr/types.h>
 #include <zephyr/ztest.h>
 
+/* Period offset from the base time counter to move to before the entry,
+ * NONCE_SAME_PERIOD to stay.
+ */
+#define NONCE_SAME_PERIOD UINT8_MAX
+
 struct test_nonce {
+	uint8_t period;
 	uint16_t nonce;
 	bool valid;
 };
 
 #define TEST_ADV_BUFFER_SZ 31
 
+/* The nonce check keeps its state across test suites. Suites run in name
+ * order, so ble_adv_test has already used BLE_ADV_UNIX_TIME when this suite
+ * starts. Its base time is earlier, which makes the first period one that is
+ * joined midway (time moved backwards) whether or not another suite ran first.
+ */
+#define BLE_NONCE_UNIX_TIME 1760037951803ULL
+#define BLE_ADV_UNIX_TIME   1760210751803ULL
+
+/* In Unix time mode this suite uses periods 0 and 1 from its base time. */
+#define NONCE_PERIOD_OF(_ms)                                                   \
+	((_ms) / ((uint64_t)CONFIG_HUBBLE_EID_ROTATION_PERIOD_SEC * 1000ULL))
+
+BUILD_ASSERT((NONCE_PERIOD_OF(BLE_NONCE_UNIX_TIME) + 1ULL) <
+		     NONCE_PERIOD_OF(BLE_ADV_UNIX_TIME),
+	     "nonce suite periods must precede the adv suite period");
+
 static uint8_t ble_nonce_key[CONFIG_HUBBLE_KEY_SIZE] = {};
-static uint64_t ble_nonce_unix_time = 1760383551803U;
 static uint16_t nonce_idx;
 static bool testing_adv;
 
+#ifdef CONFIG_HUBBLE_COUNTER_SOURCE_DEVICE_UPTIME
+/* Uptime cannot move backwards, the third period is another step forward. */
+#define NONCE_THIRD_PERIOD     2
+#define NONCE_THIRD_WRAP_VALID true
+#else
+/* Time set back to the first period: it is joined midway again. */
+#define NONCE_THIRD_PERIOD     0
+#define NONCE_THIRD_WRAP_VALID false
+#endif
+
 struct test_nonce invalid_nonce_sequence[] = {
-	{10, true},    /* Let start with something != 0 to check wraps */
-	{10, false},   /* repeated nonce, should fail */
-	{11, true},    /* Working nonce */
-	{1023, true},  /* Test the boundary */
-	{1024, false}, /* Test the boundary + 1 */
-	{0, true}, /* Wrap is allowed, for the current time counter we start with 10 */
-	{8, true},   /* still valid for the same reason */
-	{10, false}, /* Already used */
+	/* First period, joined midway (fresh boot or time moved backwards).
+	 * Let start with something != 0 to check wraps.
+	 */
+	{0, 10, true},
+	{NONCE_SAME_PERIOD, 10, false},   /* repeated nonce, should fail */
+	{NONCE_SAME_PERIOD, 11, true},    /* Working nonce */
+	{NONCE_SAME_PERIOD, 1023, true},  /* Test the boundary */
+	{NONCE_SAME_PERIOD, 1024, false}, /* Test the boundary + 1 */
+	/* The period was joined midway, lower values may have been used
+	 * before: wrapping is not allowed.
+	 */
+	{NONCE_SAME_PERIOD, 0, false},
+	{NONCE_SAME_PERIOD, 8, false},
+	/* Next period, its start is observed so wrapping below the first
+	 * value is allowed.
+	 */
+	{1, 20, true},
+	{NONCE_SAME_PERIOD, 1023, true},
+	{NONCE_SAME_PERIOD, 0, true},   /* Wrap below the reference */
+	{NONCE_SAME_PERIOD, 19, true},  /* still below the reference */
+	{NONCE_SAME_PERIOD, 20, false}, /* Already used */
+	{NONCE_SAME_PERIOD, 5, false},  /* Second wrap */
+	/* Third period */
+	{NONCE_THIRD_PERIOD, 5, true},
+	{NONCE_SAME_PERIOD, 1023, true},
+	{NONCE_SAME_PERIOD, 0, NONCE_THIRD_WRAP_VALID},
 };
 
 uint16_t hubble_sequence_counter_get(void)
@@ -43,33 +92,49 @@ uint16_t hubble_sequence_counter_get(void)
 	return nonce_idx++ % HUBBLE_MAX_SEQ_COUNTER;
 }
 
+/* Move the time counter to the given period offset from the base one. */
+static void nonce_period_set(uint8_t period)
+{
+#ifdef CONFIG_HUBBLE_COUNTER_SOURCE_DEVICE_UPTIME
+	zassert_ok(hubble_init(period, ble_nonce_key));
+#else
+	zassert_ok(hubble_time_set(
+		BLE_NONCE_UNIX_TIME +
+		((uint64_t)period * CONFIG_HUBBLE_EID_ROTATION_PERIOD_SEC *
+		 1000ULL)));
+#endif
+}
+
 ZTEST(ble_nonce_test, test_ble_nonce_invalid)
 {
-#ifdef CONFIG_HUBBLE_NETWORK_SEQUENCE_NONCE_CUSTOM
-	/* Skip byte-exact comparison in counter mode - protocol version differs.
-	 * Counter mode advertisement generation is tested in ble_counter_test.
-	 */
-	ztest_test_skip();
-#endif
-
 	uint16_t idx;
 
 	for (idx = 0; idx < ARRAY_SIZE(invalid_nonce_sequence); idx++) {
 		uint8_t buf[TEST_ADV_BUFFER_SZ];
 		size_t out_len = sizeof(buf);
-		int status = hubble_ble_advertise_get(NULL, 0, buf, &out_len);
+		int status;
+
+		if (invalid_nonce_sequence[idx].period != NONCE_SAME_PERIOD) {
+			nonce_period_set(invalid_nonce_sequence[idx].period);
+		}
+
+		status = hubble_ble_advertise_get(NULL, 0, buf, &out_len);
 
 		if (invalid_nonce_sequence[idx].valid) {
-			zassert_ok(status);
+			zassert_ok(status, "entry %u rejected", idx);
 		} else {
-			zassert_not_ok(status);
+			zassert_not_ok(status, "entry %u accepted", idx);
 		}
 	}
 }
 
 static void *ble_nonce_test_setup(void)
 {
-	(void)hubble_init(ble_nonce_unix_time, ble_nonce_key);
+#ifdef CONFIG_HUBBLE_COUNTER_SOURCE_DEVICE_UPTIME
+	(void)hubble_init(0, ble_nonce_key);
+#else
+	(void)hubble_init(BLE_NONCE_UNIX_TIME, ble_nonce_key);
+#endif
 
 	testing_adv = false;
 	nonce_idx = 0U;
@@ -81,7 +146,6 @@ ZTEST_SUITE(ble_nonce_test, NULL, ble_nonce_test_setup, NULL, NULL, NULL);
 
 /* Adv test section */
 
-static uint64_t ble_adv_unix_time = 1760210751803U;
 /* zRWlq8BgtnKIph5E6ZW6d9FAvUZWS4jeQcFaknOwzoU= */
 static uint8_t ble_adv_key[CONFIG_HUBBLE_KEY_SIZE] = {
 	0xcd, 0x15, 0xa5, 0xab, 0xc0, 0x60, 0xb6, 0x72, 0x88, 0xa6, 0x1e,
@@ -140,7 +204,7 @@ ZTEST(ble_adv_test, test_adv_get_overflow)
 
 static void *ble_adv_test_setup(void)
 {
-	(void)hubble_init(ble_adv_unix_time, ble_adv_key);
+	(void)hubble_init(BLE_ADV_UNIX_TIME, ble_adv_key);
 
 	testing_adv = true;
 	nonce_idx = 0U;
