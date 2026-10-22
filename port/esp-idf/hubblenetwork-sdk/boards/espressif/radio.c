@@ -23,7 +23,8 @@
 #include "esp_sat_radio_config.h"
 #include "sat_board.h"
 
-#define MAX_TX_POWER_DBM 20U
+#define HUBBLE_BASE_FREQUENCY 2482U
+#define MAX_TX_POWER_DBM      20U
 
 /**
  * This semaphore is used to protect a packet transmission and avoid
