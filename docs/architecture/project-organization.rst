@@ -103,7 +103,8 @@ Important files:
 * ``hubble_sat.c``: common satellite send and DTM flow.
 * ``hubble_sat_packet.c``: satellite packet encoding.
 * ``hubble_sat_pass_prediction.c``: pass prediction logic.
-* ``crypto/``: concrete crypto provider adapters, currently mbedTLS and PSA.
+* ``crypto/``: concrete crypto provider adapters, currently mbedTLS, PSA
+  and Nordic SoftDevice AES-128 ECB.
 * ``utils/`` and ``reed_solomon_encoder.*``: internal helpers used by common
   protocol code.
 * ``hubble_priv.h``: private declarations shared only by common implementation
