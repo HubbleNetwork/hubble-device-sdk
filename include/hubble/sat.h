@@ -126,6 +126,51 @@ int hubble_sat_packet_pass_send(const struct hubble_sat_packet *packet,
 				const struct hubble_sat_pass_info *pass);
 
 /**
+ * @brief Called after each successful satellite packet transmission.
+ *
+ * Invoked once for every transmission performed by
+ * @ref hubble_sat_packet_send() and @ref hubble_sat_packet_pass_send(),
+ * including retransmissions, after the radio reports that the transmission
+ * succeeded. A transmission that fails does not invoke it. DTM transmissions
+ * do not invoke it.
+ *
+ * Only called when CONFIG_HUBBLE_SAT_NETWORK_PACKET_SENT_CB is enabled. The
+ * SDK does not define it: an application that enables the option must define
+ * it, for example to log each transmission. There is a single definition per
+ * image, so only one consumer can observe transmissions.
+ *
+ * The send function can still return an error after the callback was invoked
+ * for some or all of its transmissions, for example when the radio fails to
+ * turn off afterwards.
+ *
+ * @note It runs in the context that called the send function, with the
+ *       satellite transmission lock held and the satellite radio still
+ *       enabled. It must not call @ref hubble_sat_packet_send() or
+ *       @ref hubble_sat_packet_pass_send(), and it must not block: other
+ *       threads waiting to transmit wait for it, and its run time adds to the
+ *       interval before the next retransmission, which can push the last
+ *       transmissions of @ref hubble_sat_packet_pass_send() past the end of
+ *       the pass.
+ *
+ * @p packet and @p frames are valid only for the duration of the call: copy
+ * what is needed instead of keeping the pointers.
+ *
+ * @param packet   The packet that was transmitted.
+ * @param frames   The frames that were transmitted, including the channel of
+ *                 each frame. Channels and whitening differ between
+ *                 retransmissions of the same packet.
+ * @param tx_index Zero-based index of this transmission among the
+ *                 transmissions of @p packet in the current send call.
+ * @param tx_count Number of transmissions the current send call plans.
+ *                 @p tx_index equals @p tx_count - 1 on the last planned
+ *                 transmission; if a transmission fails, the remaining ones
+ *                 are not made and their callbacks never run.
+ */
+void hubble_sat_packet_sent_cb(const struct hubble_sat_packet *packet,
+			       const struct hubble_sat_packet_frames *frames,
+			       uint8_t tx_index, uint8_t tx_count);
+
+/**
  * @}
  */
 #ifdef __cplusplus

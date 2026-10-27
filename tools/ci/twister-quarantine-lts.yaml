@@ -3,6 +3,7 @@
     - ble.advertise.unit.counter.psa
     - sat.packet.unit.psa
     - satellite.api
+    - satellite.api.packet_sent_cb
     - satellite.api.counter.psa
     - satellite.pass_prediction
     - satellite.pass_prediction.small

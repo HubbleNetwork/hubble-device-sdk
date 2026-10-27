@@ -10,6 +10,10 @@ tests:
   satellite.api:
     extra_configs:
       - CONFIG_HUBBLE_SAT_NETWORK_PROTOCOL_V1=y
+  satellite.api.packet_sent_cb:
+    extra_configs:
+      - CONFIG_HUBBLE_SAT_NETWORK_PROTOCOL_V1=y
+      - CONFIG_HUBBLE_SAT_NETWORK_PACKET_SENT_CB=y
   satellite.api.counter.mbedtls:
     extra_configs:
       - CONFIG_HUBBLE_SAT_NETWORK_PROTOCOL_V1=y

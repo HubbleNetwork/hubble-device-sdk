@@ -115,6 +115,14 @@
  */
 /* #define CONFIG_HUBBLE_SAT_NETWORK_DTM_MODE 1 */
 
+/*
+ * Packet sent callback
+ * Call hubble_sat_packet_sent_cb() after every successful satellite
+ * packet transmission, retransmissions included. The application must
+ * define the function.
+ */
+/* #define CONFIG_HUBBLE_SAT_NETWORK_PACKET_SENT_CB 1 */
+
 #endif /* CONFIG_HUBBLE_SAT_NETWORK */
 
 #endif /* INCLUDE_PORT_FREERTOS_CONFIG_H */
