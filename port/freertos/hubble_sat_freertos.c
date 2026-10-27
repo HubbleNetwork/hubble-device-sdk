@@ -16,6 +16,7 @@
 
 #include <errno.h>
 
+#include <hubble/sat.h>
 #include <hubble/port/sat_radio.h>
 #include <hubble/port/sys.h>
 
@@ -43,6 +44,9 @@ int hubble_sat_port_packet_send(const struct hubble_sat_packet *packet,
 				uint8_t retries, uint8_t interval_s)
 {
 	int ret;
+#ifdef CONFIG_HUBBLE_SAT_NETWORK_PACKET_SENT_CB
+	const uint8_t tx_count = retries;
+#endif
 
 	/* TODO: Should we add a parameter in the API instead of wait forever? */
 	xSemaphoreTake(_sat_freertos_sem, portMAX_DELAY);
@@ -64,6 +68,11 @@ int hubble_sat_port_packet_send(const struct hubble_sat_packet *packet,
 		if (ret != 0) {
 			goto end;
 		}
+
+#ifdef CONFIG_HUBBLE_SAT_NETWORK_PACKET_SENT_CB
+		hubble_sat_packet_sent_cb(packet, &frames,
+					  (tx_count - retries) - 1U, tx_count);
+#endif
 
 		if (retries > 0) {
 			uint32_t sleep_ms = HUBBLE_MAX(

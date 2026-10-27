@@ -97,6 +97,10 @@ function getOpts(mod) {
             result.push(`-DCONFIG_HUBBLE_SAT_NETWORK_DTM_MODE`);
         }
 
+        if (hubble.packetSentCb) {
+            result.push(`-DCONFIG_HUBBLE_SAT_NETWORK_PACKET_SENT_CB`);
+        }
+
         if (hubble.useFreeRTOSDaemonHook) {
             result.push(`-DconfigUSE_DAEMON_TASK_STARTUP_HOOK`);
             result.push(`-DCONFIG_HUBBLE_FREERTOS_DAEMON_HOOK`);
@@ -252,6 +256,18 @@ to test the operation of the radio
             hidden: true
         },
             {
+                name: "packetSentCb",
+                displayName: "Satellite packet sent callback",
+                description: `Call hubble_sat_packet_sent_cb() after each transmission`,
+                longDescription: `
+Call hubble_sat_packet_sent_cb() after every successful
+satellite packet transmission, retransmissions included.
+The application must define the function.
+`,
+                default: false,
+                hidden: true
+            },
+            {
                 name: "eidRotationPeriod",
                 displayName: "EID rotation period",
                 description: `EID rotation period in seconds`,
@@ -393,11 +409,13 @@ function onUseSatelliteChange(inst, ui)
 {
     ui.deviceTDR.hidden = !inst.useSatellite;
     ui.dtmMode.hidden = !inst.useSatellite;
+    ui.packetSentCb.hidden = !inst.useSatellite;
     ui.useFreeRTOSDaemonHook.hidden = !inst.useSatellite;
 
     // reset so a stale "true" can't leak when sat is disabled
     if (!inst.useSatellite) {
         inst.dtmMode = false;
+        inst.packetSentCb = false;
     }
 }
 

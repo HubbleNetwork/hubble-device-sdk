@@ -49,6 +49,13 @@
 // <d> 0
 #define SISDK_HUBBLE_SAT_NETWORK_DTM_MODE   0
 
+// <q SISDK_HUBBLE_SAT_NETWORK_PACKET_SENT_CB> Satellite packet sent callback
+// <i> Call hubble_sat_packet_sent_cb() after every successful satellite
+// <i> packet transmission, retransmissions included. The application must
+// <i> define the function.
+// <d> 0
+#define SISDK_HUBBLE_SAT_NETWORK_PACKET_SENT_CB 0
+
 // </h>
 
 // <<< end of configuration section >>>
@@ -74,6 +81,10 @@
 
 #if SISDK_HUBBLE_SAT_NETWORK_DTM_MODE == 1
 #define CONFIG_HUBBLE_SAT_NETWORK_DTM_MODE 1
+#endif
+
+#if SISDK_HUBBLE_SAT_NETWORK_PACKET_SENT_CB == 1
+#define CONFIG_HUBBLE_SAT_NETWORK_PACKET_SENT_CB 1
 #endif
 
 #endif /* INCLUDE_PORT_SISDK_SAT_CONFIG_H */

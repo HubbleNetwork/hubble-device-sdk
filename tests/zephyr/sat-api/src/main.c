@@ -15,6 +15,7 @@
 
 #include <stdint.h>
 #include <stdlib.h>
+#include <string.h>
 
 #define HUBBLE_SAT_DEV_ID 0x1337
 
@@ -52,6 +53,59 @@ static uint8_t _transmission_count;
 static bool _test_hopping = false;
 static int8_t _hopping_info = -1;
 static uint8_t _last_channel = 0;
+
+/* When _fail_send is set, fail after _fail_after successful sends. */
+static bool _fail_send = false;
+static uint8_t _fail_after = 0U;
+
+#define _TX_RECORD_MAX 4U
+
+/* First channel of each successful board transmission */
+static uint8_t _board_channels[_TX_RECORD_MAX];
+static uint8_t _board_tx_count = 0U;
+
+#ifdef CONFIG_HUBBLE_SAT_NETWORK_PACKET_SENT_CB
+/* First channel of the frames passed to each callback */
+static uint8_t _sent_cb_channels[_TX_RECORD_MAX];
+static uint8_t _sent_cb_count = 0U;
+static uint8_t _sent_cb_tx_count = 0U;
+static bool _sent_cb_args_ok = true;
+static const struct hubble_sat_packet *_sent_cb_packet = NULL;
+
+void hubble_sat_packet_sent_cb(const struct hubble_sat_packet *packet,
+			       const struct hubble_sat_packet_frames *frames,
+			       uint8_t tx_index, uint8_t tx_count)
+{
+	if ((packet == NULL) || (frames == NULL)) {
+		_sent_cb_args_ok = false;
+		_sent_cb_count++;
+		return;
+	}
+
+	if ((tx_index != _sent_cb_count) || (tx_index >= tx_count)) {
+		_sent_cb_args_ok = false;
+	}
+
+	if (_sent_cb_count < _TX_RECORD_MAX) {
+		_sent_cb_channels[_sent_cb_count] = frames->frame[0].channel;
+	}
+
+	_sent_cb_packet = packet;
+	_sent_cb_tx_count = tx_count;
+	_sent_cb_count++;
+}
+
+static void _sent_cb_reset(void)
+{
+	memset(_board_channels, 0, sizeof(_board_channels));
+	memset(_sent_cb_channels, 0, sizeof(_sent_cb_channels));
+	_board_tx_count = 0U;
+	_sent_cb_count = 0U;
+	_sent_cb_tx_count = 0U;
+	_sent_cb_args_ok = true;
+	_sent_cb_packet = NULL;
+}
+#endif /* CONFIG_HUBBLE_SAT_NETWORK_PACKET_SENT_CB */
 
 static int _hopping_sequence_find(uint8_t channel1, uint8_t channel2,
 				  uint8_t channel3)
@@ -104,6 +158,18 @@ static int _channel_hopping_check(uint8_t channel1, uint8_t channel2,
 int hubble_sat_board_packet_send(const struct hubble_sat_packet_frames *packet)
 {
 	int ret = 0;
+
+	if (_fail_send) {
+		if (_fail_after == 0U) {
+			return -EIO;
+		}
+		_fail_after--;
+	}
+
+	if (_board_tx_count < _TX_RECORD_MAX) {
+		_board_channels[_board_tx_count] = packet->frame[0].channel;
+	}
+	_board_tx_count++;
 
 	if (_test_hopping) {
 		if (_hopping_info == -1) {
@@ -288,6 +354,72 @@ ZTEST(sat_test, test_packet_send_from_pass)
 					  &pass);
 	zassert_ok(err);
 	zassert_equal(0, _transmission_count);
+}
+
+ZTEST(sat_test, test_packet_sent_cb)
+{
+#ifdef CONFIG_HUBBLE_SAT_NETWORK_PACKET_SENT_CB
+	int err;
+	struct hubble_sat_packet pkt;
+	struct hubble_sat_pass_info pass = {0};
+
+	err = hubble_sat_packet_get(&pkt, NULL, 0);
+	zassert_ok(err);
+
+	/* RELIABILITY_NONE: one transmission, one call */
+	_sent_cb_reset();
+	_transmission_count = 1U;
+	err = hubble_sat_packet_send(&pkt, HUBBLE_SAT_RELIABILITY_NONE);
+	zassert_ok(err);
+	zassert_equal(0, _transmission_count);
+	zassert_equal(1U, _sent_cb_count);
+	zassert_equal(1U, _sent_cb_tx_count);
+	zassert_true(_sent_cb_args_ok);
+	zassert_equal_ptr(&pkt, _sent_cb_packet);
+	zassert_equal(_board_channels[0], _sent_cb_channels[0]);
+
+	/* 30s pass with HIGH (10s interval) -> 3 transmissions, 3 calls */
+	_sent_cb_reset();
+	pass.duration = 30000U;
+	_transmission_count = 3U;
+	err = hubble_sat_packet_pass_send(&pkt, HUBBLE_SAT_RELIABILITY_HIGH,
+					  &pass);
+	zassert_ok(err);
+	zassert_equal(0, _transmission_count);
+	zassert_equal(3U, _sent_cb_count);
+	zassert_equal(3U, _sent_cb_tx_count);
+	zassert_true(_sent_cb_args_ok);
+	zassert_equal_ptr(&pkt, _sent_cb_packet);
+
+	/* Each call gets the frames of its own transmission */
+	for (uint8_t i = 0U; i < 3U; i++) {
+		zassert_equal(_board_channels[i], _sent_cb_channels[i]);
+	}
+	zassert_not_equal(_sent_cb_channels[0], _sent_cb_channels[1]);
+	zassert_not_equal(_sent_cb_channels[1], _sent_cb_channels[2]);
+
+	/* The third transmission fails: it does not invoke the callback */
+	_sent_cb_reset();
+	_fail_send = true;
+	_fail_after = 2U;
+	_transmission_count = 3U;
+	err = hubble_sat_packet_pass_send(&pkt, HUBBLE_SAT_RELIABILITY_HIGH,
+					  &pass);
+	_fail_send = false;
+	zassert_not_ok(err);
+	zassert_equal(1U, _transmission_count);
+	zassert_equal(2U, _sent_cb_count);
+	zassert_equal(3U, _sent_cb_tx_count);
+	zassert_true(_sent_cb_args_ok);
+
+	/* Validate packets and frames before failure */
+	zassert_equal_ptr(&pkt, _sent_cb_packet);
+	for (uint8_t i = 0U; i < 2U; i++) {
+		zassert_equal(_board_channels[i], _sent_cb_channels[i]);
+	}
+#else
+	ztest_test_skip();
+#endif
 }
 
 static void *sat_test_setup(void)
