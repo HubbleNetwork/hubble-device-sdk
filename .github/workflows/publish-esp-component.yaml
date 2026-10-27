@@ -9,7 +9,7 @@ permissions:
 
 jobs:
   upload_components:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     permissions:
       # required for OIDC Token
       id-token: write

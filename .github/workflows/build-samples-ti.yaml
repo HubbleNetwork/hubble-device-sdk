@@ -19,7 +19,7 @@ permissions:
 jobs:
   build:
     name: Build TI Samples
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     container:
       image: ghcr.io/hubblenetwork/vendor-ci-docker:ti-freertos-latest
       credentials:

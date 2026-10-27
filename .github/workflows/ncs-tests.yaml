@@ -31,7 +31,7 @@ permissions:
 
 jobs:
   find-image-tag:
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     outputs:
       revision: ${{ steps.revision.outputs.revision }}
       ref: ${{ steps.setref.outputs.ref }}
@@ -74,7 +74,7 @@ jobs:
 
   build:
     needs: find-image-tag
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     container: ghcr.io/nrfconnect/sdk-nrf-toolchain:${{ needs.find-image-tag.outputs.revision }}
     defaults:
       run:
