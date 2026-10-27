@@ -9,7 +9,7 @@ permissions:
 
 jobs:
   auto-assign:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     steps:
       - name: Detect changed areas
         id: filter
