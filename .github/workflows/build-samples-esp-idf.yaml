@@ -17,6 +17,9 @@ on:
 permissions:
   contents: read
 
+env:
+  IDF_VERSION: v6.1
+
 jobs:
   build:
     name: Build ESP-IDF Sample Apps
@@ -44,7 +47,7 @@ jobs:
       - name: Build all samples and generate component size
         uses: espressif/esp-idf-ci-action@v1
         with:
-          esp_idf_version: "latest"
+          esp_idf_version: ${{ env.IDF_VERSION }}
           target: ${{ matrix.espidf_target }}
           command: |
             set -euxo pipefail
