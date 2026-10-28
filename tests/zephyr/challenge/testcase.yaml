@@ -1,0 +1,28 @@
+common:
+  platform_allow:
+    - native_sim/native/64
+    - nrf52840dk/nrf52840
+  tags:
+    - hubble
+    - security
+    - challenge
+  integration_platforms:
+    - native_sim/native/64
+
+tests:
+  hubble.challenge.mbedtls:
+    extra_configs:
+      - CONFIG_HUBBLE_NETWORK_CRYPTO_MBEDTLS=y
+      - CONFIG_HUBBLE_COUNTER_SOURCE_UNIX_TIME=y
+  hubble.challenge.psa:
+    extra_configs:
+      - CONFIG_HUBBLE_NETWORK_CRYPTO_PSA=y
+      - CONFIG_HUBBLE_COUNTER_SOURCE_UNIX_TIME=y
+  hubble.challenge.counter.mbedtls:
+    extra_configs:
+      - CONFIG_HUBBLE_NETWORK_CRYPTO_MBEDTLS=y
+      - CONFIG_HUBBLE_COUNTER_SOURCE_DEVICE_UPTIME=y
+  hubble.challenge.counter.psa:
+    extra_configs:
+      - CONFIG_HUBBLE_NETWORK_CRYPTO_PSA=y
+      - CONFIG_HUBBLE_COUNTER_SOURCE_DEVICE_UPTIME=y
