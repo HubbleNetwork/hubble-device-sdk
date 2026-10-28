@@ -158,14 +158,20 @@ ZTEST(hubble_api_test, test_time_get)
 ZTEST(hubble_api_test, test_key_set)
 {
 	int err;
+	struct hubble_sat_packet packet;
 
-	/* NULL key must be rejected */
+	err = hubble_init(_unix_time, _key);
+	zassert_ok(err);
+
+	/* NULL clears the key */
 	err = hubble_key_set(NULL);
-	zassert_not_ok(err);
+	zassert_ok(err);
+	zassert_equal(hubble_sat_packet_get(&packet, NULL, 0), -EINVAL);
 
 	/* Valid key must be accepted */
 	err = hubble_key_set(_key);
 	zassert_ok(err);
+	zassert_ok(hubble_sat_packet_get(&packet, NULL, 0));
 }
 
 ZTEST(hubble_api_test, test_counter_get)
