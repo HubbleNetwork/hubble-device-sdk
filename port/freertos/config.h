@@ -41,6 +41,11 @@
 /* #define CONFIG_HUBBLE_NETWORK_CRYPTO_PSA 1 */
 
 /*
+ * Enable the challenge-response API (<hubble/challenge.h>).
+ */
+/* #define CONFIG_HUBBLE_CHALLENGE 1 */
+
+/*
  * Counter Source
  *
  * Unix time mode is used by default. To use device uptime mode instead,

@@ -11,3 +11,4 @@ Doxygen-generated API reference for the Hubble Device SDK, grouped by network.
    core
    ble
    satellite
+   challenge

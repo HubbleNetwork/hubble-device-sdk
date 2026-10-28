@@ -1,0 +1,32 @@
+id: hubble-device-sdk-challenge
+label: Hubble Device SDK Challenge-Response
+package: hubble-device-sdk
+description: >
+  Challenge-response API to authenticate a peer that holds the device key.
+category: Hubble
+quality: production
+
+provides:
+  - name: hubble-device-sdk-challenge
+
+source:
+  - path: src/hubble_challenge.c
+
+include:
+  - path: include
+    file_list:
+      - path: hubble/challenge.h
+
+define:
+  - name: CONFIG_HUBBLE_CHALLENGE
+    value: 1
+
+requires:
+  - name: hubble-device-sdk-common
+
+documentation:
+  url: https://hubblenetwork.github.io/hubble-device-sdk/main/
+
+template_contribution:
+  - name: component_catalog
+    value: hubble_device_sdk_challenge
