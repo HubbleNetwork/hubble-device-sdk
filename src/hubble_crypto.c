@@ -43,10 +43,6 @@ const void *hubble_internal_key_get(void)
 
 int hubble_key_set(const void *key)
 {
-	if (key == NULL) {
-		return -EINVAL;
-	}
-
 	master_key = key;
 
 	return 0;

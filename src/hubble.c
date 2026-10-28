@@ -81,12 +81,10 @@ int hubble_init(uint64_t initial_time, const void *key)
 	}
 #endif
 
-	if (key != NULL) {
-		ret = hubble_key_set(key);
-		if (ret != 0) {
-			HUBBLE_LOG_WARNING("Failed to set key");
-			return ret;
-		}
+	ret = hubble_key_set(key);
+	if (ret != 0) {
+		HUBBLE_LOG_WARNING("Failed to set key");
+		return ret;
 	}
 
 #ifdef CONFIG_HUBBLE_SAT_NETWORK
