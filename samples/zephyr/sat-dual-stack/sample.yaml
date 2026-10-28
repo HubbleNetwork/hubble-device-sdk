@@ -51,3 +51,10 @@ tests:
       - nrf21540dk/nrf52840
     integration_platforms:
       - nrf21540dk/nrf52840
+  app.sat.dual_stack.host_integration:
+    extra_configs:
+      - CONFIG_SAMPLE_PROVIDE_SAT_BOARD_SUPPORT=n
+    tags:
+      - host_integration
+    integration_platforms:
+      - thingy53/nrf5340/cpunet
