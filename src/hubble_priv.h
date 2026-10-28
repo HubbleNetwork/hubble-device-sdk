@@ -140,7 +140,7 @@ int hubble_internal_sat_init(void);
  *
  * Invokes the platform-specific de-initialization.
  *
- * @return 0 on success, -EBUSY if a transmission is in progress.
+ * @return 0 on success, -EBUSY if resources are in use.
  */
 int hubble_internal_sat_deinit(void);
 

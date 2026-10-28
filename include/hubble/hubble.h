@@ -91,8 +91,8 @@ int hubble_init(uint64_t initial_time, const void *key);
  * owned by the caller and is not modified.
  *
  * When the satellite network is enabled, the resources the satellite radio
- * port took in @ref hubble_init are released. Nothing is released while a
- * satellite transmission is in progress.
+ * port took in @ref hubble_init are released. Nothing is released while
+ * those resources are in use.
  *
  * The sequence number and the nonce reuse check keep their state, so
  * initializing the SDK again with the same key does not reuse a nonce.
@@ -105,8 +105,7 @@ int hubble_init(uint64_t initial_time, const void *key);
  *       with other SDK APIs.
  *
  * @retval 0      Success.
- * @retval -EBUSY A satellite transmission is in progress, the SDK is left
- *                initialized.
+ * @retval -EBUSY Resources are in use, the SDK is left initialized.
  */
 int hubble_deinit(void);
 

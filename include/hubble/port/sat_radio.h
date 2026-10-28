@@ -82,7 +82,7 @@ int hubble_sat_port_init(void);
  * be called again. It is called by hubble_deinit().
  *
  * @retval 0      Success.
- * @retval -EBUSY A transmission is in progress, nothing was released.
+ * @retval -EBUSY Resources are in use, nothing was released.
  */
 int hubble_sat_port_deinit(void);
 

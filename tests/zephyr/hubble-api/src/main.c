@@ -16,6 +16,9 @@ static uint8_t _key[CONFIG_HUBBLE_KEY_SIZE];
 
 static bool _board_init_fail = false;
 static bool _crypto_init_fail = false;
+/* Set to call hubble_deinit() from within a transmission */
+static bool _deinit_in_send;
+static int _deinit_in_send_ret;
 
 /* Implement sat board support. */
 int hubble_sat_board_init(void)
@@ -36,6 +39,10 @@ int hubble_sat_board_disable(void)
 int hubble_sat_board_packet_send(const struct hubble_sat_packet_frames *packet)
 {
 	ARG_UNUSED(packet);
+
+	if (_deinit_in_send) {
+		_deinit_in_send_ret = hubble_deinit();
+	}
 
 	return 0;
 }
@@ -76,6 +83,60 @@ int hubble_crypto_aes_ctr(const uint8_t key[CONFIG_HUBBLE_KEY_SIZE],
 int hubble_crypto_init(void)
 {
 	return _crypto_init_fail ? -EINVAL : 0;
+}
+
+ZTEST(hubble_api_test, test_deinit)
+{
+	int err;
+	uint32_t counter;
+	struct hubble_sat_packet packet;
+
+	/* No effect when the SDK is not initialized */
+	zassert_ok(hubble_deinit());
+
+	err = hubble_init(_unix_time, _key);
+	zassert_ok(err);
+	zassert_ok(hubble_sat_packet_get(&packet, NULL, 0));
+
+	zassert_ok(hubble_deinit());
+
+	/* The key is gone */
+	zassert_equal(hubble_sat_packet_get(&packet, NULL, 0), -EINVAL);
+
+#ifdef CONFIG_HUBBLE_COUNTER_SOURCE_UNIX_TIME
+	/* The time is gone */
+	zassert_equal(hubble_time_get(), 0U);
+	zassert_not_ok(hubble_counter_get(&counter));
+#else
+	/* The counter starts from 0 again */
+	zassert_ok(hubble_counter_get(&counter));
+	zassert_equal(counter, 0U);
+#endif
+
+	/* The SDK can be initialized again */
+	err = hubble_init(_unix_time, _key);
+	zassert_ok(err);
+	zassert_ok(hubble_counter_get(&counter));
+	zassert_ok(hubble_sat_packet_get(&packet, NULL, 0));
+}
+
+ZTEST(hubble_api_test, test_deinit_busy)
+{
+	struct hubble_sat_packet packet;
+
+	zassert_ok(hubble_init(_unix_time, _key));
+	zassert_ok(hubble_sat_packet_get(&packet, NULL, 0));
+
+	/* Rejected while a transmission is in progress */
+	_deinit_in_send = true;
+	zassert_ok(hubble_sat_packet_send(&packet, HUBBLE_SAT_RELIABILITY_NONE));
+	_deinit_in_send = false;
+	zassert_equal(_deinit_in_send_ret, -EBUSY);
+
+	/* The SDK is still initialized */
+	zassert_ok(hubble_sat_packet_get(&packet, NULL, 0));
+
+	zassert_ok(hubble_deinit());
 }
 
 ZTEST(hubble_api_test, test_init)
