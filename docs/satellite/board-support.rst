@@ -37,6 +37,7 @@ If you are using an unsupported RTOS or framework port, implement the
 public satellite radio contract in ``include/hubble/port/sat_radio.h``:
 
 * ``hubble_sat_port_init()``
+* ``hubble_sat_port_deinit()``
 * ``hubble_sat_port_packet_send()``
 * ``hubble_sat_dtm_port_packet_send()``
 * ``hubble_sat_dtm_port_power_set()``
