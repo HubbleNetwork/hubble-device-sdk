@@ -18,6 +18,10 @@
 #include <hubble/ble.h>
 #endif /* CONFIG_HUBBLE_BLE_NETWORK */
 
+#ifdef CONFIG_HUBBLE_CHALLENGE
+#include <hubble/challenge.h>
+#endif /* CONFIG_HUBBLE_CHALLENGE */
+
 #ifdef __cplusplus
 extern "C" {
 #endif

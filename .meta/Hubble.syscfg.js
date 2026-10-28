@@ -33,6 +33,10 @@ var sdkBleFiles = [
     "src/hubble_ble.c"
 ];
 
+var sdkChallengeFiles = [
+    "src/hubble_challenge.c"
+];
+
 var cc23xxDeviceFiles = [
     "port/freertos/boards/ti/cc23xx_cc27xx/radio.c",
     "port/freertos/boards/ti/cc23xx_cc27xx/radio_config/ti_radio_config_cc23.c"
@@ -142,6 +146,10 @@ function getOpts(mod) {
         result.push(`-DCONFIG_HUBBLE_UPTIME_CUSTOM`);
     }
 
+    if (hubble.useChallenge) {
+        result.push(`-DCONFIG_HUBBLE_CHALLENGE`);
+    }
+
     const crypto = hubble.crypto;
     if (crypto == "custom") {
         result.push(`-DCONFIG_HUBBLE_NETWORK_CRYPTO_CUSTOM`);
@@ -197,6 +205,10 @@ function getSDKFiles()
     // Terrestrial
     if (hubble.useTerrestrial) {
         files.push(...sdkBleFiles);
+    }
+
+    if (hubble.useChallenge) {
+        files.push(...sdkChallengeFiles);
     }
 
     return files.map(f => `${sdkPath}/${f}`)
@@ -364,6 +376,18 @@ Override the default auto-incrementing sequence counter
 with an application-provided implementation. Useful for
 deterministic testing or persisting counters across
 reboots.
+`,
+                default: false
+            },
+            {
+                name: "useChallenge",
+                displayName: "Challenge-response",
+                description: `
+Enable the challenge-response API in <hubble/challenge.h>.
+The device builds a challenge from its current EID in
+plain bytes and a nonce supplied by the application, and
+checks the response computed by a peer that holds the
+device key.
 `,
                 default: false
             },

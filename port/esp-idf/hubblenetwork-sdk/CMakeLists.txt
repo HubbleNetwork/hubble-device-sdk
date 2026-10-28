@@ -24,6 +24,12 @@ set(INC_DIRS
     "${SDK_BASE_DIR}/port/freertos"
 )
 
+if(CONFIG_HUBBLE_CHALLENGE)
+    list(APPEND SRCS
+        "${SDK_BASE_DIR}/src/hubble_challenge.c"
+    )
+endif()
+
 if(CONFIG_HUBBLE_BLE_NETWORK)
     list(APPEND SRCS
         "${SDK_BASE_DIR}/src/hubble_ble.c"

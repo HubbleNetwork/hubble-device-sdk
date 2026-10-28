@@ -108,6 +108,24 @@ int hubble_internal_data_encrypt(uint32_t counter, uint16_t seq_no,
 				 uint8_t *out, uint8_t *tag, size_t tag_len);
 
 /**
+ * @brief Compute the response to a challenge.
+ *
+ * Derives a challenge key from the master key and @p counter, then derives
+ * the response from that key and the challenge bytes.
+ *
+ * @param counter       Time-based counter the challenge EID was derived from.
+ * @param challenge     Pointer to the challenge bytes.
+ * @param challenge_len Length of the challenge in bytes.
+ * @param response      Pointer to the output buffer for the response.
+ * @param response_len  Length of the response in bytes.
+ *
+ * @return 0 on success, negative error code on failure.
+ */
+int hubble_internal_challenge_response_get(
+	uint32_t counter, const uint8_t *challenge, size_t challenge_len,
+	uint8_t *response, size_t response_len);
+
+/**
  * @brief Initialize the satellite network subsys.
  *
  * This function performs common satellite initialization and invokes

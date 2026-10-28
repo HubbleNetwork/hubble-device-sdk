@@ -106,6 +106,15 @@ config HUBBLE_NETWORK_SECURITY_ENFORCE_NONCE_CHECK
 		Be aware that re-using the same nonce has severe
 		security implications.
 
+config HUBBLE_CHALLENGE
+	   bool "Hubble challenge-response"
+	   help
+		Enable the challenge-response API in <hubble/challenge.h>.
+		The device builds a challenge from its current EID in
+		plain bytes and a nonce supplied by the application, and
+		checks the response computed by a peer that holds the
+		device key.
+
 config HUBBLE_NETWORK_SEQUENCE_NONCE_CUSTOM
 	   bool "Application defined sequence counter"
 	   help
