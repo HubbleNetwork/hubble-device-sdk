@@ -92,6 +92,18 @@ int hubble_sat_port_init(void)
 	return hubble_sat_board_init();
 }
 
+int hubble_sat_port_deinit(void)
+{
+	/* The semaphore is statically defined, only check that it is free */
+	if (k_sem_take(&_trans_sem, K_NO_WAIT) != 0) {
+		return -EBUSY;
+	}
+
+	k_sem_give(&_trans_sem);
+
+	return 0;
+}
+
 #ifdef CONFIG_HUBBLE_SAT_NETWORK_DTM_MODE
 
 int hubble_sat_dtm_port_packet_send(const struct hubble_sat_packet *packet,

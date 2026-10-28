@@ -102,6 +102,28 @@ int hubble_init(uint64_t initial_time, const void *key)
 	return 0;
 }
 
+int hubble_deinit(void)
+{
+#ifdef CONFIG_HUBBLE_SAT_NETWORK
+	int ret = hubble_internal_sat_deinit();
+
+	if (ret != 0) {
+		return ret;
+	}
+#endif /* CONFIG_HUBBLE_SAT_NETWORK */
+
+	(void)hubble_key_set(NULL);
+
+	unix_time_synced = 0U;
+	unix_time_base = 0U;
+
+#ifdef CONFIG_HUBBLE_COUNTER_SOURCE_DEVICE_UPTIME
+	eid_initial_counter = 0U;
+#endif
+
+	return 0;
+}
+
 uint64_t hubble_internal_time_last_synced_get(void)
 {
 	return unix_time_synced;

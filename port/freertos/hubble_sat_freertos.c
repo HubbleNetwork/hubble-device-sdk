@@ -111,6 +111,23 @@ int hubble_sat_port_init(void)
 	return hubble_sat_board_init();
 }
 
+int hubble_sat_port_deinit(void)
+{
+	if (_sat_freertos_sem == NULL) {
+		return 0;
+	}
+
+	/* The semaphore is held for the whole transmission */
+	if (xSemaphoreTake(_sat_freertos_sem, 0) != pdTRUE) {
+		return -EBUSY;
+	}
+
+	vSemaphoreDelete(_sat_freertos_sem);
+	_sat_freertos_sem = NULL;
+
+	return 0;
+}
+
 #ifdef CONFIG_HUBBLE_SAT_NETWORK_DTM_MODE
 
 int hubble_sat_dtm_port_packet_send(const struct hubble_sat_packet *packet,

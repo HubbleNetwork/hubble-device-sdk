@@ -135,6 +135,15 @@ int hubble_internal_challenge_response_get(
  */
 int hubble_internal_sat_init(void);
 
+/**
+ * @brief De-initialize the satellite network subsys.
+ *
+ * Invokes the platform-specific de-initialization.
+ *
+ * @return 0 on success, -EBUSY if a transmission is in progress.
+ */
+int hubble_internal_sat_deinit(void);
+
 /*
  * @brief Set the hopping sequence to use
  *
