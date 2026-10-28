@@ -171,6 +171,15 @@ config HUBBLE_UPTIME_CUSTOM
 	  for unit testing where controlled time values are
 	  needed to verify time-dependent behavior.
 
+config HUBBLE_CHALLENGE
+	bool "Hubble challenge-response"
+	help
+	  Enable the challenge-response API in <hubble/challenge.h>.
+	  The device builds a challenge from its current EID in
+	  plain bytes and a nonce supplied by the application, and
+	  checks the response computed by a peer that holds the
+	  device key.
+
 choice
 	prompt "Hubble Network crypto provider"
 	default HUBBLE_NETWORK_CRYPTO_PSA
