@@ -31,9 +31,16 @@ permissions:
 
 jobs:
   build:
-    runs-on: ubuntu-26.04
+    runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
+      matrix:
+        os:
+          - ubuntu-26.04
+          - windows-2025
+    defaults:
+      run:
+        shell: bash
 
     steps:
       - name: Determine checkout ref
@@ -82,18 +89,23 @@ jobs:
         run: west blobs fetch hubblenetwork-sdk hal_silabs hal_nordic
 
       - name: Run tests
+        if: runner.os == 'Linux'
         run: |
           set -euxo pipefail
           west twister -T tests/zephyr --quarantine-list tools/ci/twister-quarantine.yaml
 
       - name: Build samples
+        if: runner.os == 'Linux'
         run: |
           set -euxo pipefail
           # --footprint-report does not handle sysbuild, so we will parse
           # the output manually in the footprint summary script
-          west twister -T samples/zephyr --build-only --quarantine-list tools/ci/twister-quarantine.yaml
+          # exclude host_integration tag - used just for other hosts
+          west twister -T samples/zephyr --build-only --quarantine-list tools/ci/twister-quarantine.yaml \
+            --exclude-tag host_integration
 
       - name: Footprint report
+        if: runner.os == 'Linux'
         run: |
           set -euxo pipefail
           # export the metadata for this test
@@ -104,7 +116,7 @@ jobs:
           python3 tools/ci/summarize_footprint.py twister-out | tee twister-out/footprint_summary.txt
 
       - name: Upload footprint report
-        if: always()
+        if: always() && runner.os == 'Linux'
         uses: actions/upload-artifact@v6
         with:
           name: footprint-report-${{ github.run_id }}
@@ -113,3 +125,13 @@ jobs:
             twister-out/**/footprint/rom.json
             twister-out/**/footprint/ram.json
           if-no-files-found: ignore
+
+      # Non-Linux hosts build the host_integration tags
+      - name: Host integration build
+        if: runner.os != 'Linux'
+        run: |
+          set -euxo pipefail
+          # Build directories under the checkout can exceed the host's path length limit, so
+          # build through short paths in a short output directory
+          west twister -T samples/zephyr -t host_integration --integration --build-only \
+            --inline-logs --short-build-path -O "$RUNNER_TEMP/twister-out"
