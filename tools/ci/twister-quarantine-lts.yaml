@@ -1,6 +1,8 @@
 - scenarios:
     - ble.advertise.unit.psa
     - ble.advertise.unit.counter.psa
+    - hubble.challenge.counter.psa
+    - hubble.challenge.psa
     - sat.packet.unit.psa
     - satellite.api
     - satellite.api.packet_sent_cb
