@@ -112,6 +112,8 @@ uint64_t hubble_time_get(void);
  *            data. The caller must ensure the buffer remains valid
  *            for the lifetime of SDK usage. The key size must match
  *            CONFIG_HUBBLE_NETWORK_KEY_256 or CONFIG_HUBBLE_NETWORK_KEY_128.
+ *            NULL clears the key: APIs that need it fail until a key is
+ *            set again. The previous key buffer is not modified.
  *
  * @return
  *         - 0 on success.

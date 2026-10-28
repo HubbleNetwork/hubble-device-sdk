@@ -73,9 +73,6 @@ static void bypass_cb(const struct shell *sh, uint8_t *recv, size_t len,
 	if (escape) {
 		shell_print(sh, "Number of bytes read: %d", sum);
 		shell_set_bypass(sh, NULL, NULL);
-		if (hubble_key_set((void *)master_key) != 0) {
-			LOG_WRN("Failed to set the encryption key");
-		}
 		k_sem_give(&key_sem);
 
 		return;
@@ -85,10 +82,6 @@ static void bypass_cb(const struct shell *sh, uint8_t *recv, size_t len,
 	if (sum >= sizeof(master_key)) {
 		shell_print(sh, "Given key is too big !");
 		shell_set_bypass(sh, NULL, NULL);
-		if (hubble_key_set((void *)master_key) != 0) {
-			LOG_WRN("Failed to set the encryption key");
-		}
-
 		return;
 	}
 
@@ -190,7 +183,7 @@ int main(void)
 
 	LOG_DBG("Key and Unix Epoch time set");
 
-	err = hubble_init(unix_time, NULL);
+	err = hubble_init(unix_time, master_key);
 	if (err != 0) {
 		LOG_ERR("Failed to initialize Hubble BLE Network");
 		return err;
