@@ -76,14 +76,16 @@ Installing the Extension
    .. tab:: Command line
 
       SLC discovers extensions under the Simplicity SDK's ``extension``
-      directory. Link the Hubble Device SDK there and register the extension
-      as trusted:
+      directory. Link the Hubble Device SDK there, select the Simplicity SDK
+      and trust both the SDK and the extension:
 
       .. code-block:: bash
 
          mkdir -p $SISDK/extension
          ln -s $HUBBLE_SDK $SISDK/extension/hubble-device-sdk
 
+         $SLC configuration --sdk $SISDK
+         $SLC signature trust --sdk $SISDK
          $SLC signature trust -extpath $SISDK/extension/hubble-device-sdk
 
 
