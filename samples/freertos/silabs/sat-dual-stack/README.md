@@ -87,6 +87,8 @@ and register it as trusted:
 mkdir -p $SISDK/extension
 ln -s $HUBBLE_SDK $SISDK/extension/hubble-device-sdk
 
+$SLC configuration --sdk $SISDK
+$SLC signature trust --sdk $SISDK
 $SLC signature trust -extpath $SISDK/extension/hubble-device-sdk
 ```
 
