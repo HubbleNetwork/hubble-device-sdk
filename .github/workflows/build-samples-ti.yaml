@@ -33,3 +33,39 @@ jobs:
 
       - name: Build all TI samples
         run: python3 tools/ci/freertos_sample_build.py --platform ti samples/freertos/ti
+
+  # build sat-dual-stack on 1 target per tested environment
+  host-integration:
+    name: Host integration build
+    runs-on: windows-2025
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+
+      - uses: oras-project/setup-oras@v1
+
+      # vendor-ci-docker images are Linux containers. For Windows it publishes the installed
+      # TI tools as an archive, with the same versions as the ti-freertos-latest image.
+      - name: Install the TI SDK and tools
+        shell: pwsh
+        env:
+          TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          $PSNativeCommandUseErrorActionPreference = $true
+          $env:TOKEN | oras login ghcr.io -u $env:GITHUB_ACTOR --password-stdin
+          oras pull ghcr.io/hubblenetwork/vendor-ci-docker:ti-freertos-windows-latest `
+            -o $env:RUNNER_TEMP
+          tar.exe -xzf "$env:RUNNER_TEMP\ti.tgz" -C C:\
+          # The SDK, SysConfig and TI Clang paths
+          Get-Content C:\ti\env.txt >> $env:GITHUB_ENV
+          choco install -y --no-progress make
+
+      - name: Build sat-dual-stack
+        shell: pwsh
+        working-directory: samples/freertos/ti/sat-dual-stack
+        run: |
+          $PSNativeCommandUseErrorActionPreference = $true
+          # The makefile runs Unix tools (mkdir, cp), which the TI READMEs suggest taking from Git
+          $env:PATH = "C:\Program Files\Git\usr\bin;$env:PATH"
+          make -f cc2755p10.mk
