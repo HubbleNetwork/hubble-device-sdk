@@ -20,7 +20,7 @@ permissions:
 jobs:
   build:
     name: Build SiLabs Samples
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     container:
       image: ghcr.io/hubblenetwork/vendor-ci-docker:silabs-freertos-latest
       credentials:

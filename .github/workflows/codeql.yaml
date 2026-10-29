@@ -19,7 +19,7 @@ concurrency:
 jobs:
   cpp-zephyr:
     name: Analyze C/C++ (Zephyr samples + tests)
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     timeout-minutes: 360
     permissions:
       contents: read
@@ -72,7 +72,7 @@ jobs:
 
   cpp-esp-idf:
     name: Analyze C/C++ (ESP-IDF samples)
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     timeout-minutes: 180
     permissions:
       contents: read
@@ -135,7 +135,7 @@ jobs:
   # CI helper scripts under tools/ - no build step required.
   python:
     name: Analyze Python
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     timeout-minutes: 60
     permissions:
       contents: read
