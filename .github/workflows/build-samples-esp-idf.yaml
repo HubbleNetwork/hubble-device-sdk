@@ -17,10 +17,13 @@ on:
 permissions:
   contents: read
 
+env:
+  IDF_VERSION: v6.1
+
 jobs:
   build:
     name: Build ESP-IDF Sample Apps
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     strategy:
       fail-fast: false
       matrix:
@@ -44,7 +47,7 @@ jobs:
       - name: Build all samples and generate component size
         uses: espressif/esp-idf-ci-action@v1
         with:
-          esp_idf_version: "latest"
+          esp_idf_version: ${{ env.IDF_VERSION }}
           target: ${{ matrix.espidf_target }}
           command: |
             set -euxo pipefail
@@ -92,11 +95,45 @@ jobs:
           path: esp-idf-footprint-out/
           if-no-files-found: warn
 
+  # build sat-dual-stack on 1 target per tested environment
+  host-integration:
+    name: Host integration build
+    runs-on: windows-2025
+    env:
+      IDF_TARGET: esp32c6
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+
+      # esp-idf-ci-action is a Linux container, so this job installs the release from source.
+      - name: Install ESP-IDF
+        shell: pwsh
+        run: |
+          $PSNativeCommandUseErrorActionPreference = $true
+          git clone -b $env:IDF_VERSION --depth 1 --recursive --shallow-submodules `
+            https://github.com/espressif/esp-idf.git "$HOME\esp-idf"
+          & "$HOME\esp-idf\install.ps1" $env:IDF_TARGET
+
+      - name: Build sat-dual-stack
+        shell: pwsh
+        run: |
+          $PSNativeCommandUseErrorActionPreference = $true
+          . "$HOME\esp-idf\export.ps1"
+          pip install idf-build-apps
+          idf-build-apps build -p samples/esp-idf/sat-dual-stack --target $env:IDF_TARGET `
+            --manifest-file tools/ci/esp-idf-build-manifest.yaml
+
   footprint-summary:
     name: Footprint Summary
     needs: build
     if: always()
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     steps:
       - name: Checkout repository
         uses: actions/checkout@v5
