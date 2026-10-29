@@ -53,3 +53,51 @@ jobs:
 
       - name: Build all SiLabs samples
         run: python3 tools/ci/freertos_sample_build.py --platform silabs samples/freertos/silabs
+
+  # build sat-dual-stack on 1 target per tested environment
+  host-integration:
+    name: Host integration build
+    runs-on: windows-2025
+    env:
+      # Version in the silabs-freertos-2026.6.1 image
+      SISDK_VERSION: 2026.6.1
+    defaults:
+      run:
+        shell: bash
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+
+      # vendor-ci-docker is a Linux container, so this job installs the tools with SLT instead.
+      - name: Install SLT, the Simplicity SDK and tools
+        run: |
+          set -euxo pipefail
+          slt_dir="$RUNNER_TEMP/slt"
+          curl -fsSL --retry 3 -o "$RUNNER_TEMP/slt-cli.zip" \
+            https://updates.silabs.com/studio/v6/updates/update_site/archives/slt-cli/1.2.2-107/slt-cli_windows_amd64.zip
+          unzip -q "$RUNNER_TEMP/slt-cli.zip" -d "$slt_dir"
+          slt="$slt_dir/slt.exe"
+          "$slt" install --non-interactive "simplicity-sdk/$SISDK_VERSION" slc-cli gcc-arm-none-eabi
+          echo "HUBBLE_SDK=$(cygpath -m "$GITHUB_WORKSPACE")" >> "$GITHUB_ENV"
+          echo "SISDK=$(cygpath -m "$("$slt" where simplicity-sdk)")" >> "$GITHUB_ENV"
+          echo "SLC=$(cygpath -m "$("$slt" where slc-cli)")/slc" >> "$GITHUB_ENV"
+          choco install -y --no-progress make
+
+      - name: Install the Hubble SDK extension
+        run: |
+          set -euxo pipefail
+          mkdir -p "$SISDK/extension"
+          ln -s "$HUBBLE_SDK" "$SISDK/extension/hubble-device-sdk"
+          "$SLC" configuration --sdk "$SISDK"
+          "$SLC" signature trust --sdk "$SISDK"
+          "$SLC" signature trust -extpath "$SISDK/extension/hubble-device-sdk"
+
+      - name: Build sat-dual-stack
+        working-directory: samples/freertos/silabs/sat-dual-stack
+        run: |
+          set -euxo pipefail
+          "$SLC" generate --sdk "$SISDK" -tlcn gcc -o makefile -cp -p sat_dual_stack.slcp \
+            -d generated_sample_app --with brd4187c
+          cd generated_sample_app
+          make -f sat_dual_stack.Makefile -j"$(nproc)"
