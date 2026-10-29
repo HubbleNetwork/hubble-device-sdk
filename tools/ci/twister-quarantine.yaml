@@ -12,6 +12,8 @@
     - ble.advertise.unit.counter.mbedtls
     - ble.nonce
     - ble.counter
+    - hubble.challenge.mbedtls
+    - hubble.challenge.counter.mbedtls
     - satellite.api.counter.mbedtls
     - sat.packet.unit.mbedtls
   comment: "mbedTLS APIs not available since Zephyr 4.4.0"

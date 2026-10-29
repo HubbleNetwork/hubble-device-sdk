@@ -116,6 +116,18 @@ int hubble_internal_sat_init(void)
 	return 0;
 }
 
+int hubble_internal_sat_deinit(void)
+{
+	int ret;
+
+	ret = hubble_sat_port_deinit();
+	if (ret != 0) {
+		return ret;
+	}
+
+	return hubble_sat_satellites_set(NULL, 0);
+}
+
 int hubble_sat_packet_send(const struct hubble_sat_packet *packet,
 			   enum hubble_sat_transmission_mode mode)
 {

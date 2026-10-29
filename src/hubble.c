@@ -81,12 +81,10 @@ int hubble_init(uint64_t initial_time, const void *key)
 	}
 #endif
 
-	if (key != NULL) {
-		ret = hubble_key_set(key);
-		if (ret != 0) {
-			HUBBLE_LOG_WARNING("Failed to set key");
-			return ret;
-		}
+	ret = hubble_key_set(key);
+	if (ret != 0) {
+		HUBBLE_LOG_WARNING("Failed to set key");
+		return ret;
 	}
 
 #ifdef CONFIG_HUBBLE_SAT_NETWORK
@@ -100,6 +98,28 @@ int hubble_init(uint64_t initial_time, const void *key)
 
 	HUBBLE_LOG_INFO("Hubble Device SDK initialized (%s)\n",
 			HUBBLE_DEVICE_CONFIG_VECTOR);
+
+	return 0;
+}
+
+int hubble_deinit(void)
+{
+#ifdef CONFIG_HUBBLE_SAT_NETWORK
+	int ret = hubble_internal_sat_deinit();
+
+	if (ret != 0) {
+		return ret;
+	}
+#endif /* CONFIG_HUBBLE_SAT_NETWORK */
+
+	(void)hubble_key_set(NULL);
+
+	unix_time_synced = 0U;
+	unix_time_base = 0U;
+
+#ifdef CONFIG_HUBBLE_COUNTER_SOURCE_DEVICE_UPTIME
+	eid_initial_counter = 0U;
+#endif
 
 	return 0;
 }

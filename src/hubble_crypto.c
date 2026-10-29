@@ -24,7 +24,8 @@
 enum hubble_key_label {
 	HUBBLE_DEVICE_KEY,
 	HUBBLE_NONCE_KEY,
-	HUBBLE_ENCRYPTION_KEY
+	HUBBLE_ENCRYPTION_KEY,
+	HUBBLE_CHALLENGE_KEY
 };
 
 enum hubble_value_label {
@@ -42,10 +43,6 @@ const void *hubble_internal_key_get(void)
 
 int hubble_key_set(const void *key)
 {
-	if (key == NULL) {
-		return -EINVAL;
-	}
-
 	master_key = key;
 
 	return 0;
@@ -295,6 +292,12 @@ static int _derived_key_get(enum hubble_key_label label, uint32_t counter,
 				     context_len, output_key,
 				     CONFIG_HUBBLE_KEY_SIZE);
 		break;
+	case HUBBLE_CHALLENGE_KEY:
+		err = _kbkdf_counter(master_key, "ChallengeKey",
+				     strlen("ChallengeKey"), true, context,
+				     context_len, output_key,
+				     CONFIG_HUBBLE_KEY_SIZE);
+		break;
 	default:
 		err = -EINVAL;
 		break;
@@ -358,6 +361,25 @@ int hubble_internal_device_id_get(uint8_t *device_id, size_t device_id_len,
 {
 	return _derived_value_get(HUBBLE_DEVICE_VALUE, counter, 0, device_id,
 				  device_id_len);
+}
+
+int hubble_internal_challenge_response_get(
+	uint32_t counter, const uint8_t *challenge, size_t challenge_len,
+	uint8_t *response, size_t response_len)
+{
+	int err;
+	uint8_t challenge_key[CONFIG_HUBBLE_KEY_SIZE] = {0};
+
+	err = _derived_key_get(HUBBLE_CHALLENGE_KEY, counter, challenge_key);
+	if (err == 0) {
+		err = _kbkdf_counter(challenge_key, "Response",
+				     strlen("Response"), false, challenge,
+				     challenge_len, response, response_len);
+	}
+
+	hubble_crypto_zeroize(challenge_key, sizeof(challenge_key));
+
+	return err;
 }
 
 int hubble_internal_data_encrypt(uint32_t counter, uint16_t seq_no,

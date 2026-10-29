@@ -18,6 +18,10 @@
 #include <hubble/ble.h>
 #endif /* CONFIG_HUBBLE_BLE_NETWORK */
 
+#ifdef CONFIG_HUBBLE_CHALLENGE
+#include <hubble/challenge.h>
+#endif /* CONFIG_HUBBLE_CHALLENGE */
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -78,6 +82,34 @@ extern "C" {
 int hubble_init(uint64_t initial_time, const void *key);
 
 /**
+ * @brief De-initializes the Hubble Device SDK.
+ *
+ * Reverts the state set by @ref hubble_init, @ref hubble_key_set and
+ * @ref hubble_time_set: the SDK forgets the key pointer, the Unix time and
+ * the initial counter value. APIs that need a key or the time fail until
+ * the SDK is initialized again with @ref hubble_init. The key buffer is
+ * owned by the caller and is not modified.
+ *
+ * When the satellite network is enabled, the resources the satellite radio
+ * port took in @ref hubble_init are released. Nothing is released while
+ * those resources are in use.
+ *
+ * The sequence number and the nonce reuse check keep their state, so
+ * initializing the SDK again with the same key does not reuse a nonce.
+ * Crypto provider and lock resources stay allocated, and @ref hubble_init
+ * reuses them.
+ *
+ * Calling this function when the SDK is not initialized has no effect.
+ *
+ * @note This function is not thread-safe. It must not run concurrently
+ *       with other SDK APIs.
+ *
+ * @retval 0      Success.
+ * @retval -EBUSY Resources are in use, the SDK is left initialized.
+ */
+int hubble_deinit(void);
+
+/**
  * @brief Sets the current Unix time in the Hubble Device SDK.
  *
  * @param unix_time The Unix Epoch time in milliseconds since the Unix epoch
@@ -108,6 +140,8 @@ uint64_t hubble_time_get(void);
  *            data. The caller must ensure the buffer remains valid
  *            for the lifetime of SDK usage. The key size must match
  *            CONFIG_HUBBLE_NETWORK_KEY_256 or CONFIG_HUBBLE_NETWORK_KEY_128.
+ *            NULL clears the key: APIs that need it fail until a key is
+ *            set again. The previous key buffer is not modified.
  *
  * @return
  *         - 0 on success.

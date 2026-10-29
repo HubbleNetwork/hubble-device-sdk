@@ -23,8 +23,26 @@ API Additions
 - :c:func:`hubble_sat_packet_sent_cb` — application-defined callback invoked
   after each successful satellite transmission
 
-Compatibility
-*************
+- New challenge-response API in ``<hubble/challenge.h>``, enabled with
+  ``CONFIG_HUBBLE_CHALLENGE``. :c:func:`hubble_challenge_get` builds a
+  challenge from the device's current EID in plain bytes and a nonce supplied
+  by the application, so the peer can find the device key the same way it
+  resolves an advertisement. :c:func:`hubble_challenge_response_check` checks
+  the peer's response, derived from the master key, the time counter and the
+  challenge.
 
-- **API compatibility**: 3.2.0 is backward compatible with 3.1.x. The new
-  option is disabled by default; builds that do not enable it are unchanged.
+- New :c:func:`hubble_deinit` reverts :c:func:`hubble_init`: the SDK forgets
+  the key pointer, the Unix time and the initial counter value, releases the
+  satellite radio port resources, and can be initialized again. It returns
+  ``-EBUSY`` while those resources are in use. The sequence number and nonce
+  reuse check keep their state across the cycle.
+
+- New port contract ``hubble_sat_port_deinit()``, called by
+  :c:func:`hubble_deinit`. Ports that implement the satellite radio contract
+  must provide it.
+
+API Changes
+***********
+
+- :c:func:`hubble_key_set` accepts ``NULL`` to clear the key instead of
+  returning ``-EINVAL``. APIs that need the key fail until a key is set again.
