@@ -1,0 +1,30 @@
+.. _release_3_2_0:
+
+Release 3.2.0
+#############
+
+**Release Date**: Unreleased
+
+Key Features
+************
+
+Satellite Packet Sent Callback
+==============================
+
+With ``CONFIG_HUBBLE_SAT_NETWORK_PACKET_SENT_CB`` enabled, the SDK calls the
+application-defined :c:func:`hubble_sat_packet_sent_cb` after each successful
+satellite transmission, retransmissions included, with the packet, the
+transmitted frames, and the transmission's position in the send call. The
+option is available on every port.
+
+API Additions
+*************
+
+- :c:func:`hubble_sat_packet_sent_cb` — application-defined callback invoked
+  after each successful satellite transmission
+
+Compatibility
+*************
+
+- **API compatibility**: 3.2.0 is backward compatible with 3.1.x. The new
+  option is disabled by default; builds that do not enable it are unchanged.

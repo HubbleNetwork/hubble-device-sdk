@@ -337,6 +337,7 @@
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../releases/index.html#migration-and-upgrade-guidance">Migration and Upgrade Guidance</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../releases/index.html#release-notes">Release Notes</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../releases/3.2.html">Release 3.2.0</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../releases/3.1.html">Release 3.1.0</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../releases/3.0.html">Release 3.0.0</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../releases/2.0.html">Release 2.0.0</a></li>
@@ -503,6 +504,30 @@ The drift is estimated from the device’s Time Drift Rate (TDR), configured thr
 <dd class="field-even"><ul class="simple">
 <li><p><strong>0</strong> – on successful transmission </p></li>
 <li><p><strong>-EINVAL</strong> – if <code class="docutils literal notranslate"><span class="pre">packet</span></code> or <code class="docutils literal notranslate"><span class="pre">pass</span></code> is NULL, or if <code class="docutils literal notranslate"><span class="pre">mode</span></code> is <a class="reference internal" href="#group__hubble__sat__api_1gga51042606f905c1be07e4300922336f5ea042e15a495b3d4d7553afc74e72fde36"><span class="std std-ref">HUBBLE_SAT_RELIABILITY_NONE</span></a>.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv425hubble_sat_packet_sent_cbPK17hubble_sat_packetPK24hubble_sat_packet_frames7uint8_t7uint8_t">
+<span id="_CPPv325hubble_sat_packet_sent_cbPK17hubble_sat_packetPK24hubble_sat_packet_frames7uint8_t7uint8_t"></span><span id="_CPPv225hubble_sat_packet_sent_cbPK17hubble_sat_packetPK24hubble_sat_packet_frames7uint8_t7uint8_t"></span><span id="hubble_sat_packet_sent_cb__hubble_sat_packetCP.hubble_sat_packet_framesCP.uint8_t.uint8_t"></span><span class="target" id="group__hubble__sat__api_1gafc19aa877f273a570d23e9ebd9efe015"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">hubble_sat_packet_sent_cb</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="k"><span class="pre">struct</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv417hubble_sat_packet" title="hubble_sat_packet"><span class="n"><span class="pre">hubble_sat_packet</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">packet</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="k"><span class="pre">struct</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv424hubble_sat_packet_frames" title="hubble_sat_packet_frames"><span class="n"><span class="pre">hubble_sat_packet_frames</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">frames</span></span>, <span class="n"><span class="pre">uint8_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">tx_index</span></span>, <span class="n"><span class="pre">uint8_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">tx_count</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv425hubble_sat_packet_sent_cbPK17hubble_sat_packetPK24hubble_sat_packet_frames7uint8_t7uint8_t" title="Link to this definition"></a><br /></dt>
+<dd><p>Called after each successful satellite packet transmission. </p>
+<p>Invoked once for every transmission performed by <a class="reference internal" href="#group__hubble__sat__api_1ga98a2939d4878f0ea81902e61d5a75f44"><span class="std std-ref">hubble_sat_packet_send()</span></a> and <a class="reference internal" href="#group__hubble__sat__api_1ga0fe4bedc7e82bd3207ca6e04cbe71d11"><span class="std std-ref">hubble_sat_packet_pass_send()</span></a>, including retransmissions, after the radio reports that the transmission succeeded. A transmission that fails does not invoke it. DTM transmissions do not invoke it.</p>
+<p>Only called when CONFIG_HUBBLE_SAT_NETWORK_PACKET_SENT_CB is enabled. The SDK does not define it: an application that enables the option must define it, for example to log each transmission. There is a single definition per image, so only one consumer can observe transmissions.</p>
+<p>The send function can still return an error after the callback was invoked for some or all of its transmissions, for example when the radio fails to turn off afterwards.</p>
+<p><code class="docutils literal notranslate"><span class="pre">packet</span></code> and <code class="docutils literal notranslate"><span class="pre">frames</span></code> are valid only for the duration of the call: copy what is needed instead of keeping the pointers.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>It runs in the context that called the send function, with the satellite transmission lock held and the satellite radio still enabled. It must not call <a class="reference internal" href="#group__hubble__sat__api_1ga98a2939d4878f0ea81902e61d5a75f44"><span class="std std-ref">hubble_sat_packet_send()</span></a> or <a class="reference internal" href="#group__hubble__sat__api_1ga0fe4bedc7e82bd3207ca6e04cbe71d11"><span class="std std-ref">hubble_sat_packet_pass_send()</span></a>, and it must not block: other threads waiting to transmit wait for it, and its run time adds to the interval before the next retransmission, which can push the last transmissions of <a class="reference internal" href="#group__hubble__sat__api_1ga0fe4bedc7e82bd3207ca6e04cbe71d11"><span class="std std-ref">hubble_sat_packet_pass_send()</span></a> past the end of the pass.</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>packet</strong> – The packet that was transmitted. </p></li>
+<li><p><strong>frames</strong> – The frames that were transmitted, including the channel of each frame. Channels and whitening differ between retransmissions of the same packet. </p></li>
+<li><p><strong>tx_index</strong> – Zero-based index of this transmission among the transmissions of <code class="docutils literal notranslate"><span class="pre">packet</span></code> in the current send call. </p></li>
+<li><p><strong>tx_count</strong> – Number of transmissions the current send call plans. <code class="docutils literal notranslate"><span class="pre">tx_index</span></code> equals <code class="docutils literal notranslate"><span class="pre">tx_count</span></code> - 1 on the last planned transmission; if a transmission fails, the remaining ones are not made and their callbacks never run. </p></li>
 </ul>
 </dd>
 </dl>

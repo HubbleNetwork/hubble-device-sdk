@@ -336,6 +336,7 @@
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../releases/index.html#migration-and-upgrade-guidance">Migration and Upgrade Guidance</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../releases/index.html#release-notes">Release Notes</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../releases/3.2.html">Release 3.2.0</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../releases/3.1.html">Release 3.1.0</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../releases/3.0.html">Release 3.0.0</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../releases/2.0.html">Release 2.0.0</a></li>
@@ -492,6 +493,21 @@ oscillators.</p>
 </dl>
 <p>Enable DTM mode in the SDK. It is intended
 to test the operation of radio.</p>
+</div>
+<div class="kconfig-option docutils container">
+<p class="rubric" id="config-hubble-sat-network-packet-sent-cb">CONFIG_HUBBLE_SAT_NETWORK_PACKET_SENT_CB</p>
+<p><em>Satellite packet sent callback</em></p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+<dt class="field-even">Depends on<span class="colon">:</span></dt>
+<dd class="field-even"><p>HUBBLE_SAT_NETWORK</p>
+</dd>
+</dl>
+<p>Call hubble_sat_packet_sent_cb() after every successful
+satellite packet transmission, retransmissions included.
+The application must define the function.</p>
 </div>
 <div class="kconfig-choice docutils container">
 <p class="rubric">Hubble Sat Network protocol</p>
