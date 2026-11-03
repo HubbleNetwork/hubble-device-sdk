@@ -17,6 +17,11 @@ satellite transmission, retransmissions included, with the packet, the
 transmitted frames, and the transmission's position in the send call. The
 option is available on every port.
 
+Platform and Board Support
+==========================
+
+- **Zephyr**: bumped to Zephyr 4.5.0.
+
 API Additions
 *************
 
