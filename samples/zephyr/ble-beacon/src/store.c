@@ -8,7 +8,7 @@
 #include <zephyr/drivers/flash.h>
 #include <zephyr/storage/flash_map.h>
 
-#include "version.h"
+#include <zephyr/version.h>
 
 #define NVS_PARTITION        storage_partition
 
