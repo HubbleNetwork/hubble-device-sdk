@@ -7,7 +7,7 @@ sample:
 common:
   build_only: true
   depends_on:
-    - ble
+    - bluetooth
   integration_platforms:
     - nrf52840dk/nrf52840
 tests:
