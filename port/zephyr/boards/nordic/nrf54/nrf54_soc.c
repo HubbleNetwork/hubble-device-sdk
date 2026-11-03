@@ -51,7 +51,13 @@ int hubble_nrf_lib_frequency_set(uint8_t channel, uint8_t step);
 int hubble_nrf_lib_enable(void);
 int hubble_nrf_lib_disable(void);
 
+#if defined(CONFIG_CLOCK_CONTROL_NRF)
 static const struct device *const clock0 = DEVICE_DT_GET_ONE(nordic_nrf_clock);
+#define _HFCLK_SUBSYS CLOCK_CONTROL_NRF_SUBSYS_HF
+#else
+static const struct device *const clock0 = DEVICE_DT_GET_ONE(nordic_nrf_clock_xo);
+#define _HFCLK_SUBSYS NULL
+#endif
 
 /* Keep track of power before and in sat tx mode */
 static nrf_radio_txpower_t _normal_power = RADIO_TXPOWER_TXPOWER_0dBm;
@@ -242,7 +248,7 @@ int hubble_sat_soc_enable(void)
 		return -ENODEV;
 	}
 
-	ret = clock_control_on(clock0, CLOCK_CONTROL_NRF_SUBSYS_HF);
+	ret = clock_control_on(clock0, _HFCLK_SUBSYS);
 	if ((ret < 0) && (ret != -EALREADY)) {
 		return ret;
 	}

@@ -31,7 +31,12 @@ static nrfx_timer_t _timer0 = NRFX_TIMER_INSTANCE(NRF_TIMER_INST_GET(0));
 /* Keep track of power before and in sat tx mode */
 static nrf_radio_txpower_t _normal_power = RADIO_TXPOWER_TXPOWER_0dBm;
 nrf_radio_txpower_t _sat_power = RADIO_TXPOWER_TXPOWER_0dBm;
+#if defined(CONFIG_CLOCK_CONTROL_NRF)
 static struct onoff_manager *_clock_mgr;
+#else
+static const struct device *const _hfclk =
+	DEVICE_DT_GET_ONE(nordic_nrf_clock_hfclk);
+#endif
 
 /**
  * Signature for APIs provided by the binary library.
@@ -112,13 +117,17 @@ int hubble_sat_soc_enable(void)
 	int ret;
 	struct onoff_client cli;
 
+	sys_notify_init_spinwait(&cli.notify);
+#if defined(CONFIG_CLOCK_CONTROL_NRF)
 	if (_clock_mgr == NULL) {
 		_clock_mgr = z_nrf_clock_control_get_onoff(
 			CLOCK_CONTROL_NRF_SUBSYS_HF);
 	}
 
-	sys_notify_init_spinwait(&cli.notify);
 	ret = onoff_request(_clock_mgr, &cli);
+#else
+	ret = nrf_clock_control_request(_hfclk, NULL, &cli);
+#endif
 	if (ret < 0) {
 		return ret;
 	}
@@ -175,8 +184,12 @@ int hubble_sat_soc_disable(void)
 	nrf_radio_shorts_set(NRF_RADIO, _radio_shorts);
 	nrf_radio_txpower_set(NRF_RADIO, _normal_power);
 
-	/* On success onoff_release() returns the previous state, not 0 */
+	/* On success the release returns the previous state, not 0 */
+#if defined(CONFIG_CLOCK_CONTROL_NRF)
 	ret = onoff_release(_clock_mgr);
+#else
+	ret = nrf_clock_control_release(_hfclk, NULL);
+#endif
 
 	return (ret < 0) ? ret : 0;
 }

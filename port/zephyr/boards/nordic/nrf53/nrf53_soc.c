@@ -35,7 +35,14 @@
 #define RADIO_ENABLE_TX_ON_CC0_PPI 9U
 #define RADIO_DISABLE_ON_CC1_PPI   12U
 
+#if defined(CONFIG_CLOCK_CONTROL_NRF)
 static const struct device *const clock0 = DEVICE_DT_GET_ONE(nordic_nrf_clock);
+#define _HFCLK_SUBSYS CLOCK_CONTROL_NRF_SUBSYS_HF
+#else
+static const struct device *const clock0 =
+	DEVICE_DT_GET_ONE(nordic_nrf_clock_hfclk);
+#define _HFCLK_SUBSYS NULL
+#endif
 
 static nrfx_timer_t _timer0 = NRFX_TIMER_INSTANCE(NRF_TIMER_INST_GET(0));
 
@@ -175,7 +182,7 @@ int hubble_sat_soc_enable(void)
 		return -ENODEV;
 	}
 
-	ret = clock_control_on(clock0, CLOCK_CONTROL_NRF_SUBSYS_HF);
+	ret = clock_control_on(clock0, _HFCLK_SUBSYS);
 	if ((ret < 0) && (ret != -EALREADY)) {
 		return ret;
 	}
