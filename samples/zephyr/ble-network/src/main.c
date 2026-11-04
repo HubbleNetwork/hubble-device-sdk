@@ -11,7 +11,7 @@
 #include <zephyr/random/random.h>
 #include <zephyr/shell/shell.h>
 
-#include <app_version.h>
+#include <zephyr/app_version.h>
 
 #include <stdlib.h>
 
