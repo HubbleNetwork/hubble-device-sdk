@@ -357,6 +357,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../api/satellite.html#port-apis">Port APIs</a></li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="../api/challenge.html">Challenge-Response API</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../configuration/index.html">Configuration Options</a></li>
@@ -429,13 +430,28 @@ option is available on every port.</p>
 <ul class="simple">
 <li><p><code class="xref c c-func docutils literal notranslate"><span class="pre">hubble_sat_packet_sent_cb()</span></code> — application-defined callback invoked
 after each successful satellite transmission</p></li>
+<li><p>New challenge-response API in <code class="docutils literal notranslate"><span class="pre">&lt;hubble/challenge.h&gt;</span></code>, enabled with
+<code class="docutils literal notranslate"><span class="pre">CONFIG_HUBBLE_CHALLENGE</span></code>. <code class="xref c c-func docutils literal notranslate"><span class="pre">hubble_challenge_get()</span></code> builds a
+challenge from the device’s current EID in plain bytes and a nonce supplied
+by the application, so the peer can find the device key the same way it
+resolves an advertisement. <code class="xref c c-func docutils literal notranslate"><span class="pre">hubble_challenge_response_check()</span></code> checks
+the peer’s response, derived from the master key, the time counter and the
+challenge.</p></li>
+<li><p>New <code class="xref c c-func docutils literal notranslate"><span class="pre">hubble_deinit()</span></code> reverts <code class="xref c c-func docutils literal notranslate"><span class="pre">hubble_init()</span></code>: the SDK forgets
+the key pointer, the Unix time and the initial counter value, releases the
+satellite radio port resources, and can be initialized again. It returns
+<code class="docutils literal notranslate"><span class="pre">-EBUSY</span></code> while those resources are in use. The sequence number and nonce
+reuse check keep their state across the cycle.</p></li>
+<li><p>New port contract <code class="docutils literal notranslate"><span class="pre">hubble_sat_port_deinit()</span></code>, called by
+<code class="xref c c-func docutils literal notranslate"><span class="pre">hubble_deinit()</span></code>. Ports that implement the satellite radio contract
+must provide it.</p></li>
 </ul>
 </section>
-<section id="compatibility">
-<h2>Compatibility<a class="headerlink" href="#compatibility" title="Link to this heading"></a></h2>
+<section id="api-changes">
+<h2>API Changes<a class="headerlink" href="#api-changes" title="Link to this heading"></a></h2>
 <ul class="simple">
-<li><p><strong>API compatibility</strong>: 3.2.0 is backward compatible with 3.1.x. The new
-option is disabled by default; builds that do not enable it are unchanged.</p></li>
+<li><p><code class="xref c c-func docutils literal notranslate"><span class="pre">hubble_key_set()</span></code> accepts <code class="docutils literal notranslate"><span class="pre">NULL</span></code> to clear the key instead of
+returning <code class="docutils literal notranslate"><span class="pre">-EINVAL</span></code>. APIs that need the key fail until a key is set again.</p></li>
 </ul>
 </section>
 </section>

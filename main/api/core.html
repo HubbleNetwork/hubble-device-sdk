@@ -357,6 +357,7 @@
 <li class="toctree-l3"><a class="reference internal" href="satellite.html#port-apis">Port APIs</a></li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="challenge.html">Challenge-Response API</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../configuration/index.html">Configuration Options</a></li>
@@ -463,6 +464,28 @@ int ret = hubble_init(saved_counter, master_key);
 </dd></dl>
 
 <dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv413hubble_deinitv">
+<span id="_CPPv313hubble_deinitv"></span><span id="_CPPv213hubble_deinitv"></span><span id="hubble_deinit__void"></span><span class="target" id="group__hubble__api_1ga3376720593cb5dae4d013f69a316a33c"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">hubble_deinit</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">void</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv413hubble_deinitv" title="Link to this definition"></a><br /></dt>
+<dd><p>De-initializes the Hubble Device SDK. </p>
+<p>Reverts the state set by <a class="reference internal" href="#group__hubble__api_1ga03991712b4f80ded966f4f58e3e8813c"><span class="std std-ref">hubble_init</span></a>, <a class="reference internal" href="#group__hubble__api_1ga888299129a16a442594958fb5d1585c9"><span class="std std-ref">hubble_key_set</span></a> and hubble_time_set: the SDK forgets the key pointer, the Unix time and the initial counter value. APIs that need a key or the time fail until the SDK is initialized again with <a class="reference internal" href="#group__hubble__api_1ga03991712b4f80ded966f4f58e3e8813c"><span class="std std-ref">hubble_init</span></a>. The key buffer is owned by the caller and is not modified.</p>
+<p>When the satellite network is enabled, the resources the satellite radio port took in <a class="reference internal" href="#group__hubble__api_1ga03991712b4f80ded966f4f58e3e8813c"><span class="std std-ref">hubble_init</span></a> are released. Nothing is released while those resources are in use.</p>
+<p>The sequence number and the nonce reuse check keep their state, so initializing the SDK again with the same key does not reuse a nonce. Crypto provider and lock resources stay allocated, and <a class="reference internal" href="#group__hubble__api_1ga03991712b4f80ded966f4f58e3e8813c"><span class="std std-ref">hubble_init</span></a> reuses them.</p>
+<p>Calling this function when the SDK is not initialized has no effect.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This function is not thread-safe. It must not run concurrently with other SDK APIs.</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Return values<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>0</strong> – Success. </p></li>
+<li><p><strong>-EBUSY</strong> – Resources are in use, the SDK is left initialized. </p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="cpp function">
 <dt class="sig sig-object cpp" id="_CPPv415hubble_time_set8uint64_t">
 <span id="_CPPv315hubble_time_set8uint64_t"></span><span id="_CPPv215hubble_time_set8uint64_t"></span><span id="hubble_time_set__uint64_t"></span><span class="target" id="group__hubble__api_1ga0da1af458a60c0ae827382536b65db08"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">hubble_time_set</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">uint64_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">unix_time</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv415hubble_time_set8uint64_t" title="Link to this definition"></a><br /></dt>
 <dd><p>Sets the current Unix time in the Hubble Device SDK. </p>
@@ -502,7 +525,7 @@ int ret = hubble_init(saved_counter, master_key);
 <dd><p>Sets the encryption key for advertisement data creation. </p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>key</strong> – An opaque pointer to the master key buffer. The SDK stores this pointer directly and does not copy the key data. The caller must ensure the buffer remains valid for the lifetime of SDK usage. The key size must match CONFIG_HUBBLE_NETWORK_KEY_256 or CONFIG_HUBBLE_NETWORK_KEY_128.</p>
+<dd class="field-odd"><p><strong>key</strong> – An opaque pointer to the master key buffer. The SDK stores this pointer directly and does not copy the key data. The caller must ensure the buffer remains valid for the lifetime of SDK usage. The key size must match CONFIG_HUBBLE_NETWORK_KEY_256 or CONFIG_HUBBLE_NETWORK_KEY_128. NULL clears the key: APIs that need it fail until a key is set again. The previous key buffer is not modified.</p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p><ul class="simple">

@@ -33,7 +33,7 @@
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="Configuration Options" href="../configuration/index.html" />
+    <link rel="next" title="Challenge-Response API" href="challenge.html" />
     <link rel="prev" title="BLE Network API" href="ble.html" />
   <meta name="docs-base-path" content="/hubble-device-sdk/">
   <meta name="color-scheme" content="dark light">
@@ -357,6 +357,7 @@
 <li class="toctree-l3"><a class="reference internal" href="#port-apis">Port APIs</a></li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="challenge.html">Challenge-Response API</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../configuration/index.html">Configuration Options</a></li>
@@ -1003,6 +1004,21 @@ The drift is estimated from the device’s Time Drift Rate (TDR), configured thr
 </dd></dl>
 
 <dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv422hubble_sat_port_deinitv">
+<span id="_CPPv322hubble_sat_port_deinitv"></span><span id="_CPPv222hubble_sat_port_deinitv"></span><span id="hubble_sat_port_deinit__void"></span><span class="target" id="group__hubble__sat__radio__port_1gac25c7dc0f4eb0176c406502e1c9d913e"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">hubble_sat_port_deinit</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">void</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv422hubble_sat_port_deinitv" title="Link to this definition"></a><br /></dt>
+<dd><p>De-initialize the satellite radio port. </p>
+<p>Releases the resources taken by <a class="reference internal" href="#group__hubble__sat__radio__port_1ga9d34f62766065627647d14151965d942"><span class="std std-ref">hubble_sat_port_init()</span></a>, so that it can be called again. It is called by <a class="reference internal" href="core.html#group__hubble__api_1ga3376720593cb5dae4d013f69a316a33c"><span class="std std-ref">hubble_deinit()</span></a>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return values<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>0</strong> – Success. </p></li>
+<li><p><strong>-EBUSY</strong> – Resources are in use, nothing was released. </p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="cpp function">
 <dt class="sig sig-object cpp" id="_CPPv427hubble_sat_port_packet_sendPK17hubble_sat_packet7uint8_t7uint8_t">
 <span id="_CPPv327hubble_sat_port_packet_sendPK17hubble_sat_packet7uint8_t7uint8_t"></span><span id="_CPPv227hubble_sat_port_packet_sendPK17hubble_sat_packet7uint8_t7uint8_t"></span><span id="hubble_sat_port_packet_send__hubble_sat_packetCP.uint8_t.uint8_t"></span><span class="target" id="group__hubble__sat__radio__port_1ga79ef67483a21ea8535a761eef11b4e25"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">hubble_sat_port_packet_send</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="k"><span class="pre">struct</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv417hubble_sat_packet" title="hubble_sat_packet"><span class="n"><span class="pre">hubble_sat_packet</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">packet</span></span>, <span class="n"><span class="pre">uint8_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">retries</span></span>, <span class="n"><span class="pre">uint8_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">interval_s</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv427hubble_sat_port_packet_sendPK17hubble_sat_packet7uint8_t7uint8_t" title="Link to this definition"></a><br /></dt>
 <dd><p>Transmit a packet over the satellite radio. </p>
@@ -1110,7 +1126,7 @@ The drift is estimated from the device’s Time Drift Rate (TDR), configured thr
 
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="ble.html" class="btn btn-neutral float-left" title="BLE Network API" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="../configuration/index.html" class="btn btn-neutral float-right" title="Configuration Options" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="challenge.html" class="btn btn-neutral float-right" title="Challenge-Response API" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>
