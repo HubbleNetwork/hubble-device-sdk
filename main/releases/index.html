@@ -318,6 +318,7 @@
 <li class="toctree-l2"><a class="reference internal" href="#release-model">Release Model</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#version-components">Version Components</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#versioning-rules">Versioning Rules</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#development-versions">Development Versions</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#release-types">Release Types</a><ul>
@@ -557,6 +558,33 @@ existing functionality</p></li>
 <li><p><strong>PATCH bump</strong>: Applied for bug fixes and security updates that maintain
 backward compatibility for documented use cases</p></li>
 </ul>
+</section>
+<section id="development-versions">
+<h3>Development Versions<a class="headerlink" href="#development-versions" title="Link to this heading"></a></h3>
+<p>Between releases, the <code class="docutils literal notranslate"><span class="pre">main</span></code> branch carries a development version whose
+<em>PATCH</em> component is <code class="docutils literal notranslate"><span class="pre">99</span></code>. After <code class="docutils literal notranslate"><span class="pre">vX.Y.Z</span></code> is tagged, <code class="docutils literal notranslate"><span class="pre">main</span></code> reports
+<code class="docutils literal notranslate"><span class="pre">X.Y.99</span></code> until the next release sets the final number. A development version
+therefore compares greater than the release it follows and lower than the next
+one, so applications can detect it with <code class="docutils literal notranslate"><span class="pre">HUBBLE_SDK_VERSION_VAL()</span></code>:</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="cp">#if HUBBLE_SDK_VERSION &gt; HUBBLE_SDK_VERSION_VAL(X, Y, Z)</span>
+<span class="cm">/* Running X.Y.99 (main) or a later release. */</span>
+<span class="cp">#endif</span>
+</pre></div>
+</div>
+<p>A version with <em>PATCH</em> <code class="docutils literal notranslate"><span class="pre">99</span></code> is never tagged or published as a release.</p>
+<p>The version is kept in <code class="docutils literal notranslate"><span class="pre">include/hubble/version.h</span></code>
+(<code class="docutils literal notranslate"><span class="pre">HUBBLE_SDK_VERSION_MAJOR</span></code>, <code class="docutils literal notranslate"><span class="pre">HUBBLE_SDK_VERSION_MINOR</span></code>,
+<code class="docutils literal notranslate"><span class="pre">HUBBLE_SDK_VERSION_PATCH</span></code> and <code class="docutils literal notranslate"><span class="pre">HUBBLE_SDK_VERSION_STRING</span></code>) and is updated
+as part of the release process:</p>
+<ol class="arabic simple">
+<li><p>Before tagging release <code class="docutils literal notranslate"><span class="pre">vX.Y.Z</span></code>, set the version to <code class="docutils literal notranslate"><span class="pre">X.Y.Z</span></code> in a
+<code class="docutils literal notranslate"><span class="pre">release:</span> <span class="pre">Bump</span> <span class="pre">version</span> <span class="pre">to</span> <span class="pre">X.Y.Z</span></code> commit and tag that commit.</p></li>
+<li><p>Right after the tag, set the version on <code class="docutils literal notranslate"><span class="pre">main</span></code> to <code class="docutils literal notranslate"><span class="pre">X.Y.99</span></code> in a
+<code class="docutils literal notranslate"><span class="pre">release:</span> <span class="pre">Bump</span> <span class="pre">version</span> <span class="pre">to</span> <span class="pre">X.Y.99</span></code> commit, so that everything merged
+afterwards is identified as development code.</p></li>
+</ol>
+<p>Release candidates (<code class="docutils literal notranslate"><span class="pre">-rcN</span></code> tags) are taken from <code class="docutils literal notranslate"><span class="pre">main</span></code> before the final
+version bump and keep the development version.</p>
 </section>
 </section>
 <section id="release-types">
