@@ -150,6 +150,37 @@ The following guidelines determine version increments:
 - **PATCH bump**: Applied for bug fixes and security updates that maintain
   backward compatibility for documented use cases
 
+Development Versions
+====================
+
+Between releases, the ``main`` branch carries a development version whose
+*PATCH* component is ``99``. After ``vX.Y.Z`` is tagged, ``main`` reports
+``X.Y.99`` until the next release sets the final number. A development version
+therefore compares greater than the release it follows and lower than the next
+one, so applications can detect it with ``HUBBLE_SDK_VERSION_VAL()``:
+
+.. code-block:: c
+
+   #if HUBBLE_SDK_VERSION > HUBBLE_SDK_VERSION_VAL(X, Y, Z)
+   /* Running X.Y.99 (main) or a later release. */
+   #endif
+
+A version with *PATCH* ``99`` is never tagged or published as a release.
+
+The version is kept in ``include/hubble/version.h``
+(``HUBBLE_SDK_VERSION_MAJOR``, ``HUBBLE_SDK_VERSION_MINOR``,
+``HUBBLE_SDK_VERSION_PATCH`` and ``HUBBLE_SDK_VERSION_STRING``) and is updated
+as part of the release process:
+
+#. Before tagging release ``vX.Y.Z``, set the version to ``X.Y.Z`` in a
+   ``release: Bump version to X.Y.Z`` commit and tag that commit.
+#. Right after the tag, set the version on ``main`` to ``X.Y.99`` in a
+   ``release: Bump version to X.Y.99`` commit, so that everything merged
+   afterwards is identified as development code.
+
+Release candidates (``-rcN`` tags) are taken from ``main`` before the final
+version bump and keep the development version.
+
 Release Types
 *************
 
