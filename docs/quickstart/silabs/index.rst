@@ -75,16 +75,7 @@ Installing the Extension
 
    .. tab:: Command line
 
-      SLC discovers extensions under the Simplicity SDK's ``extension``
-      directory. Link the Hubble Device SDK there and register the extension
-      as trusted:
-
-      .. code-block:: bash
-
-         mkdir -p $SISDK/extension
-         ln -s $HUBBLE_SDK $SISDK/extension/hubble-device-sdk
-
-         $SLC signature trust -extpath $SISDK/extension/hubble-device-sdk
+      No command line installation steps needed.
 
 
 Adding Hubble Network to a Project
@@ -198,8 +189,8 @@ Embed the device key and the current time into the sample sources:
 
       .. code-block:: bash
 
-         $SLC generate --sdk $SISDK -tlcn gcc -np -p ble_beacon.slcp \
-             -d /path/to/workspace/ble-beacon --with brd4187c
+         $SLC generate --sdk-package-path $SISDK,$HUBBLE_SDK -tlcn gcc -np \
+             -p ble_beacon.slcp -d /path/to/workspace/ble-beacon --with brd4187c
 
       Then in Simplicity Studio go to **PROJECTS** → **Open Project(s)**,
       select the generated ``ble-beacon`` directory, and build and flash as
@@ -211,8 +202,8 @@ Embed the device key and the current time into the sample sources:
 
       .. code-block:: bash
 
-         $SLC generate --sdk $SISDK -tlcn gcc -o makefile -cp -p ble_beacon.slcp \
-             -d generated_sample_app --with brd4187c
+         $SLC generate --sdk-package-path $SISDK,$HUBBLE_SDK -tlcn gcc -o makefile -cp \
+             -p ble_beacon.slcp -d generated_sample_app --with brd4187c
          cd generated_sample_app
          make -f ble_beacon.Makefile
 
