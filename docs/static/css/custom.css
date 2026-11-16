@@ -130,8 +130,6 @@ hr,
 #search-results .search li:first-child,
 #search-results .search li {
     border: none;
-    margin-left: -60px;
-    margin-right: -60px;
 }
 
 /* JavaScript documentation directives */
