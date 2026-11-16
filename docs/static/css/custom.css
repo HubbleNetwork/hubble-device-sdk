@@ -331,6 +331,23 @@ a.icon-home:visited {
     white-space: normal;
 }
 
+/* Center header and body cells per table */
+.rst-content table.docutils.align-center th,
+.rst-content table.docutils.align-center td {
+    text-align: center;
+    vertical-align: middle;
+}
+
+.rst-content table.docutils.align-center .line-block {
+    margin-bottom: 0;
+}
+
+.rst-content table.docutils.align-center th.stub {
+    background-color: var(--table-header-background-color);
+    border-color: var(--table-borders);
+    font-weight: 500;
+}
+
 /* Make sure not to wrap keyboard shortcuts */
 .wy-table-responsive table td kbd {
     white-space: nowrap;
