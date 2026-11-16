@@ -17,8 +17,8 @@ By the end of this guide you will know how to:
 Supported Devices and SDK Version
 **********************************
 
-The Hubble Device SDK currently supports **SimpleLink Low Power F3 SDK v9.20**.
-If you require support for a different version, `contact us <mailto:support@hubble.com>`_.
+The SimpleLink Low Power F3 SDK versions validated with each Hubble Device SDK
+release are listed in :ref:`hubble_compatibility_matrix`.
 
 The following TI SimpleLink device families are supported:
 

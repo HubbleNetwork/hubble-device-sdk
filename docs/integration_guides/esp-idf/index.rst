@@ -17,25 +17,8 @@ By the end of this guide you will know how to:
 Supported Devices and SDK Version
 **********************************
 
-ESP-IDF Compatibility
-=====================
-
-The following ESP-IDF versions have been validated with each Hubble Device
-SDK release. If you require support for a different version,
-`contact us <mailto:support@hubble.com>`_.
-
-.. list-table::
-   :widths: 40 60
-   :header-rows: 1
-
-   * - Hubble Device SDK
-     - ESP-IDF
-   * - latest (main)
-     - v6.1
-   * - v3.1.0
-     - v6.0, v6.1
-   * - v3.0.0
-     - v6.0
+The ESP-IDF versions validated with each Hubble Device SDK release are listed
+in :ref:`hubble_compatibility_matrix`.
 
 Supported Devices
 =================
@@ -69,8 +52,9 @@ Install ESP-IDF
 ===============
 
 Follow the `ESP-IDF Getting Started guide`_ to install a supported ESP-IDF
-version (see `ESP-IDF Compatibility`_) and all required dependencies. Once
-installed, source the export script to set up the environment:
+version (see :ref:`hubble_compatibility_matrix`) and all required
+dependencies. Once installed, source the export script to set up the
+environment:
 
 .. code-block:: bash
 

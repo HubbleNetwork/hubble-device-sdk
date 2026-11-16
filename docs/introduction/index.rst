@@ -94,6 +94,9 @@ Platform Support
      - :ref:`bare_metal_quick_start`
      - No RTOS; you implement the system and crypto port layers.
 
+The platform versions validated with each Hubble Device SDK release are listed
+in :ref:`hubble_compatibility_matrix`.
+
 Where to go next
 ****************
 
