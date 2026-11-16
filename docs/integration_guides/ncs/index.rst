@@ -20,8 +20,8 @@ By the end of this guide you will know how to:
 Supported NCS Version and Boards
 *********************************
 
-The Hubble Device SDK currently supports **NCS v3.4.0**. If you require
-support for a different version, `contact us <mailto:support@hubble.com>`_.
+The NCS versions validated with each Hubble Device SDK release are listed in
+:ref:`hubble_compatibility_matrix`.
 
 Nordic nRF52, nRF53, and nRF54 Series SoCs are supported. The SDK includes
 board API implementations for the following development kits out of the box:

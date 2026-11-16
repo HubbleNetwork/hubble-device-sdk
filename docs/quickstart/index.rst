@@ -8,7 +8,9 @@ running a first sample application on each supported platform. Pick the guide
 that matches your environment.
 
 Each guide shows how to pull in the SDK, enable the BLE (Terrestrial) and/or
-Satellite Network modules, and build and flash a sample.
+Satellite Network modules, and build and flash a sample. The platform versions
+validated with each Hubble Device SDK release are listed in
+:ref:`hubble_compatibility_matrix`.
 
 .. note::
 
