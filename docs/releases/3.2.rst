@@ -22,6 +22,18 @@ Platform and Board Support
 
 - **Zephyr**: bumped to Zephyr 4.5.0.
 
+Bug Fixes
+*********
+
+- :c:func:`hubble_sat_next_pass_get` returns passes for devices poleward of the
+  highest latitude of a satellite's ground track (``180 - inclination`` for
+  retrograde orbits). The satellite culminates at the apex of the track and the
+  pass is reported when it reaches the minimum elevation angle. Previously these
+  calls returned ``-ENOENT``.
+- :c:func:`hubble_sat_next_pass_region_get` returns passes for regions the
+  ground track turns inside of, culminating at the apex. Regions entirely
+  poleward of the ground track still return ``-ENOENT``.
+
 API Additions
 *************
 
