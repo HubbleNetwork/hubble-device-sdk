@@ -67,20 +67,6 @@ export COMMANDER=/path/to/commander
 | `SLC` | The `slc` executable, `$($SLT where slc-cli)/slc` |
 | `COMMANDER` | The `commander` executable. On macOS, `$($SLT where commander)/Contents/MacOS/commander` |
 
-### Installing the SDK Extension
-
-The Hubble Device SDK is consumed as a Simplicity SDK extension. SLC discovers
-extensions under the SDK's `extension` directory, so link this repository there
-and register it as trusted:
-
-```sh
-mkdir -p $SISDK/extension
-ln -s $HUBBLE_SDK $SISDK/extension/hubble-device-sdk
-
-$SLC configuration --sdk $SISDK
-$SLC signature trust --sdk $SISDK
-$SLC signature trust -extpath $SISDK/extension/hubble-device-sdk
-```
 
 ### Python Dependencies
 
@@ -137,7 +123,7 @@ installed, then do:
 
 ```sh
 # replace 'brd4187c' with your target board
-$SLC generate -tlcn gcc -np -p ble_beacon.slcp \
+$SLC generate --sdk-package-path $SISDK,$HUBBLE_SDK -tlcn gcc -np -p ble_beacon.slcp \
     -d /location/to/your/simplicity-studio/workspace/ble-beacon --with brd4187c
 ```
 
@@ -152,14 +138,15 @@ For each command, replace `brd4187c` with your target board.
 Validate the project resolves against your SDK and board:
 
 ```sh
-$SLC validate-project -p ble_beacon.slcp --with brd4187c
+$SLC validate-project --sdk-package-path $SISDK,$HUBBLE_SDK -p ble_beacon.slcp \
+    --with brd4187c
 ```
 
 Generate a Makefile project:
 
 ```sh
-$SLC generate -tlcn gcc -o makefile -cp -p ble_beacon.slcp \
-    -d generated_sample_app --with brd4187c
+$SLC generate --sdk-package-path $SISDK,$HUBBLE_SDK -tlcn gcc -o makefile -cp \
+    -p ble_beacon.slcp -d generated_sample_app --with brd4187c
 ```
 
 Build it:
