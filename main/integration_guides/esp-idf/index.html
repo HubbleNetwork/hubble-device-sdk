@@ -12,7 +12,7 @@
       <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
       <link rel="stylesheet" type="text/css" href="../../_static/togglebutton.css?v=9c3e77be" />
       <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
-      <link rel="stylesheet" type="text/css" href="../../_static/css/custom.css?v=ae58f23e" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/custom.css?v=13c4ff37" />
 
   
     <link rel="shortcut icon" href="../../_static/hubble.png"/>
@@ -338,6 +338,7 @@
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../../releases/index.html#migration-and-upgrade-guidance">Migration and Upgrade Guidance</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../releases/index.html#release-notes">Release Notes</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../releases/compatibility.html">Compatibility</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../releases/3.2.html">Release 3.2.0</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../releases/3.1.html">Release 3.1.0</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../releases/3.0.html">Release 3.0.0</a></li>
@@ -420,34 +421,8 @@ transmissions.</p></li>
 </ul>
 <section id="supported-devices-and-sdk-version">
 <h2>Supported Devices and SDK Version<a class="headerlink" href="#supported-devices-and-sdk-version" title="Link to this heading"></a></h2>
-<section id="esp-idf-compatibility">
-<h3>ESP-IDF Compatibility<a class="headerlink" href="#esp-idf-compatibility" title="Link to this heading"></a></h3>
-<p>The following ESP-IDF versions have been validated with each Hubble Device
-SDK release. If you require support for a different version,
-<a class="reference external" href="mailto:support&#37;&#52;&#48;hubble&#46;com">contact us</a>.</p>
-<table class="docutils align-default">
-<colgroup>
-<col style="width: 40.0%" />
-<col style="width: 60.0%" />
-</colgroup>
-<thead>
-<tr class="row-odd"><th class="head"><p>Hubble Device SDK</p></th>
-<th class="head"><p>ESP-IDF</p></th>
-</tr>
-</thead>
-<tbody>
-<tr class="row-even"><td><p>latest (main)</p></td>
-<td><p>v6.1</p></td>
-</tr>
-<tr class="row-odd"><td><p>v3.1.0</p></td>
-<td><p>v6.0, v6.1</p></td>
-</tr>
-<tr class="row-even"><td><p>v3.0.0</p></td>
-<td><p>v6.0</p></td>
-</tr>
-</tbody>
-</table>
-</section>
+<p>The ESP-IDF versions validated with each Hubble Device SDK release are listed
+in <a class="reference internal" href="../../releases/compatibility.html#hubble-compatibility-matrix"><span class="std std-ref">Compatibility</span></a>.</p>
 <section id="supported-devices">
 <h3>Supported Devices<a class="headerlink" href="#supported-devices" title="Link to this heading"></a></h3>
 <table class="docutils align-default">
@@ -509,8 +484,9 @@ orbital parameters for pass prediction.</p>
 <section id="install-esp-idf">
 <h3>Install ESP-IDF<a class="headerlink" href="#install-esp-idf" title="Link to this heading"></a></h3>
 <p>Follow the <a class="reference external" href="https://docs.espressif.com/projects/esp-idf/en/latest/esp32c6/get-started/index.html">ESP-IDF Getting Started guide</a> to install a supported ESP-IDF
-version (see <a class="reference internal" href="#esp-idf-compatibility">ESP-IDF Compatibility</a>) and all required dependencies. Once
-installed, source the export script to set up the environment:</p>
+version (see <a class="reference internal" href="../../releases/compatibility.html#hubble-compatibility-matrix"><span class="std std-ref">Compatibility</span></a>) and all required
+dependencies. Once installed, source the export script to set up the
+environment:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>.<span class="w"> </span><span class="nv">$IDF_PATH</span>/export.sh
 </pre></div>
 </div>

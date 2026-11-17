@@ -293,6 +293,7 @@ Detailed release notes for each version:
    :maxdepth: 1
    :glob:
 
+   compatibility.rst
    3.2.rst
    3.1.rst
    3.0.rst

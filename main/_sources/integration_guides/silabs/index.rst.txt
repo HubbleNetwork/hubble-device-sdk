@@ -19,9 +19,9 @@ By the end of this guide you will know how to:
 Supported Devices and SDK Version
 **********************************
 
-The Hubble Device SDK currently supports **Simplicity SDK 2026.6.1**, with
-`Simplicity Studio 6`_ or the command line (SLC CLI). If you require support
-for a different version, `contact us <mailto:support@hubble.com>`_.
+The Hubble Device SDK supports the Simplicity SDK with `Simplicity Studio 6`_
+or the command line (SLC CLI). The Simplicity SDK versions validated with each
+Hubble Device SDK release are listed in :ref:`hubble_compatibility_matrix`.
 
 The following Silicon Labs device families are supported:
 
