@@ -468,6 +468,15 @@ the Multiprotocol Service Layer (MPSL) for BLE and satellite radio coexistence:
    west build -p -b <your_board> <your_app> -S ncs-dual-stack
    west flash
 
+MPSL sets the default gain of the nRF21540 FEM to 10 dB. It must be set to 20 dB
+for satellite transmissions. The ``ncs-dual-stack`` snippet handles this for the
+``nrf21540dk/nrf52840`` target. For other boards using the nRF21540 FEM, set the
+gain to 20 dB with this Kconfig:
+
+.. code-block:: kconfig
+
+   CONFIG_MPSL_FEM_NRF21540_TX_GAIN_DB=20
+
 
 Verifying the Application
 **************************

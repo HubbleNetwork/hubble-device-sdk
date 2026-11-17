@@ -4,3 +4,7 @@
 name: ncs-dual-stack
 append:
   EXTRA_CONF_FILE: ncs-dual-stack.conf
+boards:
+  nrf21540dk/nrf52840:
+    append:
+      EXTRA_CONF_FILE: nrf21540dk_nrf52840.conf
