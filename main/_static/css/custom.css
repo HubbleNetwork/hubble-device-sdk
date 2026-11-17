@@ -130,8 +130,6 @@ hr,
 #search-results .search li:first-child,
 #search-results .search li {
     border: none;
-    margin-left: -60px;
-    margin-right: -60px;
 }
 
 /* JavaScript documentation directives */
@@ -233,9 +231,12 @@ html.writer-html5 .rst-content dl[class]:not(.option-list):not(.field-list):not(
     color: var(--highlight-return-type-color);
 }
 
-footer,
-#search-results .context {
+footer {
     color: var(--footer-color);
+}
+
+#search-results .context {
+    color: var(--body-color);
 }
 
 /* Icon tweaks */
