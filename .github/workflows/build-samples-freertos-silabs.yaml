@@ -39,15 +39,6 @@ jobs:
           echo -n "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=" > master.key
           python3 tools/embed_key_time.py -b master.key -o samples/freertos/silabs/ble-beacon/src/
 
-      - name: Install Hubble SDK extension
-        run: |
-          sdk="$(readlink -f "$SISDK")"
-          mkdir -p "$sdk/extension"
-          ln -s "$GITHUB_WORKSPACE" "$sdk/extension/hubble-device-sdk"
-          slc configuration --sdk "$sdk"
-          slc signature trust --sdk "$sdk"
-          slc signature trust -extpath "$sdk/extension/hubble-device-sdk"
-
       - name: Install Python dependencies
         run: python3 -m pip install pyyaml
 
