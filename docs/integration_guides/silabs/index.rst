@@ -84,8 +84,8 @@ The Hubble Device SDK ships as a Simplicity SDK extension.
          $SLT install simplicity-sdk slc-cli gcc-arm-none-eabi commander
 
       SLC discovers extensions under the Simplicity SDK's ``extension``
-      directory. Set the paths, then link the Hubble Device SDK there and
-      register it as trusted:
+      directory. Set the paths, link the Hubble Device SDK there, select the
+      Simplicity SDK and trust both the SDK and the extension:
 
       .. code-block:: bash
 
@@ -96,6 +96,9 @@ The Hubble Device SDK ships as a Simplicity SDK extension.
 
          mkdir -p $SISDK/extension
          ln -s $HUBBLE_SDK $SISDK/extension/hubble-device-sdk
+
+         $SLC configuration --sdk $SISDK
+         $SLC signature trust --sdk $SISDK
          $SLC signature trust -extpath $SISDK/extension/hubble-device-sdk
 
 .. tip::
