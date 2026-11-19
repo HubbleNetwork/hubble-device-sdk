@@ -31,7 +31,7 @@ with that release. If you need support for a version that is not listed,
    * - latest (main)
      - | 4.5.0
        | 3.7 LTS
-     - 3.4.0
+     - 3.4.2
      - 6.1
      - 9.20.00.81
      - 2026.6.1
