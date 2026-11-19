@@ -35,6 +35,9 @@
 
 #define _SIGN(x)                         ((x > 0) - (x < 0))
 
+/* Longest look-ahead of the search for devices poleward of the ground track */
+#define HUBBLE_POLAR_SEARCH_HORIZON_S    (14U * 24U * 3600U)
+
 struct crossing_info {
 	uint64_t t;
 	double lon;
@@ -464,42 +467,89 @@ static double _longitude_get(double ra, uint64_t t)
 	return _minus_180_to_180(_RAD2DEG(lon_rad));
 }
 
-/* Gets the crossings for a target latitude */
+/* Highest latitude (degrees) reached by the ground track of an orbit */
+static double _track_max_lat_get(const struct hubble_sat_orbital_params *orbit)
+{
+	if (orbit->inclination > (HUBBLE_PI_DEGREES / 2)) {
+		return HUBBLE_PI_DEGREES - orbit->inclination;
+	}
+
+	return orbit->inclination;
+}
+
+/* Limits a latitude to the band covered by the ground track of an orbit */
+static double _track_lat_clamp(const struct hubble_sat_orbital_params *orbit,
+			       double lat)
+{
+	double max_lat = _track_max_lat_get(orbit);
+
+	if (fabs(lat) > max_lat) {
+		return copysign(max_lat, lat);
+	}
+
+	return lat;
+}
+
+/*
+ * Gets the crossings for a target latitude. A latitude beyond the highest
+ * latitude of the ground track is replaced by that latitude: both crossings
+ * then are the apex of the track, where the satellite is closest to the
+ * target latitude.
+ */
 static int _tll_crossings_get(const struct hubble_sat_orbital_params *orbit,
 			      double tll, int orbit_count,
 			      struct crossing_info result[2])
 {
-	double latrad = _DEG2RAD(tll);
+	double latrad;
 	double inclination = _DEG2RAD(orbit->inclination);
 	double lam1, lam2, me0, me1, me2, ra1, ra2, aop, orbit_period, raan;
 	uint64_t anode_time;
 	int64_t dt_anode;
+	bool apex;
 
 	if ((inclination < 0) || (inclination > M_PI)) {
 		return -1;
 	}
 
-	if (fabs(_sin(inclination)) <= fabs(_sin(latrad))) {
+	/* Equatorial orbits have no usable crossing geometry */
+	if (_track_max_lat_get(orbit) < 1e-6) {
 		return -1;
 	}
+
+	apex = fabs(tll) >= _track_max_lat_get(orbit);
+	latrad = _DEG2RAD(_track_lat_clamp(orbit, tll));
 
 	anode_time = _anode_time_get(orbit, orbit_count);
 	dt_anode = (int64_t)anode_time - orbit->t0;
 	raan = orbit->raan0 + (orbit->raandot * dt_anode);
 	aop = orbit->aop0 + (orbit->aopdot * dt_anode);
 	orbit_period = 1.0 / (orbit->n0 + (orbit->ndot * dt_anode));
-	if (latrad >= 0) {
+	if (apex) {
+		/* Argument of latitude pi/2 (north) or 3pi/2 (south). The apex
+		 * lies pi/2 east of the node for prograde orbits and pi/2 west
+		 * of it for retrograde ones, mirrored for the southern apex.
+		 */
+		double ra_off = (orbit->inclination <= (HUBBLE_PI_DEGREES / 2))
+					? HUBBLE_PI_2
+					: -HUBBLE_PI_2;
+
+		if (latrad >= 0) {
+			lam1 = HUBBLE_PI_2;
+			ra1 = raan + ra_off;
+		} else {
+			lam1 = 3 * HUBBLE_PI_2;
+			ra1 = raan - ra_off;
+		}
+		lam2 = lam1;
+		ra2 = ra1;
+	} else if (latrad >= 0) {
 		ra1 = raan + _asin(_tan(latrad) / _tan(inclination));
 		ra2 = raan + M_PI - _asin(_tan(latrad) / _tan(inclination));
-	} else {
-		ra2 = raan + _asin(_tan(latrad) / _tan(inclination));
-		ra1 = raan + M_PI - _asin(_tan(latrad) / _tan(inclination));
-	}
-
-	if (latrad >= 0) {
 		lam1 = _asin(_sin(latrad) / _sin(inclination));
 		lam2 = M_PI - lam1;
 	} else {
+		ra2 = raan + _asin(_tan(latrad) / _tan(inclination));
+		ra1 = raan + M_PI - _asin(_tan(latrad) / _tan(inclination));
 		lam1 = M_PI - _asin(_sin(latrad) / _sin(inclination));
 		lam2 = (3 * M_PI) - lam1;
 	}
@@ -512,7 +562,7 @@ static int _tll_crossings_get(const struct hubble_sat_orbital_params *orbit,
 		return -1;
 	}
 
-	if (lam1 >= lam2) {
+	if (lam1 > lam2) {
 		return -1;
 	}
 
@@ -543,31 +593,51 @@ static double _sat_altitude_get(const struct hubble_sat_orbital_params *orbit,
 	return _pow((_sqrt(earth.mu) / (2 * M_PI * n)), 2.0 / 3.0) - earth.radius;
 }
 
-static double _lon_tolerance_get(double lat, double sat_altitude)
+/* Propagate with the same per-orbit elements used by the latitude crossings. */
+static void _sat_position_get(const struct hubble_sat_orbital_params *orbit,
+			      uint64_t t, struct hubble_sat_device_pos *pos)
 {
-	double A, C, b, B;
+	uint64_t anode_time = _anode_time_get(orbit, _orbit_count_get(orbit, t));
+	int64_t dt_anode = (int64_t)anode_time - (int64_t)orbit->t0;
+	double aop = orbit->aop0 + orbit->aopdot * dt_anode;
+	double n = orbit->n0 + orbit->ndot * dt_anode;
+	double mean = _anomaly_from_theta_mean(orbit->eccentricity, -aop) +
+		      HUBBLE_TWO_PI * n * ((int64_t)t - (int64_t)anode_time);
+	double eccentric = mean;
+	double inclination = _DEG2RAD(orbit->inclination);
+	double theta, u, ra;
 
-	A = _DEG2RAD(_elevation_angle_tolerance + 90.0);
+	for (uint8_t i = 0U; i < 10U; i++) {
+		double delta = (eccentric -
+				orbit->eccentricity * _sin(eccentric) - mean) /
+			       (1.0 - orbit->eccentricity * _cos(eccentric));
 
-	C = _asin(earth.radius * _sin(A) / (earth.radius + sat_altitude));
-	b = earth.radius * _cos(M_PI - _asin((earth.radius + sat_altitude) *
-					     (_sin(C) / earth.radius))) +
-	    ((earth.radius + sat_altitude) * (_cos(C)));
-	B = _asin(b * _sin(C) / earth.radius);
+		eccentric -= delta;
+		if (fabs(delta) < 1e-10) {
+			break;
+		}
+	}
 
-	return _RAD2DEG(_asin((earth.radius * _sin(B)) /
-			      (earth.radius * _cos(_DEG2RAD(lat)))));
+	theta = 2.0 *
+		_atan2(_sqrt(1.0 + orbit->eccentricity) * _sin(eccentric / 2.0),
+		       _sqrt(1.0 - orbit->eccentricity) * _cos(eccentric / 2.0));
+	u = theta + aop;
+	pos->lat = _RAD2DEG(_asin(_sin(inclination) * _sin(u)));
+	ra = orbit->raan0 + orbit->raandot * dt_anode +
+	     _atan2(_cos(inclination) * _sin(u), _cos(u));
+	pos->lon = _longitude_get(ra, t);
 }
 
-static double _elevation_angle_get(double sat_lon, double dev_lat,
+static double _elevation_angle_get(double sat_lat, double sat_lon, double dev_lat,
 				   double dev_lon, double sat_altitude)
 {
 	double lat_rad = _DEG2RAD(dev_lat);
+	double sat_lat_rad = _DEG2RAD(sat_lat);
 	double dlon_rad = _DEG2RAD(sat_lon - dev_lon);
 	double cos_gamma, sin_gamma;
 
-	cos_gamma = (_sin(lat_rad) * _sin(lat_rad)) +
-		    (_cos(lat_rad) * _cos(lat_rad) * _cos(dlon_rad));
+	cos_gamma = (_sin(lat_rad) * _sin(sat_lat_rad)) +
+		    (_cos(lat_rad) * _cos(sat_lat_rad) * _cos(dlon_rad));
 	sin_gamma = _sqrt(fmax(0.0, 1.0 - (cos_gamma * cos_gamma)));
 
 	if (sin_gamma < 1e-10) {
@@ -577,6 +647,139 @@ static double _elevation_angle_get(double sat_lon, double dev_lat,
 	return _RAD2DEG(_atan(
 		(cos_gamma - (earth.radius / (earth.radius + sat_altitude))) /
 		sin_gamma));
+}
+
+/*
+ * Gets the longitude difference between the device and the satellite at
+ * culmination for which the satellite still reaches the minimum elevation
+ * angle. Returns 180 when every longitude qualifies and a negative value when
+ * none does.
+ */
+static double _lon_tolerance_get(const struct hubble_sat_orbital_params *orbit,
+				 double lat, double sat_altitude)
+{
+	double A, C, b, B, ratio, sat_lat;
+
+	A = _DEG2RAD(_elevation_angle_tolerance + 90.0);
+
+	C = _asin(earth.radius * _sin(A) / (earth.radius + sat_altitude));
+	b = earth.radius * _cos(M_PI - _asin((earth.radius + sat_altitude) *
+					     (_sin(C) / earth.radius))) +
+	    ((earth.radius + sat_altitude) * (_cos(C)));
+	B = _asin(b * _sin(C) / earth.radius);
+
+	sat_lat = _track_lat_clamp(orbit, lat);
+	if (sat_lat == lat) {
+		/* The ground track crosses the device latitude */
+		ratio = (earth.radius * _sin(B)) /
+			(earth.radius * _cos(_DEG2RAD(lat)));
+		if (ratio >= 1.0) {
+			return HUBBLE_PI_DEGREES;
+		}
+
+		return _RAD2DEG(_asin(ratio));
+	}
+
+	/* Reject unreachable latitudes, but leave longitude filtering to the
+	 * closest-approach search. A pass can qualify away from the apex even
+	 * when its elevation at the apex is below the threshold. The best case
+	 * is the apex on the device meridian, rated with the same elevation
+	 * model the search uses.
+	 */
+	if (_elevation_angle_get(sat_lat, 0.0, lat, 0.0, sat_altitude) <
+	    _elevation_angle_tolerance) {
+		return -1.0;
+	}
+
+	return HUBBLE_PI_DEGREES;
+}
+
+static double _pass_elevation_get(const struct hubble_sat_orbital_params *orbit,
+				  const struct hubble_sat_device_pos *pos,
+				  uint64_t t, double *lon)
+{
+	struct hubble_sat_device_pos sat_pos;
+
+	_sat_position_get(orbit, t, &sat_pos);
+	*lon = sat_pos.lon;
+	return _elevation_angle_get(sat_pos.lat, sat_pos.lon, pos->lat,
+				    pos->lon, _sat_altitude_get(orbit, t));
+}
+
+/* Search both sides of each apex, including an apex just before t whose
+ * closest approach may still be in the future. The latitude feasibility
+ * check in _lon_tolerance_get() excludes latitudes that can never qualify.
+ * Near that limit only a narrow band of apex longitudes qualifies, so the
+ * search stops after HUBBLE_POLAR_SEARCH_HORIZON_S.
+ */
+static int _polar_pass_get(const struct hubble_sat_orbital_params *orbit,
+			   uint64_t t, const struct hubble_sat_device_pos *pos,
+			   struct hubble_sat_pass_info *pass)
+{
+	uint64_t quarter_period_s = (uint64_t)ceil(0.25 / orbit->n0);
+	uint64_t search_start = t > quarter_period_s ? t - quarter_period_s : 0U;
+	int orbit_count = _orbit_count_get(orbit, search_start);
+	struct crossing_info crossings[2];
+
+	if (orbit_count < 0) {
+		return -1;
+	}
+
+	for (;;) {
+		uint64_t start, end;
+		double lon;
+
+		if (_tll_crossings_get(orbit, pos->lat, orbit_count,
+				       crossings) != 0) {
+			return -1;
+		}
+		if (crossings[0].t > (t + HUBBLE_POLAR_SEARCH_HORIZON_S)) {
+			return -1;
+		}
+		orbit_count++;
+		start = crossings[0].t > quarter_period_s
+				? crossings[0].t - quarter_period_s
+				: 0U;
+		end = crossings[0].t + quarter_period_s;
+		if (end <= t) {
+			continue;
+		}
+
+		/* Elevation has one maximum around the poleward apex. Narrow
+		 * its bracket to seconds, then compare the remaining samples.
+		 */
+		while (end - start > 3U) {
+			uint64_t left = start + (end - start) / 3U;
+			uint64_t right = end - (end - start) / 3U;
+			double left_elevation =
+				_pass_elevation_get(orbit, pos, left, &lon);
+			double right_elevation =
+				_pass_elevation_get(orbit, pos, right, &lon);
+
+			if (left_elevation < right_elevation) {
+				start = left;
+			} else {
+				end = right;
+			}
+		}
+
+		memset(pass, 0, sizeof(*pass));
+		pass->max_elevation_angle = -90.0;
+		for (uint64_t sample = start; sample <= end; sample++) {
+			double elevation =
+				_pass_elevation_get(orbit, pos, sample, &lon);
+
+			if (elevation > pass->max_elevation_angle) {
+				pass->culmination = sample;
+				pass->lon = lon;
+				pass->max_elevation_angle = elevation;
+			}
+		}
+		if ((pass->culmination > t) &&
+		    (pass->max_elevation_angle >= _elevation_angle_tolerance)) {
+			return 0;
+		}
+	}
 }
 
 /*
@@ -744,10 +947,8 @@ static int _next_pass_culmination_get(
 	}
 
 	r1 = _sqrtf(1.0f - z1 * z1);
-	c2 = z1 / cos_a;
-	if (fabsf(c2) > 1.0f) {
-		return -1;
-	}
+	/* Beyond the ground track the start point is the apex (c2 = +-1) */
+	c2 = fmaxf(-1.0f, fminf(1.0f, z1 / cos_a));
 
 	s_omega_cos = (float)_SIGN(omega2 * cos_a);
 	sin_sign = ascending ? -s_omega_cos : s_omega_cos;
@@ -820,10 +1021,8 @@ int hubble_sat_next_pass_get(uint64_t t, const struct hubble_sat_device_pos *pos
 			     struct hubble_sat_pass_info *pass)
 {
 	struct hubble_sat_pass_info next_pass;
-	double lon_tol, alt = 0.0;
+	double lon_tol;
 	uint16_t transmission_period_s;
-	size_t sat_id = 0;
-	bool ascending = false;
 
 	/* Basic sanity check */
 	if ((pos == NULL) || (pass == NULL)) {
@@ -849,17 +1048,33 @@ int hubble_sat_next_pass_get(uint64_t t, const struct hubble_sat_device_pos *pos
 	for (size_t i = 0; i < _satellites_count; i++) {
 		bool pass_ascending;
 		double sat_alt = _sat_altitude_get(&_satellites[i], t);
-		lon_tol = _lon_tolerance_get(pos->lat, sat_alt);
-		int ret = _pass_get(&_satellites[i], t, pos, lon_tol,
-				    &next_pass, &pass_ascending);
+		int ret;
 
-		if (ret == 0) {
-			if (pass->culmination > next_pass.culmination) {
-				*pass = next_pass;
-				alt = sat_alt;
-				ascending = pass_ascending;
-				sat_id = i;
+		lon_tol = _lon_tolerance_get(&_satellites[i], pos->lat, sat_alt);
+		if (lon_tol < 0.0) {
+			continue;
+		}
+
+		if (fabs(pos->lat) >= _track_max_lat_get(&_satellites[i])) {
+			ret = _polar_pass_get(&_satellites[i], t, pos,
+					      &next_pass);
+		} else {
+			ret = _pass_get(&_satellites[i], t, pos, lon_tol,
+					&next_pass, &pass_ascending);
+			if (ret == 0) {
+				/* On failure the crossing itself is the culmination */
+				(void)_next_pass_culmination_get(
+					&_satellites[i], pos, &next_pass,
+					pass_ascending);
+				next_pass.max_elevation_angle =
+					_pass_elevation_get(&_satellites[i], pos,
+							    next_pass.culmination,
+							    &next_pass.lon);
 			}
+		}
+
+		if ((ret == 0) && (pass->culmination > next_pass.culmination)) {
+			*pass = next_pass;
 		}
 	}
 
@@ -881,21 +1096,17 @@ int hubble_sat_next_pass_get(uint64_t t, const struct hubble_sat_device_pos *pos
 
 	transmission_period_s =
 		hubble_internal_sat_transmission_period_get() / 1000U;
-	_next_pass_culmination_get(&_satellites[sat_id], pos, pass, ascending);
 	pass->start = pass->culmination - (transmission_period_s / 2U);
 	pass->duration = transmission_period_s;
-
-	pass->max_elevation_angle =
-		_elevation_angle_get(pass->lon, pos->lat, pos->lon, alt);
 
 	/* Report times in milliseconds, matching the rest of the SDK. */
 	_pass_times_to_ms(pass);
 
 	HUBBLE_LOG_DEBUG("Next pass found: start=%llu culmination=%llu lon=%f "
-			 "ascending=%d max_elevation_angle=%f",
+			 "max_elevation_angle=%f",
 			 (unsigned long long)pass->start,
 			 (unsigned long long)pass->culmination, pass->lon,
-			 (int)ascending, pass->max_elevation_angle);
+			 pass->max_elevation_angle);
 
 	return 0;
 }
@@ -904,7 +1115,7 @@ int hubble_sat_next_pass_region_get(
 	uint64_t t, const struct hubble_sat_device_region *region,
 	struct hubble_sat_pass_info *pass)
 {
-	double lon_tol, lat_mid, alt = 0.0;
+	double lon_tol, lat_mid, alt = 0.0, sat_lat = 0.0;
 	struct crossing_info crossings_min[2], crossings_max[2];
 	int orbit_count;
 	double lat_min, lat_max;
@@ -951,6 +1162,13 @@ int hubble_sat_next_pass_region_get(
 	for (size_t i = 0; i < _satellites_count; i++) {
 		int ret;
 		bool next_ascending;
+		double max_lat = _track_max_lat_get(&_satellites[i]);
+		double next_sat_lat;
+
+		/* The ground track never enters the region */
+		if ((lat_min > max_lat) || (lat_max < -max_lat)) {
+			continue;
+		}
 
 		ret = _pass_get(&_satellites[i], t, &pos, lon_tol, &next_pass,
 				&next_ascending);
@@ -963,6 +1181,8 @@ int hubble_sat_next_pass_region_get(
 		if (orbit_count < 0) {
 			continue;
 		}
+
+		next_sat_lat = _track_lat_clamp(&_satellites[i], pos.lat);
 
 		if ((lat_min * lat_max) < 0) {
 			ret = _tll_crossings_get(&_satellites[i], lat_min,
@@ -996,7 +1216,17 @@ int hubble_sat_next_pass_region_get(
 				continue;
 			}
 
-			if (next_ascending) {
+			if (lat_min <= -max_lat) {
+				/* The track turns inside the region: it enters
+				 * and leaves through lat_max and culminates at
+				 * the apex.
+				 */
+				next_pass.culmination = crossings_min[0].t;
+				next_pass.lon = crossings_min[0].lon;
+				next_sat_lat = -max_lat;
+				next_pass.duration =
+					crossings_max[1].t - crossings_max[0].t;
+			} else if (next_ascending) {
 				next_pass.duration =
 					crossings_max[1].t - crossings_min[1].t;
 			} else {
@@ -1017,7 +1247,17 @@ int hubble_sat_next_pass_region_get(
 				continue;
 			}
 
-			if (next_ascending) {
+			if (lat_max >= max_lat) {
+				/* The track turns inside the region: it enters
+				 * and leaves through lat_min and culminates at
+				 * the apex.
+				 */
+				next_pass.culmination = crossings_max[0].t;
+				next_pass.lon = crossings_max[0].lon;
+				next_sat_lat = max_lat;
+				next_pass.duration =
+					crossings_min[1].t - crossings_min[0].t;
+			} else if (next_ascending) {
 				next_pass.duration =
 					crossings_max[0].t - crossings_min[0].t;
 			} else {
@@ -1030,6 +1270,7 @@ int hubble_sat_next_pass_region_get(
 			*pass = next_pass;
 			alt = _sat_altitude_get(&_satellites[i], t);
 			ascending = next_ascending;
+			sat_lat = next_sat_lat;
 		}
 	}
 
@@ -1041,7 +1282,7 @@ int hubble_sat_next_pass_region_get(
 	}
 
 	pass->max_elevation_angle =
-		_elevation_angle_get(pass->lon, pos.lat, pos.lon, alt);
+		_elevation_angle_get(sat_lat, pass->lon, pos.lat, pos.lon, alt);
 
 	transmission_period_s =
 		hubble_internal_sat_transmission_period_get() / 1000U;
