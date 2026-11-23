@@ -107,6 +107,12 @@ static const struct test_result results[] = {
 	{{0.0, 180.0}, 1711612941, 1711632584},
 	{{0.0, 180.0}, 1711792550, 1711894486},
 	{{0.0, 180.0}, 1711310392, 1711419008},
+	/* Poleward of the ground track (max latitude 82.5392) */
+	{{83.0, 15.0}, 1711296587, 1711298074},
+	{{86.0, 15.0}, 1711296587, 1711298048},
+	{{89.0, 15.0}, 1711296587, 1711298022},
+	{{-83.0, 15.0}, 1711296587, 1711329442},
+	{{-86.0, 15.0}, 1711296587, 1711335080},
 };
 
 static const struct hubble_sat_orbital_params orbit = {
@@ -139,7 +145,35 @@ ZTEST(satellite_pass_prediction_test, test_satellite_pass_prediction_calculation
 		zassert_within(next_pass.culmination,
 			       results[count].culmination_time * MSEC_PER_SEC,
 			       PASS_PREDICTION_DELTA * MSEC_PER_SEC);
+		zassert_true(next_pass.max_elevation_angle >= 30.0, NULL);
 	}
+}
+
+ZTEST(satellite_pass_prediction_test, test_satellite_pass_prediction_polar)
+{
+	struct hubble_sat_pass_info next_pass;
+	int ret;
+
+	ret = hubble_sat_satellites_set(&orbit, 1);
+	zassert_equal(ret, 0, NULL);
+
+	/* At the poles the satellite never rises above 30 degrees */
+	ret = hubble_sat_next_pass_get(
+		1711296587ULL * MSEC_PER_SEC,
+		&(struct hubble_sat_device_pos){90.0, 0.0}, &next_pass);
+	zassert_equal(ret, -ENOENT, NULL);
+
+	ret = hubble_sat_next_pass_get(
+		1711296587ULL * MSEC_PER_SEC,
+		&(struct hubble_sat_device_pos){-90.0, 0.0}, &next_pass);
+	zassert_equal(ret, -ENOENT, NULL);
+
+	/* The ground track never enters a region poleward of it */
+	ret = hubble_sat_next_pass_region_get(
+		1711296587ULL * MSEC_PER_SEC,
+		&(struct hubble_sat_device_region){86.0, 4.0, 15.0, 10.0},
+		&next_pass);
+	zassert_equal(ret, -ENOENT, NULL);
 }
 
 ZTEST(satellite_pass_prediction_test, test_satellite_pass_prediction_invalid)
@@ -195,6 +229,9 @@ static const struct test_region_result region_results[] = {
 	{{-45.0, 30.0, -45.0, 50.0}, 1711335912, 1711341426, 484},
 	{{45.0, 30.0, -45.0, 50.0}, 1711296587, 1711298717, 483},
 	{{45.0, 30.0, -45.0, 50.0}, 1711334475, 1711337171, 484},
+	/* The ground track turns inside the region */
+	{{84.0, 4.0, 15.0, 10.0}, 1711296587, 1711565663, 92},
+	{{-84.0, 4.0, 15.0, 10.0}, 1711296587, 1711522949, 91},
 };
 
 ZTEST(satellite_pass_prediction_test,
