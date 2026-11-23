@@ -17,6 +17,7 @@ source:
   - path: src/reed_solomon_encoder.c
   - path: src/utils/bitarray.c
   - path: port/freertos/hubble_sat_freertos.c
+  - path: port/boards/silabs/efr32/radio.c
   - path: port/sisdk/boards/efr32/radio.c
 
 include:
@@ -32,18 +33,20 @@ include:
   - path: port/freertos
     file_list:
       - path: sat_board.h
+  - path: port/boards/silabs/efr32
+    file_list:
+      - path: efr32_radio.h
 
 config_file:
   - path: port/sisdk/hubble_sat_config.h
 
-  # TODO: find a better way to organize common files between ports
-  - path: port/zephyr/boards/silabs/efr32/xg24/radio_settings.radioconf
+  - path: port/boards/silabs/efr32/xg24/radio_settings.radioconf
     file_id: radio_configuration_settings
     directory: rail
     condition:
       - device_generic_family_efr32xg24
 
-  - path: port/zephyr/boards/silabs/efr32/xg26/radio_settings.radioconf
+  - path: port/boards/silabs/efr32/xg26/radio_settings.radioconf
     file_id: radio_configuration_settings
     directory: rail
     condition:
