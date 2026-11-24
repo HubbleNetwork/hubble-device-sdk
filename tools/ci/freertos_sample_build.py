@@ -35,6 +35,9 @@ from pathlib import Path
 
 import yaml
 
+# The repository root, which slc takes as the Hubble Device SDK extension
+HUBBLE_SDK = Path(__file__).resolve().parents[2]
+
 
 @dataclass
 class Build:
@@ -257,9 +260,12 @@ def run_build(build: Build) -> tuple[bool, float, str]:
 
     elif build.platform == "silabs":
         # generate a makefile project with SLC, then build it
+        sisdk = os.path.realpath(os.environ["SISDK"])
         generate_cmd = [
             os.environ.get("SLC", "slc"),
             "generate",
+            "--sdk-package-path",
+            f"{sisdk},{HUBBLE_SDK}",
             "-tlcn",
             "gcc",
             "-o",

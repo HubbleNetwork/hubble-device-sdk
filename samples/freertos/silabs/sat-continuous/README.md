@@ -68,18 +68,6 @@ export COMMANDER=/path/to/commander
 | `SLC` | The `slc` executable, `$($SLT where slc-cli)/slc` |
 | `COMMANDER` | The `commander` executable. On macOS, `$($SLT where commander)/Contents/MacOS/commander` |
 
-### Installing the SDK Extension
-
-The Hubble Device SDK is consumed as a Simplicity SDK extension. SLC discovers
-extensions under the SDK's `extension` directory, so link this repository there
-and register it as trusted:
-
-```sh
-mkdir -p $SISDK/extension
-ln -s $HUBBLE_SDK $SISDK/extension/hubble-device-sdk
-
-$SLC signature trust -extpath $SISDK/extension/hubble-device-sdk
-```
 
 ### Python Dependencies
 
@@ -123,8 +111,8 @@ Generate a Makefile project and build it. Replace `brd4187c` with your
 target board (e.g. `brd4121a`):
 
 ```sh
-$SLC generate --sdk $SISDK -tlcn gcc -o makefile -cp -p sat_continuous.slcp \
-    -d generated_sample_app --with brd4187c \
+$SLC generate --sdk-package-path $SISDK,$HUBBLE_SDK -tlcn gcc -o makefile -cp \
+    -p sat_continuous.slcp -d generated_sample_app --with brd4187c \
     --configuration=HUBBLE_DEVICE_KEY:\"<your-base64-key>\"
 
 cd generated_sample_app
@@ -145,7 +133,7 @@ To use Simplicity Studio instead, generate the sample into your workspace,
 then go to **PROJECTS > Open Project(s)**, then build and flash as usual:
 
 ```sh
-$SLC generate --sdk $SISDK -tlcn gcc -np -p sat_continuous.slcp \
+$SLC generate --sdk-package-path $SISDK,$HUBBLE_SDK -tlcn gcc -np -p sat_continuous.slcp \
     -d /location/to/your/simplicity-studio/workspace/sat-continuous --with brd4187c \
     --configuration=HUBBLE_DEVICE_KEY:\"<your-base64-key>\"
 ```

@@ -39,17 +39,48 @@ jobs:
           echo -n "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=" > master.key
           python3 tools/embed_key_time.py -b master.key -o samples/freertos/silabs/ble-beacon/src/
 
-      - name: Install Hubble SDK extension
-        run: |
-          sdk="$(readlink -f "$SISDK")"
-          mkdir -p "$sdk/extension"
-          ln -s "$GITHUB_WORKSPACE" "$sdk/extension/hubble-device-sdk"
-          slc configuration --sdk "$sdk"
-          slc signature trust --sdk "$sdk"
-          slc signature trust -extpath "$sdk/extension/hubble-device-sdk"
-
       - name: Install Python dependencies
         run: python3 -m pip install pyyaml
 
       - name: Build all SiLabs samples
         run: python3 tools/ci/freertos_sample_build.py --platform silabs samples/freertos/silabs
+
+  # build sat-dual-stack on 1 target per tested environment
+  host-integration:
+    name: Host integration build
+    runs-on: windows-2025
+    defaults:
+      run:
+        shell: bash
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+
+      - uses: oras-project/setup-oras@v1
+
+      # vendor-ci-docker images are Linux containers. For Windows it publishes the tools SLT
+      # installs as an archive, with the same versions as the silabs-freertos-latest image.
+      - name: Install the Simplicity SDK and tools
+        env:
+          TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          echo "$TOKEN" | oras login ghcr.io -u "$GITHUB_ACTOR" --password-stdin
+          oras pull ghcr.io/hubblenetwork/vendor-ci-docker:silabs-freertos-windows-latest \
+            -o "$RUNNER_TEMP"
+          # SLT's tools only work at the path they were installed to, ~/.silabs
+          zstd -d -T0 -q -c "$RUNNER_TEMP/silabs.tar.zst" | tar --force-local -xf - -C "$HOME"
+          # SISDK and SLC
+          cat "$HOME/.silabs/env.txt" >> "$GITHUB_ENV"
+          echo "HUBBLE_SDK=$(cygpath -m "$GITHUB_WORKSPACE")" >> "$GITHUB_ENV"
+          choco install -y --no-progress make
+
+      - name: Build sat-dual-stack
+        working-directory: samples/freertos/silabs/sat-dual-stack
+        run: |
+          set -euxo pipefail
+          "$SLC" generate --sdk-package-path "$SISDK,$HUBBLE_SDK" -tlcn gcc -o makefile -cp \
+            -p sat_dual_stack.slcp -d generated_sample_app --with brd4187c
+          cd generated_sample_app
+          make -f sat_dual_stack.Makefile -j"$(nproc)"
